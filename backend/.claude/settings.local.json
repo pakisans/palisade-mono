@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "WebFetch(*)",
+      "Read(*)",
+      "Write(*)",
+      "Bash(grep -E \"\\\\.\\(ts|js\\)$\")",
+      "Bash(find /Users/nemanjanakomcic/Documents/payload/payload-blank/src/components -type f -name *.tsx -o -name *.ts)",
+      "Bash(find /Users/nemanjanakomcic/Documents/payload/payload-next -maxdepth 3 -type d -not -path */node_modules/* -not -path */.next/*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(grep -r \"bg-white\\\\|bg-zinc-50\\\\|bg-zinc-100\\\\|text-zinc-900\\\\|border-zinc-200\\\\|border-zinc-100\" /Users/nemanjanakomcic/Documents/payload/payload-next/app/ /Users/nemanjanakomcic/Documents/payload/payload-next/components/ --include=*.jsx --include=*.js -l)",
+      "Bash(ls /Users/nemanjanakomcic/Documents/payload/payload-next/.env*)",
+      "WebFetch(domain:www.ogistra-nutrition-shop.com)",
+      "Bash(curl -s \"https://www.ogistra-nutrition-shop.com/82_1-basic-supplements\" -A \"Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\")",
+      "Bash(curl -s \"https://www.ogistra-nutrition-shop.com/82_1-basic-supplements?page=2\" -A \"Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\")",
+      "Bash(python3:*)",
+      "Bash(curl -sk \"https://www.ogistra-nutrition-shop.com/82_1-basic-supplements\" -A \"Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" -H \"Accept: text/html\")",
+      "Bash(curl -sk \"https://www.ogistra-nutrition-shop.com/proteini/1204-3036-pro-whey-908grama-basic-supplements.html\" -A \"Mozilla/5.0\")",
+      "Bash(curl -sk \"https://www.ogistra-nutrition-shop.com/proteini/1204-pro-whey-908grama-basic-supplements.html\" -A \"Mozilla/5.0\")",
+      "WebSearch"
+    ]
+  }
+}

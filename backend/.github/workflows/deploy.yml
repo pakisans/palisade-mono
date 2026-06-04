@@ -1,0 +1,153 @@
+name: Deploy Payload (app1)
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-app1
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Setup SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+
+      - name: Test SSH connection
+        shell: bash
+        run: |
+          ssh -o StrictHostKeyChecking=yes \
+            -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "echo CONNECTED"
+
+      - name: Ensure postgres is running
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          cd /var/www/app
+          docker compose up -d postgres
+          echo "Waiting for postgres to become ready..."
+          until docker compose exec -T postgres pg_isready -U appuser -d appdb; do
+            sleep 2
+          done
+          echo "Postgres is ready."
+          EOF
+
+      - name: Deploy app1 repo
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          mkdir -p /var/www/app/app1
+          cd /var/www/app/app1
+          if [ ! -d .git ]; then
+            rm -rf ./* ./.??* 2>/dev/null || true
+            git clone git@github.com:pakisans/basic-suplements.git .
+          else
+            git fetch origin
+            git reset --hard origin/main
+          fi
+          EOF
+
+      - name: Ensure media directory exists
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "mkdir -p /var/www/app/app1/public/media"
+
+      - name: Write runtime ENV (app1/.env)
+        shell: bash
+        run: |
+          {
+            echo "DATABASE_URL=$(echo '${{ secrets.DATABASE_URL_BUILD }}' | sed 's/127\.0\.0\.1/postgres/')"
+            echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}"
+            echo "PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}"
+            echo "PAYLOAD_PUBLIC_SERVER_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
+            echo "NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}"
+            echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}"
+            echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}"
+            echo "STRIPE_WEBHOOKS_SIGNING_SECRET=${{ secrets.STRIPE_WEBHOOKS_SIGNING_SECRET }}"
+          } | ssh -i ~/.ssh/id_ed25519 \
+              -p ${{ secrets.SSH_PORT }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+              "cat > /var/www/app/app1/.env"
+
+      - name: Write shared build ENV (/var/www/app/.env)
+        shell: bash
+        run: |
+          {
+            echo "DATABASE_URL_BUILD=${{ secrets.DATABASE_URL_BUILD }}"
+            echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}"
+            echo "PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}"
+            echo "PAYLOAD_PUBLIC_SERVER_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
+            echo "NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}"
+            echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}"
+            echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}"
+            echo "STRIPE_WEBHOOKS_SIGNING_SECRET=${{ secrets.STRIPE_WEBHOOKS_SIGNING_SECRET }}"
+            echo "PAYLOAD_URL_BUILD=${{ secrets.PAYLOAD_URL_BUILD }}"
+            echo "NEXT_PUBLIC_PAYLOAD_URL=${{ secrets.NEXT_PUBLIC_PAYLOAD_URL }}"
+            echo "REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}"
+          } | ssh -i ~/.ssh/id_ed25519 \
+              -p ${{ secrets.SSH_PORT }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+              "cat > /var/www/app/.env"
+
+      - name: Rebuild and restart app1
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          cd /var/www/app
+          docker compose up -d --build --no-deps app1
+          EOF
+
+      - name: Run app1 migrations
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          cd /var/www/app
+
+          echo "Waiting for app1 to be running..."
+          for i in $(seq 1 30); do
+            STATUS=$(docker inspect --format='{{.State.Status}}' app1 2>/dev/null || echo "missing")
+            if [ "$STATUS" = "running" ]; then
+              echo "app1 is running."
+              break
+            fi
+            echo "  app1 status: $STATUS (attempt $i/30)..."
+            sleep 5
+          done
+
+          if [ "$STATUS" != "running" ]; then
+            echo "ERROR: app1 did not start. Logs:"
+            docker logs --tail 50 app1
+            exit 1
+          fi
+
+          yes | docker compose exec -T app1 node_modules/.bin/payload migrate
+          EOF
