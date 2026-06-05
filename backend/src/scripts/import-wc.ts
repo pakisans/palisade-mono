@@ -20,12 +20,12 @@ import { getPayload } from 'payload'
 
 type WCRow = {
   id: string
-  type: string         // simple | variable | variation
+  type: string          // simple | variable | variation
   sku: string
   name: string
   published: string
   isFeatured: string
-  visibility: string
+  visibility: string    // visible | hidden | catalog | search
   shortDescription: string
   description: string
   salePrice: string
@@ -33,7 +33,7 @@ type WCRow = {
   categories: string
   tags: string
   images: string
-  parent: string       // "id:292" for variations
+  parent: string        // "id:292" for variations
   brands: string
   inStock: string
   stock: string
@@ -188,6 +188,17 @@ function makeHeading(tag: 'h2' | 'h3' | 'h4', text: string): object {
   }
 }
 
+// Maps WooCommerce visibility values → Payload visibility options
+function mapVisibility(wcVisibility: string): 'catalog' | 'catalogOnly' | 'searchOnly' | 'hidden' {
+  switch (wcVisibility?.toLowerCase()) {
+    case 'visible':  return 'catalog'
+    case 'catalog':  return 'catalogOnly'
+    case 'search':   return 'searchOnly'
+    case 'hidden':   return 'hidden'
+    default:         return 'catalog'
+  }
+}
+
 async function downloadImage(url: string): Promise<File | null> {
   try {
     const res = await fetch(url, {
@@ -233,9 +244,9 @@ async function main() {
   if (!csvPath) { console.error('Usage: pnpm import:wc <csv-path>'); process.exit(1) }
   if (!fs.existsSync(csvPath)) { console.error(`File not found: ${csvPath}`); process.exit(1) }
 
-  const LIMIT        = process.env.IMPORT_LIMIT ? parseInt(process.env.IMPORT_LIMIT) : undefined
-  const SKIP_IMAGES  = process.env.IMPORT_IMAGES === 'false'
-  const CONCURRENCY  = parseInt(process.env.IMPORT_CONCURRENCY ?? '3')
+  const LIMIT         = process.env.IMPORT_LIMIT ? parseInt(process.env.IMPORT_LIMIT) : undefined
+  const SKIP_IMAGES   = process.env.IMPORT_IMAGES === 'false'
+  const CONCURRENCY   = parseInt(process.env.IMPORT_CONCURRENCY ?? '3')
   const SKIP_EXISTING = process.env.IMPORT_SKIP_EXISTING !== 'false'
 
   console.log('🚀 Initializing Payload...')
@@ -245,27 +256,57 @@ async function main() {
   const content = fs.readFileSync(csvPath, 'utf-8')
   const allRows = parseCSV(content)
 
-  const parents     = allRows.filter(r => r.type === 'simple' || r.type === 'variable').filter(r => r.name?.trim())
-  const variations  = allRows.filter(r => r.type === 'variation')
+  const parents    = allRows.filter(r => r.type === 'simple' || r.type === 'variable').filter(r => r.name?.trim())
+  const variations = allRows.filter(r => r.type === 'variation')
 
-  // Map WC parent ID → variation rows
+  // Build SKU → numeric ID map so SKU-based parent refs (e.g. FORTYSET-40I-JA) can be resolved
+  const skuToId = new Map<string, string>()
+  for (const p of parents) {
+    if (p.sku?.trim()) skuToId.set(p.sku.trim(), p.id)
+  }
+
+  // Map WC parent numeric ID → variation rows
+  // Handles both "id:292" format and bare SKU format (e.g. FORTYSET-40I-JA)
   const variationsByParent = new Map<string, WCRow[]>()
   for (const v of variations) {
-    const parentId = v.parent?.replace('id:', '').trim()
-    if (!parentId) continue
+    const raw = v.parent?.trim()
+    if (!raw) continue
+    let parentId: string
+    if (raw.startsWith('id:')) {
+      parentId = raw.replace('id:', '').trim()
+    } else {
+      // SKU-based reference — resolve to numeric ID
+      parentId = skuToId.get(raw) ?? raw
+    }
     if (!variationsByParent.has(parentId)) variationsByParent.set(parentId, [])
     variationsByParent.get(parentId)!.push(v)
   }
 
   let productsToImport = parents
   if (LIMIT) { productsToImport = productsToImport.slice(0, LIMIT); console.log(`⚙️  Limit: ${LIMIT}`) }
-  console.log(`📦 Parents: ${productsToImport.length} (${productsToImport.filter(r => r.type === 'variable').length} variable, ${productsToImport.filter(r => r.type === 'simple').length} simple)`)
-  console.log(`🔀 Variations: ${variations.length}`)
+  const variableParents = productsToImport.filter(r => r.type === 'variable')
+  const simpleParents   = productsToImport.filter(r => r.type === 'simple')
+  const resolvedVarCount = variableParents.reduce((sum, r) => sum + (variationsByParent.get(r.id)?.length ?? 0), 0)
+
+  console.log(`📦 Parents: ${productsToImport.length} (${variableParents.length} variable, ${simpleParents.length} simple)`)
+  console.log(`🔀 Variations in CSV: ${variations.length} | Resolved to parents: ${resolvedVarCount} | Orphaned: ${variations.length - resolvedVarCount}`)
+
+  if (variations.length - resolvedVarCount > 0) {
+    const orphanedRows = variations.filter(v => {
+      const raw = v.parent?.trim() ?? ''
+      const pid = raw.startsWith('id:') ? raw.replace('id:', '').trim() : (skuToId.get(raw) ?? raw)
+      return !variableParents.some(p => p.id === pid)
+    })
+    for (const o of orphanedRows) {
+      console.warn(`  ⚠ Orphan variation ID:${o.id} "${o.name?.slice(0,40)}" → parent "${o.parent}" not found`)
+    }
+  }
 
   // ── Phase 1: Collect metadata ─────────────────────────────────────────────
 
   const categoryPaths = new Set<string>()
   const tagNames      = new Set<string>()
+  const brandNames    = new Set<string>()
 
   for (const row of productsToImport) {
     if (row.categories) {
@@ -280,6 +321,9 @@ async function main() {
     if (row.tags) {
       for (const t of row.tags.split(',')) { const n = t.trim(); if (n) tagNames.add(n) }
     }
+    if (row.brands) {
+      for (const b of row.brands.split(',')) { const n = b.trim(); if (n) brandNames.add(n) }
+    }
   }
 
   // ── Phase 2: Categories ───────────────────────────────────────────────────
@@ -289,11 +333,11 @@ async function main() {
   const sortedPaths = Array.from(categoryPaths).sort((a, b) => a.split('>').length - b.split('>').length)
 
   for (const path of sortedPaths) {
-    const parts    = path.split('>').map(p => p.trim())
-    const title    = parts[parts.length - 1]
+    const parts     = path.split('>').map(p => p.trim())
+    const title     = parts[parts.length - 1]
     const parentPath = parts.length > 1 ? parts.slice(0, -1).join(' > ') : null
-    const parentId = parentPath ? categoryMap.get(parentPath) : undefined
-    const slug     = slugify(title)
+    const parentId  = parentPath ? categoryMap.get(parentPath) : undefined
+    const slug      = slugify(title)
 
     const existing = await payload.find({ collection: 'categories', where: { slug: { equals: slug } }, limit: 1 })
     if (existing.docs.length > 0) { categoryMap.set(path, existing.docs[0].id as number); process.stdout.write('.'); continue }
@@ -324,31 +368,50 @@ async function main() {
   }
   console.log(`\n  ✓ ${tagMap.size} tags`)
 
-  // ── Phase 4: Variant types (global, reused across products) ───────────────
+  // ── Phase 4: Brands ───────────────────────────────────────────────────────
 
-  console.log('\n🎨 Phase 4: Variant types...')
-  const variantTypeMap = new Map<string, number>() // name → payload id
+  console.log('\n🏷️  Phase 4: Brands...')
+  const brandMap = new Map<string, number>()
+
+  for (const name of brandNames) {
+    const slug = slugify(name)
+    const existing = await payload.find({ collection: 'brands', where: { slug: { equals: slug } }, limit: 1 })
+    if (existing.docs.length > 0) { brandMap.set(name, existing.docs[0].id as number); process.stdout.write('.'); continue }
+
+    try {
+      const b = await payload.create({ collection: 'brands', data: { title: name, slug } })
+      brandMap.set(name, b.id as number)
+      process.stdout.write('+')
+    } catch (err) { console.warn(`\n  ⚠ Brand "${name}": ${err}`) }
+  }
+  console.log(`\n  ✓ ${brandMap.size} brands`)
+
+  // ── Phase 5: Variant types ────────────────────────────────────────────────
+  // VariantType schema: { label: string, name: string }
+  // No slug field — deduplicate by label
+
+  console.log('\n🎨 Phase 5: Variant types...')
+  const variantTypeMap = new Map<string, number>() // attr name → payload id
 
   const allAttrNames = new Set<string>()
   for (const row of productsToImport) {
     for (const attr of getAttributes(row)) allAttrNames.add(attr.name)
   }
 
-  for (const name of allAttrNames) {
-    const slug = slugify(name)
-    const existing = await payload.find({ collection: 'variantTypes', where: { slug: { equals: slug } }, limit: 1 })
-    if (existing.docs.length > 0) { variantTypeMap.set(name, existing.docs[0].id as number); process.stdout.write('.'); continue }
+  for (const attrName of allAttrNames) {
+    const existing = await payload.find({ collection: 'variantTypes', where: { label: { equals: attrName } }, limit: 1 })
+    if (existing.docs.length > 0) { variantTypeMap.set(attrName, existing.docs[0].id as number); process.stdout.write('.'); continue }
     try {
-      const vt = await payload.create({ collection: 'variantTypes', data: { label: name, slug } })
-      variantTypeMap.set(name, vt.id as number)
+      const vt = await payload.create({ collection: 'variantTypes', data: { label: attrName, name: slugify(attrName) } })
+      variantTypeMap.set(attrName, vt.id as number)
       process.stdout.write('+')
-    } catch (err) { console.warn(`\n  ⚠ VariantType "${name}": ${err}`) }
+    } catch (err) { console.warn(`\n  ⚠ VariantType "${attrName}": ${err}`) }
   }
   console.log(`\n  ✓ ${variantTypeMap.size} variant types`)
 
-  // ── Phase 5: Products ─────────────────────────────────────────────────────
+  // ── Phase 6: Products ─────────────────────────────────────────────────────
 
-  console.log('\n🛍️  Phase 5: Products...')
+  console.log('\n🛍️  Phase 6: Products...')
   let created = 0, skipped = 0, failed = 0
   const slugCount = new Map<string, number>()
 
@@ -369,6 +432,7 @@ async function main() {
       // ── Images ────────────────────────────────────────────────────────────
 
       const gallery: { image: number }[] = []
+      let firstImageId: number | null = null
 
       if (!SKIP_IMAGES && row.images) {
         const imageUrls = row.images.split(',').map(u => u.trim()).filter(Boolean).slice(0, 8)
@@ -387,6 +451,7 @@ async function main() {
         })
         const ids = await runConcurrent(tasks, CONCURRENCY)
         for (const id of ids) { if (id !== null) gallery.push({ image: id }) }
+        firstImageId = gallery[0]?.image ?? null
       }
 
       // ── Taxonomy ──────────────────────────────────────────────────────────
@@ -407,49 +472,67 @@ async function main() {
         }
       }
 
+      // Brand (singular relationship — take first brand from CSV)
+      const firstBrandName = row.brands?.split(',')[0]?.trim()
+      const brandId = firstBrandName ? brandMap.get(firstBrandName) : undefined
+
       // ── SEO ───────────────────────────────────────────────────────────────
 
       const metaDescription = row.shortDescription
         ? stripHtml(row.shortDescription).slice(0, 160)
-        : ''
+        : stripHtml(row.description).slice(0, 160)
       const metaTitle = productName
 
       // ── Description ───────────────────────────────────────────────────────
 
       const descLexical = row.description ? htmlToLexical(row.description) : makeEmptyLexical()
 
-      // ── Highlights from short description ─────────────────────────────────
+      // ── Highlights from short description (field name is `label`, not `text`) ──
 
-      const highlights: { text: string }[] = []
+      const highlights: { label: string }[] = []
       if (row.shortDescription) {
         const plain = stripHtml(row.shortDescription)
         const sentences = plain.split(/[.\n]/).map(s => s.trim()).filter(s => s.length > 10).slice(0, 3)
-        for (const s of sentences) highlights.push({ text: s })
+        for (const s of sentences) highlights.push({ label: s })
       }
 
-      // ── Price (simple products have it; variable parents don't) ───────────
+      // ── Variable / variation setup ────────────────────────────────────────
 
-      const price     = parsePrice(row.regularPrice)
-      const salePrice = parsePrice(row.salePrice)
-
-      // ── Variable products — variant setup ─────────────────────────────────
-
-      const isVariable  = row.type === 'variable'
+      const isVariable    = row.type === 'variable'
       const rowVariations = isVariable ? (variationsByParent.get(row.id) ?? []) : []
-      const attrs = getAttributes(row)
+      const attrs         = getAttributes(row)
+
+      // ── Price ─────────────────────────────────────────────────────────────
+      // Variable parents have no price in WC — derive from cheapest variation
+
+      let price     = parsePrice(row.regularPrice)
+      let salePrice = parsePrice(row.salePrice)
+
+      if (isVariable && price === 0 && rowVariations.length > 0) {
+        const varPrices = rowVariations.map(v => parsePrice(v.regularPrice)).filter(p => p > 0)
+        if (varPrices.length > 0) price = Math.min(...varPrices)
+        const varSalePrices = rowVariations.map(v => parsePrice(v.salePrice)).filter(p => p > 0)
+        if (varSalePrices.length > 0) salePrice = Math.min(...varSalePrices)
+      }
+
+      // ── Visibility ────────────────────────────────────────────────────────
+
+      const visibility = mapVisibility(row.visibility)
+
+      // ── Variant options ───────────────────────────────────────────────────
+      // VariantOption schema: { label: string, value: string, variantType: number }
+      // No slug field — deduplicate by label + variantType
 
       let variantTypeIds: number[] = []
-      // variantOptionMap: "TypeName|OptionValue" → payload option id
-      const variantOptionMap = new Map<string, number>()
+      const variantOptionMap = new Map<string, number>() // "TypeName|OptionValue" → payload option id
 
       if (isVariable && attrs.length > 0) {
-        // Create variant options for each attribute value on the parent
         for (const attr of attrs) {
           const typeId = variantTypeMap.get(attr.name)
           if (!typeId) continue
-          variantTypeIds.push(typeId)
+          if (!variantTypeIds.includes(typeId)) variantTypeIds.push(typeId)
 
-          // Collect all values: parent + variation-specific
+          // Collect all values from parent row + variation rows
           const allValues = new Set(attr.values)
           for (const vRow of rowVariations) {
             for (let n = 1; n <= 4; n++) {
@@ -460,19 +543,27 @@ async function main() {
             }
           }
 
-          for (const value of allValues) {
-            const optSlug = slugify(`${attr.name}-${value}`)
-            const mapKey  = `${attr.name}|${value}`
+          for (const valueStr of allValues) {
+            const mapKey   = `${attr.name}|${valueStr}`
+            const optValue = slugify(`${attr.name}-${valueStr}`)
 
-            const existing = await payload.find({ collection: 'variantOptions', where: { slug: { equals: optSlug } }, limit: 1 })
+            // Deduplicate by label + variantType (no slug field on variantOptions)
+            const existing = await payload.find({
+              collection: 'variantOptions',
+              where: { and: [{ label: { equals: valueStr } }, { variantType: { equals: typeId } }] },
+              limit: 1,
+            })
             if (existing.docs.length > 0) {
               variantOptionMap.set(mapKey, existing.docs[0].id as number)
               continue
             }
             try {
-              const vo = await payload.create({ collection: 'variantOptions', data: { label: value, slug: optSlug, variantType: typeId } })
+              const vo = await payload.create({
+                collection: 'variantOptions',
+                data: { label: valueStr, value: optValue, variantType: typeId },
+              })
               variantOptionMap.set(mapKey, vo.id as number)
-            } catch (err) { console.warn(`\n  ⚠ VariantOption "${value}": ${err}`) }
+            } catch (err) { console.warn(`\n  ⚠ VariantOption "${valueStr}": ${err}`) }
           }
         }
       }
@@ -493,6 +584,8 @@ async function main() {
           ...(salePrice > 0 ? { salePrice } : {}),
           categories: categoryIds,
           tags: tagIds,
+          ...(brandId ? { brand: brandId } : {}),
+          visibility,
           enableVariants: isVariable,
           ...(isVariable && variantTypeIds.length > 0 ? { variantTypes: variantTypeIds } : {}),
           priceInUSDEnabled: false,
@@ -500,6 +593,7 @@ async function main() {
           meta: {
             title: metaTitle,
             description: metaDescription,
+            ...(firstImageId ? { image: firstImageId } : {}),
           },
         },
       })
@@ -508,7 +602,7 @@ async function main() {
 
       if (isVariable && rowVariations.length > 0) {
         for (const vRow of rowVariations) {
-          const vAttrs = getAttributes(vRow)
+          const vAttrs     = getAttributes(vRow)
           const optionIds: number[] = []
 
           for (const vAttr of vAttrs) {
@@ -517,9 +611,10 @@ async function main() {
             if (optId) optionIds.push(optId)
           }
 
-          const vPrice = parsePrice(vRow.regularPrice)
+          // Build a human-readable title from attr values (e.g. "Zelena RAL6005 / 830mm / 4mm")
+          const vAttrLabel = vAttrs.map(a => a.values[0]).filter(Boolean).join(' / ')
+          const variantTitle = vAttrLabel || vRow.name?.trim() || productName
 
-          // Inventory
           const inStock  = vRow.inStock === '1' || vRow.inStock?.toLowerCase() === 'instock'
           const stockQty = vRow.stock ? parseInt(vRow.stock) : (inStock ? 50 : 0)
 
@@ -527,14 +622,13 @@ async function main() {
             await payload.create({
               collection: 'variants',
               data: {
-                title: vRow.name?.trim() || productName,
+                title: variantTitle,
                 product: created_product.id as number,
                 options: optionIds,
                 inventory: stockQty > 0 ? stockQty : (inStock ? 50 : 0),
                 priceInUSDEnabled: false,
                 priceInUSD: 0,
                 _status: 'published',
-                ...(vPrice > 0 ? {} : {}),
               },
             })
           } catch (err) { console.warn(`\n  ⚠ Variant "${vRow.name}": ${err}`) }

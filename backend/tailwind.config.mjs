@@ -1,4 +1,4 @@
-const plugin = require('tailwindcss/plugin')
+import plugin from 'tailwindcss/plugin'
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -176,7 +176,6 @@ export default {
     hoverOnlyWhenSupported: true,
   },
   plugins: [
-    require('@tailwindcss/typography'),
     plugin(({ matchUtilities, theme }) => {
       matchUtilities(
         {

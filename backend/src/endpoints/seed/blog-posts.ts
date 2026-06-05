@@ -101,7 +101,7 @@ export const createBlogPostsSeed = ({
         ],
         links: [
           { label: 'Zatražite besplatno merenje', url: '/kontakt' },
-          { appearance: 'outline', label: 'Pogledajte naš katalog', url: '/shop' },
+          { appearance: 'outline', label: 'Pogledajte naš katalog', url: '/proizvodi' },
         ],
       }),
     ],
@@ -207,7 +207,7 @@ export const createBlogPostsSeed = ({
         ],
         links: [
           { label: 'Zatražite konsultaciju', url: '/kontakt' },
-          { appearance: 'outline', label: 'Pogledajte kapije', url: '/shop?category=kapije' },
+          { appearance: 'outline', label: 'Pogledajte kapije', url: '/kategorije/kapije' },
         ],
       }),
     ],
@@ -290,7 +290,7 @@ export const createBlogPostsSeed = ({
         ],
         links: [
           { label: 'Kontaktirajte nas', url: '/kontakt' },
-          { appearance: 'outline', label: 'Pogledajte katalog', url: '/shop' },
+          { appearance: 'outline', label: 'Pogledajte katalog', url: '/proizvodi' },
         ],
       }),
     ],

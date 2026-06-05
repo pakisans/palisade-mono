@@ -108,7 +108,7 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
       ],
       links: [
         { label: 'Pošaljite upit', url: '/kontakt' },
-        { appearance: 'outline', label: 'Pogledajte naše proizvode', url: '/shop' },
+        { appearance: 'outline', label: 'Pogledajte naše proizvode', url: '/proizvodi' },
       ],
     }),
   ],

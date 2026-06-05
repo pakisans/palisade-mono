@@ -36,11 +36,18 @@ const nextConfig: NextConfig = {
       '.js': ['.ts', '.tsx', '.js', '.jsx'],
       '.mjs': ['.mts', '.mjs'],
     }
+    webpackConfig.resolve.alias = {
+      ...webpackConfig.resolve.alias,
+      tailwindcss: path.resolve(dirname, 'node_modules/tailwindcss'),
+    }
 
     return webpackConfig
   },
   turbopack: {
     root: path.resolve(dirname),
+    resolveAlias: {
+      tailwindcss: path.resolve(dirname, 'node_modules/tailwindcss'),
+    },
   },
 }
 

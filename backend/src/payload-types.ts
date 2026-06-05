@@ -139,7 +139,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: ('false' | 'none' | 'null') | false | null | 'en' | 'en'[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('sr' | 'en') | ('sr' | 'en')[];
   globals: {
     header: Header;
     footer: Footer;
@@ -148,7 +148,7 @@ export interface Config {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
   };
-  locale: 'en';
+  locale: 'sr' | 'en';
   widgets: {
     collections: CollectionsWidget;
   };
