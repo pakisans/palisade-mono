@@ -1,86 +1,130 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { getCategory, getCategories, getProducts, getMediaURL } from '@/lib/payload'
-import { SITE_NAME, SITE_URL } from '@/lib/constants'
-import ProductGrid from '@/components/products/ProductGrid'
-import Breadcrumbs from '@/components/ui/Breadcrumbs'
-import Pagination from '@/components/ui/Pagination'
-import ScrollReveal from '@/components/ui/ScrollReveal'
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import {
+  getCategory,
+  getCategories,
+  getProducts,
+  getMediaURL,
+} from "@/lib/payload";
+import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import ProductGrid from "@/components/products/ProductGrid";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Pagination from "@/components/ui/Pagination";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+import CategoryNavigator from "@/components/navigation/CategoryNavigator";
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
-const PER_PAGE = 12
+const PER_PAGE = 12;
 
 // ─── Static params ─────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
-  const data = await getCategories().catch(() => null)
-  return (data?.docs ?? []).map(c => ({ slug: c.slug }))
+  const data = await getCategories().catch(() => null);
+  return (data?.docs ?? []).map((c) => ({ slug: c.slug }));
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params
-  const category  = await getCategory(slug).catch(() => null)
-  if (!category) return {}
-  const title       = category.meta?.title       || `${category.title} | ${SITE_NAME}`
-  const description = category.meta?.description || category.description || `Pogledajte sve ${category.title.toLowerCase()} — Palisade d.o.o.`
-  const imgUrl      = getMediaURL(category.image)
+  const { slug } = await params;
+  const category = await getCategory(slug).catch(() => null);
+  if (!category) return {};
+  const title = category.meta?.title || `${category.title} | ${SITE_NAME}`;
+  const description =
+    category.meta?.description ||
+    category.description ||
+    `Pogledajte sve ${category.title.toLowerCase()} — Palisade d.o.o.`;
+  const imgUrl = getMediaURL(category.image);
   return {
     title: { absolute: title },
     description,
     alternates: { canonical: `/kategorije/${slug}` },
-    openGraph: { title, description, url: `${SITE_URL}/kategorije/${slug}`, ...(imgUrl ? { images: [{ url: imgUrl }] } : {}) },
-  }
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/kategorije/${slug}`,
+      ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
+    },
+  };
 }
 
 // ─── Structured data ──────────────────────────────────────────────────────────
 
 function CategorySchema({ category, products }) {
   const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
     name: category.title,
-    description: category.description || '',
+    description: category.description || "",
     url: `${SITE_URL}/kategorije/${category.slug}`,
-    ...(getMediaURL(category.image) ? { image: getMediaURL(category.image) } : {}),
-    hasPart: (products?.docs ?? []).map(p => ({
-      '@type': 'Product',
+    ...(getMediaURL(category.image)
+      ? { image: getMediaURL(category.image) }
+      : {}),
+    hasPart: (products?.docs ?? []).map((p) => ({
+      "@type": "Product",
       name: p.title,
       url: `${SITE_URL}/proizvodi/${p.slug}`,
     })),
-  }
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
 }
 
 // ─── Hero (shared) ────────────────────────────────────────────────────────────
 
 function CategoryHero({ category, breadcrumbs, parent }) {
-  const imgUrl = getMediaURL(category.image)
+  const imgUrl = getMediaURL(category.image);
 
   return (
-    <section className="relative bg-gray-950 overflow-hidden" style={{ minHeight: '340px' }}>
+    <section
+      className="relative bg-gray-950 overflow-hidden"
+      style={{ minHeight: "340px" }}
+    >
       {imgUrl && (
         <>
-          <Image src={imgUrl} alt={category.title} fill className="object-cover object-center opacity-35" priority sizes="100vw" />
+          <Image
+            src={imgUrl}
+            alt={category.title}
+            fill
+            className="object-cover object-center opacity-35"
+            priority
+            sizes="100vw"
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-950/95 via-gray-950/65 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-transparent" />
         </>
       )}
       {!imgUrl && (
-        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(143,198,64,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(143,198,64,0.05) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(143,198,64,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(143,198,64,0.05) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
+          }}
+        />
       )}
 
       {/* Brand left line */}
-      <div className="absolute left-0 inset-y-0 w-1 bg-brand" aria-hidden="true" />
+      <div
+        className="absolute left-0 inset-y-0 w-1 bg-brand"
+        aria-hidden="true"
+      />
 
       <div className="relative z-10 container-site py-14 md:py-20">
         <Breadcrumbs items={breadcrumbs} className="mb-8" />
         <div className="max-w-2xl">
           {parent && (
-            <Link href={`/kategorije/${parent.slug}`} className="inline-flex items-center gap-2 text-brand text-[11px] font-bold uppercase tracking-[0.18em] mb-4 hover:opacity-80 transition-opacity">
+            <Link
+              href={`/kategorije/${parent.slug}`}
+              className="inline-flex items-center gap-2 text-brand text-[11px] font-bold uppercase tracking-[0.18em] mb-4 hover:opacity-80 transition-opacity"
+            >
               <span className="w-5 h-px bg-brand" aria-hidden="true" />
               {parent.title}
             </Link>
@@ -89,35 +133,47 @@ function CategoryHero({ category, breadcrumbs, parent }) {
             {category.title}
           </h1>
           {category.description && (
-            <p className="mt-4 text-base md:text-lg text-gray-300 leading-relaxed max-w-xl">{category.description}</p>
+            <p className="mt-4 text-base md:text-lg text-gray-300 leading-relaxed max-w-xl">
+              {category.description}
+            </p>
           )}
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 // ─── Subcategory showcase (for PARENT categories) ─────────────────────────────
 
 function SubcategoryShowcase({ subcategories }) {
-  if (!subcategories?.length) return null
+  if (!subcategories?.length) return null;
 
   return (
-    <section className="section-y-sm bg-white" aria-labelledby="subcategories-heading">
+    <section
+      className="section-y-sm bg-white"
+      aria-labelledby="subcategories-heading"
+    >
       <div className="container-site">
         <ScrollReveal className="mb-10">
           <div className="flex items-center gap-3 mb-2">
             <span className="w-6 h-px bg-brand" aria-hidden="true" />
-            <span className="text-brand text-[11px] font-bold uppercase tracking-[0.18em]">Podkategorije</span>
+            <span className="text-brand text-[11px] font-bold uppercase tracking-[0.18em]">
+              Podkategorije
+            </span>
           </div>
-          <h2 id="subcategories-heading" className="text-2xl md:text-3xl font-extrabold text-gray-950 tracking-tight mt-2">
+          <h2
+            id="subcategories-heading"
+            className="text-2xl md:text-3xl font-extrabold text-gray-950 tracking-tight mt-2"
+          >
             Izaberite tip
           </h2>
         </ScrollReveal>
 
-        <div className={`grid gap-5 ${subcategories.length <= 2 ? 'grid-cols-1 sm:grid-cols-2' : subcategories.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
+        <div
+          className={`grid gap-5 ${subcategories.length <= 2 ? "grid-cols-1 sm:grid-cols-2" : subcategories.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"}`}
+        >
           {subcategories.map((sub, i) => {
-            const imgUrl = getMediaURL(sub.image)
+            const imgUrl = getMediaURL(sub.image);
             return (
               <ScrollReveal key={sub.id} delay={i * 70}>
                 <Link
@@ -137,11 +193,16 @@ function SubcategoryShowcase({ subcategories }) {
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                        <span className="text-4xl font-extrabold text-gray-200">{sub.title.charAt(0)}</span>
+                        <span className="text-4xl font-extrabold text-gray-200">
+                          {sub.title.charAt(0)}
+                        </span>
                       </div>
                     )}
                     {/* Bottom brand line */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-brand origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-400 ease-spring" aria-hidden="true" />
+                    <div
+                      className="absolute bottom-0 left-0 right-0 h-[3px] bg-brand origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-400 ease-spring"
+                      aria-hidden="true"
+                    />
                   </div>
 
                   {/* Info */}
@@ -151,33 +212,49 @@ function SubcategoryShowcase({ subcategories }) {
                         {sub.title}
                       </h3>
                       {sub.description && (
-                        <p className="text-[13px] text-gray-500 mt-1 line-clamp-2 leading-snug">{sub.description}</p>
+                        <p className="text-[13px] text-gray-500 mt-1 line-clamp-2 leading-snug">
+                          {sub.description}
+                        </p>
                       )}
                     </div>
                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 group-hover:bg-brand group-hover:text-white flex items-center justify-center transition-all duration-200">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        viewBox="0 0 16 16"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3 8h10M9 4l4 4-4 4"
+                        />
                       </svg>
                     </span>
                   </div>
                 </Link>
               </ScrollReveal>
-            )
+            );
           })}
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 // ─── Sibling nav (for CHILD categories) ───────────────────────────────────────
 
 function SiblingNav({ siblings, currentSlug, parentSlug }) {
-  if (!siblings?.length) return null
+  if (!siblings?.length) return null;
   return (
     <div className="sticky top-[var(--header-height)] z-20 bg-white border-b border-gray-100 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)]">
       <div className="container-site">
-        <nav aria-label="Podkategorije" className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-3 -mx-1 px-1">
+        <nav
+          aria-label="Podkategorije"
+          className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-3 -mx-1 px-1"
+        >
           {parentSlug && (
             <Link
               href={`/kategorije/${parentSlug}`}
@@ -186,49 +263,61 @@ function SiblingNav({ siblings, currentSlug, parentSlug }) {
               ← Sve
             </Link>
           )}
-          {siblings.map(sib => {
-            const isActive = sib.slug === currentSlug
+          {siblings.map((sib) => {
+            const isActive = sib.slug === currentSlug;
             return (
               <Link
                 key={sib.id}
                 href={`/kategorije/${sib.slug}`}
-                aria-current={isActive ? 'page' : undefined}
+                aria-current={isActive ? "page" : undefined}
                 className={`flex-shrink-0 inline-flex items-center h-8 px-3.5 rounded-full text-[12px] font-semibold border transition-all duration-150 whitespace-nowrap ${
                   isActive
-                    ? 'bg-brand text-white border-brand shadow-brand-sm'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-brand/40 hover:text-brand'
+                    ? "bg-brand text-white border-brand shadow-brand-sm"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-brand/40 hover:text-brand"
                 }`}
               >
                 {sib.title}
               </Link>
-            )
+            );
           })}
         </nav>
       </div>
     </div>
-  )
+  );
 }
 
 // ─── Products section ─────────────────────────────────────────────────────────
 
 function ProductsSection({ products, category, page, totalPages }) {
-  const totalDocs = products?.totalDocs ?? 0
+  const totalDocs = products?.totalDocs ?? 0;
 
   return (
     <section className="section-y-sm" aria-labelledby="products-heading">
       <div className="container-site">
         <ScrollReveal className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
-            <h2 id="products-heading" className="text-2xl font-extrabold text-gray-950 tracking-tight">
+            <h2
+              id="products-heading"
+              className="text-2xl font-extrabold text-gray-950 tracking-tight"
+            >
               Proizvodi
             </h2>
             {totalDocs > 0 && (
               <p className="text-sm text-gray-400 mt-1">
-                {totalDocs} {totalDocs === 1 ? 'proizvod' : totalDocs < 5 ? 'proizvoda' : 'proizvoda'} u ovoj kategoriji
+                {totalDocs}{" "}
+                {totalDocs === 1
+                  ? "proizvod"
+                  : totalDocs < 5
+                    ? "proizvoda"
+                    : "proizvoda"}{" "}
+                u ovoj kategoriji
               </p>
             )}
           </div>
-          <Link href="/proizvodi" className="text-sm font-semibold text-brand hover:text-brand-700 transition-colors">
+          <Link
+            href="/proizvodi"
+            className="text-sm font-semibold text-brand hover:text-brand-700 transition-colors"
+          >
             Svi proizvodi →
           </Link>
         </ScrollReveal>
@@ -236,25 +325,47 @@ function ProductsSection({ products, category, page, totalPages }) {
         {totalDocs === 0 ? (
           <div className="text-center py-20">
             <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <svg
+                className="w-7 h-7 text-gray-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
               </svg>
             </div>
-            <h3 className="font-bold text-gray-950 mb-2">Nema dostupnih proizvoda</h3>
-            <p className="text-sm text-gray-500 mb-5">Kontaktirajte nas — radimo po individualnoj narudžbini.</p>
-            <Link href="/kontakt" className="inline-flex items-center h-10 px-6 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors">
+            <h3 className="font-bold text-gray-950 mb-2">
+              Nema dostupnih proizvoda
+            </h3>
+            <p className="text-sm text-gray-500 mb-5">
+              Kontaktirajte nas — radimo po individualnoj narudžbini.
+            </p>
+            <Link
+              href="/kontakt"
+              className="inline-flex items-center h-10 px-6 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors"
+            >
               Zatražite ponudu
             </Link>
           </div>
         ) : (
           <>
             <ProductGrid products={products} priority />
-            <Pagination basePath={`/kategorije/${category.slug}`} current={page} total={totalPages} />
+            <Pagination
+              basePath={`/kategorije/${category.slug}`}
+              current={page}
+              total={totalPages}
+            />
           </>
         )}
       </div>
     </section>
-  )
+  );
 }
 
 // ─── CTA strip ────────────────────────────────────────────────────────────────
@@ -265,96 +376,131 @@ function CategoryCTA({ categoryTitle }) {
       <div className="container-site py-12">
         <ScrollReveal className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <p className="font-extrabold text-xl text-gray-950">Ne nalazite pravu opciju?</p>
+            <p className="font-extrabold text-xl text-gray-950">
+              Ne nalazite pravu opciju?
+            </p>
             <p className="text-gray-500 text-sm mt-1">
-              Pravimo {categoryTitle.toLowerCase()} po vašim tačnim merama i zahtevima.
+              Pravimo {categoryTitle.toLowerCase()} po vašim tačnim merama i
+              zahtevima.
             </p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <Link href="/kontakt" className="inline-flex items-center h-11 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-brand-sm">
+            <Link
+              href="/kontakt"
+              className="inline-flex items-center h-11 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-brand-sm"
+            >
               Zatražite ponudu
             </Link>
-            <Link href="/proizvodi" className="inline-flex items-center h-11 px-5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
+            <Link
+              href="/proizvodi"
+              className="inline-flex items-center h-11 px-5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+            >
               Svi proizvodi
             </Link>
           </div>
         </ScrollReveal>
       </div>
     </div>
-  )
+  );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function CategoryPage({ params, searchParams }) {
-  const { slug } = await params
-  const sp        = await searchParams
-  const page      = Math.max(1, parseInt(sp?.stranica || '1'))
+  const { slug } = await params;
+  const sp = await searchParams;
+  const page = Math.max(1, parseInt(sp?.stranica || "1"));
 
   const [category, allCategories, productsData] = await Promise.all([
     getCategory(slug),
     getCategories(),
     getProducts({ category: slug, page, limit: PER_PAGE }),
-  ])
+  ]);
 
-  if (!category) notFound()
+  if (!category) notFound();
 
-  const allDocs = allCategories?.docs ?? []
+  const allDocs = allCategories?.docs ?? [];
 
   // Resolve parent
-  const parent = typeof category.parent === 'object' && category.parent?.id
-    ? allDocs.find(c => c.id === category.parent.id) || category.parent
-    : null
+  const parent =
+    typeof category.parent === "object" && category.parent?.id
+      ? allDocs.find((c) => c.id === category.parent.id) || category.parent
+      : null;
 
-  const isParent = !parent
+  const isParent = !parent;
 
   // Children of THIS category (if parent)
   const children = isParent
-    ? allDocs.filter(c => (typeof c.parent === 'object' ? c.parent?.id : null) === category.id)
-    : []
+    ? allDocs.filter(
+        (c) =>
+          (typeof c.parent === "object" ? c.parent?.id : null) === category.id,
+      )
+    : [];
 
   // Siblings (same parent, if child)
   const siblings = !isParent
-    ? allDocs.filter(c => (typeof c.parent === 'object' ? c.parent?.id : null) === parent?.id)
-    : []
+    ? allDocs.filter(
+        (c) =>
+          (typeof c.parent === "object" ? c.parent?.id : null) === parent?.id,
+      )
+    : [];
 
   // Breadcrumbs
   const breadcrumbs = [
-    { label: 'Naslovna', href: '/' },
-    { label: 'Kategorije', href: '/proizvodi' },
-    ...(parent ? [{ label: parent.title, href: `/kategorije/${parent.slug}` }] : []),
+    { label: "Naslovna", href: "/" },
+    { label: "Kategorije", href: "/proizvodi" },
+    ...(parent
+      ? [{ label: parent.title, href: `/kategorije/${parent.slug}` }]
+      : []),
     { label: category.title },
-  ]
+  ];
 
   return (
     <>
       <CategorySchema category={category} products={productsData} />
 
       {/* Hero */}
-      <CategoryHero category={category} breadcrumbs={breadcrumbs} parent={parent} />
+      <CategoryHero
+        category={category}
+        breadcrumbs={breadcrumbs}
+        parent={parent}
+      />
 
-      {/* PARENT: show subcategory showcase + featured products */}
+      {/* Constant contextual navigation (sticky) — handles sibling/subcategory nav */}
+      <CategoryNavigator categories={allCategories} activeSlug={slug} />
+
+      {/* PARENT: visual subcategory showcase + any products */}
       {isParent ? (
         <>
-          {children.length > 0 && <SubcategoryShowcase subcategories={children} />}
-          {/* Show products if any exist in parent category */}
+          {children.length > 0 && (
+            <SubcategoryShowcase subcategories={children} />
+          )}
           {(productsData?.totalDocs ?? 0) > 0 && (
-            <div className={children.length > 0 ? 'bg-gray-50 border-t border-gray-100' : ''}>
-              <ProductsSection products={productsData} category={category} page={page} totalPages={productsData?.totalPages ?? 1} />
+            <div
+              className={
+                children.length > 0 ? "bg-gray-50 border-t border-gray-100" : ""
+              }
+            >
+              <ProductsSection
+                products={productsData}
+                category={category}
+                page={page}
+                totalPages={productsData?.totalPages ?? 1}
+              />
             </div>
           )}
         </>
       ) : (
-        /* CHILD: sibling nav + products */
-        <>
-          {siblings.length > 1 && (
-            <SiblingNav siblings={siblings} currentSlug={slug} parentSlug={parent?.slug} />
-          )}
-          <ProductsSection products={productsData} category={category} page={page} totalPages={productsData?.totalPages ?? 1} />
-        </>
+        /* CHILD: products (sibling nav handled by CategoryNavigator above) */
+        <ProductsSection
+          products={productsData}
+          category={category}
+          page={page}
+          totalPages={productsData?.totalPages ?? 1}
+        />
       )}
 
       <CategoryCTA categoryTitle={category.title} />
     </>
-  )
+  );
 }

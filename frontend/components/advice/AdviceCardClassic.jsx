@@ -1,0 +1,73 @@
+import Link from "next/link";
+import Image from "next/image";
+import { getMediaURL } from "@/lib/payload";
+
+export default function AdviceCardClassic({ post, priority = false }) {
+  const imgUrl =
+    getMediaURL(post.featuredImage) || getMediaURL(post.meta?.image);
+  const href = `/saveti/${post.slug}`;
+
+  return (
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-card">
+      <Link
+        href={href}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="relative block aspect-[4/3] overflow-hidden bg-gray-100"
+      >
+        {imgUrl ? (
+          <Image
+            src={imgUrl}
+            alt={post.featuredImage?.alt || post.title}
+            fill
+            priority={priority}
+            className="object-cover transition-transform duration-500 ease-spring group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+            <span className="text-5xl font-extrabold text-gray-300">
+              {post.title?.charAt(0)}
+            </span>
+          </div>
+        )}
+      </Link>
+
+      <div className="flex flex-1 flex-col p-5 md:p-6">
+        <h4 className="text-lg font-bold leading-snug tracking-tight text-gray-950">
+          <Link href={href} className="transition-colors hover:text-brand">
+            {post.title}
+          </Link>
+        </h4>
+
+        {post.excerpt && (
+          <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-gray-600">
+            {post.excerpt}
+          </p>
+        )}
+
+        <Link
+          href={href}
+          className="mt-5 inline-flex h-9 w-fit items-center gap-1.5 rounded-lg border border-gray-200 px-4 text-sm font-semibold text-gray-800 transition-colors hover:border-brand hover:text-brand"
+          aria-label={`Više o savetu: ${post.title}`}
+        >
+          Više
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 16 16"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 8h10M9 4l4 4-4 4"
+            />
+          </svg>
+        </Link>
+      </div>
+    </article>
+  );
+}
