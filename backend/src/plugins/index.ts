@@ -14,6 +14,7 @@ import { adminOrPublishedStatus } from '@/access/adminOrPublishedStatus'
 import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
 import { customerOnlyFieldAccess } from '@/access/customerOnlyFieldAccess'
 import { isAdmin } from '@/access/isAdmin'
+import { publicAccess } from '@/access/publicAccess'
 import { isDocumentOwner } from '@/access/isDocumentOwner'
 import { checkRole } from '@/access/utilities'
 import { getCollectionPath } from '@/utilities/getCollectionPath'
@@ -41,9 +42,11 @@ export const plugins: Plugin[] = [
     },
     formSubmissionOverrides: {
       access: {
-        delete: isAdmin,
+        // Svako (anoniman posetilac) sme da pošalje upit; čitanje/izmena/brisanje samo admin.
+        create: publicAccess,
         read: isAdmin,
         update: isAdmin,
+        delete: isAdmin,
       },
       admin: {
         group: 'Sadržaj',
@@ -51,10 +54,12 @@ export const plugins: Plugin[] = [
     },
     formOverrides: {
       access: {
-        delete: isAdmin,
-        read: isAdmin,
-        update: isAdmin,
+        // Javno čitanje: frontend (nelogovan) mora pročitati strukturu forme da bi je iscrtao.
+        // Kreiranje/izmena/brisanje definicije forme ostaje samo za admina.
+        read: publicAccess,
         create: isAdmin,
+        update: isAdmin,
+        delete: isAdmin,
       },
       admin: {
         group: 'Sadržaj',

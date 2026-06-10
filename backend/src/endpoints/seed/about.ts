@@ -6,6 +6,7 @@ import {
   brandStoryBlock,
   contentColumnsBlock,
   ctaBlock,
+  faqBlock,
   heading,
   paragraph,
   quoteBlock,
@@ -101,6 +102,32 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
       role: 'Direktorka škole, Novi Beograd',
       rating: '5',
     }),
+    faqBlock('Najčešća pitanja o saradnji sa Palisade', [
+      {
+        question: 'Da li radite samo u Beogradu?',
+        answer: [
+          'Ne. Beograd je naša baza, ali projekte kapija i ograda izvodimo širom Srbije. Za veće objekte i serijske montaže dogovaramo dinamiku izlaska na teren unapred.',
+        ],
+      },
+      {
+        question: 'Kako kontrolišete kvalitet pre montaže?',
+        answer: [
+          'Svaki element se proverava kroz dimenzije, zavarene spojeve, zaštitu od korozije i završnu plastifikaciju. Tek nakon interne kontrole proizvod se priprema za transport i ugradnju.',
+        ],
+      },
+      {
+        question: 'Da li radite i za firme i za privatne klijente?',
+        answer: [
+          'Da. Radimo dvorišne kapije i ograde za kuće, ali i panelne sisteme, kapije i kompleksna ograđivanja za poslovne, industrijske i javne objekte.',
+        ],
+      },
+      {
+        question: 'Šta treba pripremiti pre prvog razgovora?',
+        answer: [
+          'Dovoljno je da imate približnu lokaciju, vrstu objekta i okvirnu dužinu ograde ili širinu otvora za kapiju. Ako imate fotografije terena, one dodatno ubrzavaju procenu.',
+        ],
+      },
+    ]),
     ctaBlock({
       title: 'Radimo zajedno?',
       body: [

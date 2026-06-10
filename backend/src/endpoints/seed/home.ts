@@ -43,8 +43,8 @@ export const homePageData: (args: HomeArgs) => RequiredDataFromCollectionSlug<'p
         link: {
           type: 'custom',
           appearance: 'outline',
-          label: 'Naši projekti',
-          url: '/blog',
+          label: 'Pogledajte kategorije',
+          url: '/kategorije/kapije',
         },
       },
     ],

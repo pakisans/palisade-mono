@@ -15,6 +15,11 @@ import {
 
 type BlogSeedArgs = {
   heroImage: Media
+  images?: {
+    aluminijum?: Media
+    automatika?: Media
+    ral?: Media
+  }
   categories: {
     saveti: PostCategory
     vodici: PostCategory
@@ -22,16 +27,13 @@ type BlogSeedArgs = {
   }
 }
 
-export const createBlogPostsSeed = ({
-  heroImage,
-  categories,
-}: BlogSeedArgs): any[] => [
+export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedArgs): any[] => [
   {
     title: 'Aluminijumske vs. panelne ograde — koje su bolje za vaše imanje?',
     slug: 'aluminijumske-vs-panelne-ograde',
     excerpt:
       'Poredimo dve najpopularnije vrste ograda u Srbiji: aluminijumske i panelne. Koji materijal je bolji izbor za vaš prostor, budžet i stil?',
-    featuredImage: heroImage,
+    featuredImage: images?.aluminijum || heroImage,
     publishedOn: new Date('2026-04-10T10:00:00.000Z').toISOString(),
     _status: 'published',
     categories: [categories.saveti.id],
@@ -109,7 +111,7 @@ export const createBlogPostsSeed = ({
       title: 'Aluminijumske vs. panelne ograde — koje su bolje? | Palisade',
       description:
         'Detaljna analiza razlika između aluminijumskih i panelnih ograda. Pomažemo vam da izaberete pravo rešenje za vaš prostor i budžet.',
-      image: heroImage,
+      image: images?.aluminijum || heroImage,
     },
   },
 
@@ -118,7 +120,7 @@ export const createBlogPostsSeed = ({
     slug: 'automatizovane-pesacke-kapije-vodic',
     excerpt:
       'Automatska pešačka kapija nije luksuz — to je praktično i bezbedno rešenje za svaki stambeni i poslovni objekat. Saznajte šta treba da znate pre kupovine.',
-    featuredImage: heroImage,
+    featuredImage: images?.automatika || heroImage,
     publishedOn: new Date('2026-04-25T09:00:00.000Z').toISOString(),
     _status: 'published',
     categories: [categories.vodici.id],
@@ -160,7 +162,7 @@ export const createBlogPostsSeed = ({
         {
           question: 'Koja je garancija na motor i sistem?',
           answer: [
-            'Dajemo garanciju od 2 do 5 godina na motor i elektroniku, u zavisnosti od proizvođača. Na kapiiju i ogradu garancija iznosi minimum 10 godina.',
+            'Dajemo garanciju od 2 do 5 godina na motor i elektroniku, u zavisnosti od proizvođača. Na kapiju i ogradu garancija iznosi minimum 10 godina.',
           ],
         },
         {
@@ -215,7 +217,7 @@ export const createBlogPostsSeed = ({
       title: 'Automatizovane pešačke kapije — vodič za kupovinu | Palisade',
       description:
         'Sve što trebate znati pre kupovine automatske pešačke kapije: tipovi motora, sistemi kontrole pristupa, cene i garancije.',
-      image: heroImage,
+      image: images?.automatika || heroImage,
     },
   },
 
@@ -224,7 +226,7 @@ export const createBlogPostsSeed = ({
     slug: 'ral-boje-za-kapije-i-ograde-vodic',
     excerpt:
       'RAL sistem obuhvata više od 200 standardizovanih boja. Kako izabrati pravu boju za kapiju ili ogradu koja će se savršeno uklopiti u vaš objekat?',
-    featuredImage: heroImage,
+    featuredImage: images?.ral || heroImage,
     publishedOn: new Date('2026-05-08T08:30:00.000Z').toISOString(),
     _status: 'published',
     categories: [categories.saveti.id],
@@ -298,7 +300,7 @@ export const createBlogPostsSeed = ({
       title: 'RAL boje za kapije i ograde — vodič za izbor | Palisade',
       description:
         'Kompletni vodič kroz RAL sistem boja za kapije i ograde. Saznajte koje su najpopularnije nijanse i kako odabrati onu koja odgovara vašem objektu.',
-      image: heroImage,
+      image: images?.ral || heroImage,
     },
   },
 ]

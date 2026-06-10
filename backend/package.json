@@ -21,7 +21,12 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "seed:content": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-content.ts",
-    "import:wc": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-wc.ts"
+    "import:wc": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-wc.ts",
+    "seed:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-projects.ts",
+    "scrape:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-projects.ts",
+    "scrape:saveti": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-saveti.ts",
+    "seed:projekti-page": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-projekti-page.ts",
+    "reorder:contact-form": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/reorder-contact-form.ts"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.80.0",

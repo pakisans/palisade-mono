@@ -73,6 +73,18 @@ export const contactPageData: (args: ContactArgs) => RequiredDataFromCollectionS
       { value: '7–30', label: 'Dana rok isporuke' },
       { value: 'Srbija', label: 'Pokrivenost montažom' },
     ]),
+    {
+      blockType: 'formBlock',
+      form: contactForm.id,
+      enableIntro: true,
+      introContent: richText(
+        heading('Pošaljite nam detalje projekta', 'h3'),
+        paragraph(
+          'Što više detalja nam date (vrsta objekta, dimenzije, vrsta kapije/ograde), to brže i preciznije možemo sačiniti ponudu.',
+        ),
+      ),
+    },
+    spacerBlock('sm', true),
     faqBlock('Česta pitanja pre nego što pišete', [
       {
         question: 'Da li je merenje zaista besplatno?',
@@ -99,18 +111,6 @@ export const contactPageData: (args: ContactArgs) => RequiredDataFromCollectionS
         ],
       },
     ]),
-    spacerBlock('sm', true),
-    {
-      blockType: 'formBlock',
-      form: contactForm.id,
-      enableIntro: true,
-      introContent: richText(
-        heading('Pošaljite nam detalje projekta', 'h3'),
-        paragraph(
-          'Što više detalja nam date (vrsta objekta, dimenzije, vrsta kapije/ograde), to brže i preciznije možemo sačiniti ponudu.',
-        ),
-      ),
-    },
   ],
   meta: {
     title: 'Kontakt | Zatražite ponudu — Palisade d.o.o.',
