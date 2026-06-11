@@ -32,6 +32,13 @@ export async function getHeader() {
   });
 }
 
+export async function getClients() {
+  return fetchAPI("globals/clients?depth=1", {
+    revalidate: 86400,
+    tags: ["clients"],
+  });
+}
+
 export async function getFooter() {
   return fetchAPI("globals/footer?depth=2", {
     revalidate: 86400,
@@ -68,6 +75,24 @@ export async function getProduct(slug) {
     `products?where[slug][equals]=${encodeURIComponent(slug)}&where[_status][equals]=published&depth=3&limit=1`,
     { revalidate: 1800, tags: ["products", `product-${slug}`] },
   );
+  return data?.docs?.[0] ?? null;
+}
+
+export async function getProductVariants(productId) {
+  if (!productId) return [];
+  const data = await fetchAPI(
+    `variants?where[product][equals]=${productId}&where[_status][equals]=published&depth=2&limit=300`,
+    { revalidate: 1800, tags: ["variants", `product-variants-${productId}`] },
+  );
+  return data?.docs ?? [];
+}
+
+// The single inquiry form ("Forma za ponudu") used across product/contact pages.
+export async function getInquiryForm() {
+  const data = await fetchAPI(`forms?limit=1&depth=1`, {
+    revalidate: 86400,
+    tags: ["forms"],
+  });
   return data?.docs?.[0] ?? null;
 }
 

@@ -4,6 +4,7 @@ import {
   getPosts,
   getAdvicePosts,
 } from '@/lib/payload';
+import { categoryPath } from '@/lib/routes';
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'https://palisade.rs';
 
@@ -62,8 +63,9 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
+  const catsById = Object.fromEntries((categoriesData?.docs ?? []).map((c) => [c.id, c]));
   const categoryRoutes = (categoriesData?.docs ?? []).map((c) => ({
-    url: `${BASE}/kategorije/${c.slug}`,
+    url: `${BASE}${categoryPath(c, catsById)}`,
     lastModified: new Date(c.updatedAt),
     changeFrequency: 'weekly',
     priority: 0.7,

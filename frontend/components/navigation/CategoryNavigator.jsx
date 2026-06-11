@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { CATEGORY_BASE } from '@/lib/routes'
 
 /**
  * Sticky two-tier category navigation for catalog + category pages.
@@ -85,7 +86,7 @@ export default function CategoryNavigator({ categories, activeSlug = null, stick
           {parents.map((parent) => (
             <Pill
               key={parent.id}
-              href={`/kategorije/${parent.slug}`}
+              href={`${CATEGORY_BASE}/${parent.slug}`}
               label={parent.title}
               active={activeParent?.id === parent.id}
               tone="parent"
@@ -103,7 +104,7 @@ export default function CategoryNavigator({ categories, activeSlug = null, stick
               {activeParent.title}
             </span>
             <Pill
-              href={`/kategorije/${activeParent.slug}`}
+              href={`${CATEGORY_BASE}/${activeParent.slug}`}
               label="Sve"
               active={activeSlug === activeParent.slug}
               tone="child"
@@ -111,7 +112,7 @@ export default function CategoryNavigator({ categories, activeSlug = null, stick
             {branchKids.map((kid) => (
               <Pill
                 key={kid.id}
-                href={`/kategorije/${kid.slug}`}
+                href={`${CATEGORY_BASE}/${activeParent.slug}/${kid.slug}`}
                 label={kid.title}
                 active={activeSlug === kid.slug}
                 tone="child"

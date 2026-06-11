@@ -1,21 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getMediaURL } from '@/lib/payload'
-import { resolveLink, resolveHeroLink } from '@/lib/utils'
-import RichText, { extractText } from '@/components/ui/RichText'
-
-// ─── Animated floating badge ──────────────────────────────────────────────────
-
-function TrustBadge({ children, delay = 0 }) {
-  return (
-    <div
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs text-white/80 font-medium"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  )
-}
+import { resolveHeroLink } from '@/lib/utils'
+import RichText from '@/components/ui/RichText'
 
 // ─── CTA Button from hero link ─────────────────────────────────────────────────
 
@@ -26,7 +13,7 @@ function HeroCTA({ link }) {
     return (
       <Link
         href={href}
-        className="inline-flex items-center gap-2 h-12 px-7 rounded-xl border-2 border-white/30 text-white text-sm font-semibold hover:bg-white/10 hover:border-white/50 transition-all duration-200"
+        className="inline-flex items-center gap-2 h-12 px-7 rounded-xl border-2 border-gray-200 text-gray-800 text-sm font-semibold hover:border-brand/50 hover:text-brand transition-all duration-200"
       >
         {label}
         <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
@@ -48,8 +35,6 @@ function HeroCTA({ link }) {
   )
 }
 
-// ─── Stats strip ──────────────────────────────────────────────────────────────
-
 const HERO_STATS = [
   { value: '700+', label: 'klijenata' },
   { value: '20+',  label: 'godina iskustva' },
@@ -57,144 +42,108 @@ const HERO_STATS = [
   { value: '<24h', label: 'odgovor na upit' },
 ]
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+const TRUST = ['Besplatno merenje', 'Ugradnja po Srbiji', 'Garancija na rad']
+
+// ─── Hero (light, reference-aligned split layout) ──────────────────────────────
 
 export default function Hero({ hero }) {
-  const type    = hero?.type
-  const imgUrl  = getMediaURL(hero?.media)
-  const links   = (hero?.links ?? []).map(resolveHeroLink).filter(Boolean)
+  if (!hero || hero.type === 'none') return null
 
-  // Extract headline text from richText for SEO
-  const headingNodes = hero?.richText?.root?.children?.filter((n) => n.type === 'heading') ?? []
-  const hasContent   = hero?.richText?.root?.children?.length > 0
+  const imgUrl     = getMediaURL(hero?.media)
+  const links      = (hero?.links ?? []).map(resolveHeroLink).filter(Boolean)
+  const hasContent = hero?.richText?.root?.children?.length > 0
 
-  if (type === 'none' || !hero) return null
+  return (
+    <section className="relative bg-white overflow-hidden" aria-label="Uvod">
+      {/* Soft brand wash backdrop */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand/[0.04] to-white" aria-hidden="true" />
+      <div
+        className="absolute inset-0 -z-10 opacity-[0.4]"
+        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(143,198,64,0.12) 1px, transparent 0)', backgroundSize: '32px 32px' }}
+        aria-hidden="true"
+      />
 
-  // ── High Impact Hero ──────────────────────────────────────────────────────
-
-  if (type === 'highImpact') {
-    return (
-      <section
-        className="relative min-h-[92vh] flex flex-col surface-dark overflow-hidden noise-overlay"
-        aria-label="Uvod"
-      >
-        {/* Background image with overlay */}
-        {imgUrl && (
-          <>
-            <Image
-              src={imgUrl}
-              alt="Palisade — kapije i ograde"
-              fill
-              className="object-cover object-center"
-              priority
-              quality={90}
-              sizes="100vw"
-            />
-            {/* Gradient overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-gray-950/70 to-gray-950/30" />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-transparent" />
-          </>
-        )}
-        {!imgUrl && (
-          /* Geometric pattern fallback */
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(143,198,64,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(143,198,64,0.3) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-          </div>
-        )}
-
-        {/* Brand accent line */}
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand" />
-
-        {/* Content */}
-        <div className="relative z-10 container-site flex flex-col justify-center flex-1 py-24 md:py-32">
-          <div className="max-w-2xl xl:max-w-3xl">
-            {/* Eyebrow */}
+      <div className="container-site py-16 md:py-20 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Text side */}
+          <div className="max-w-xl">
             <div className="flex items-center gap-3 mb-6 animate-fade-in">
-              <div className="w-8 h-px bg-brand" />
+              <span className="w-8 h-px bg-brand" aria-hidden="true" />
               <span className="text-brand text-[11px] font-bold uppercase tracking-[0.2em]">
                 Premium kapije i ograde
               </span>
             </div>
 
-            {/* Headline — from CMS richText or fallback */}
             {hasContent ? (
-              <div className="hero-richtext mb-6 animate-fade-up [animation-delay:100ms] opacity-0">
+              <div className="animate-fade-up [animation-delay:100ms] opacity-0">
                 <RichText
                   content={hero.richText}
-                  className="[&_h1]:text-display-lg [&_h1]:text-white [&_h1]:font-extrabold [&_h1]:leading-none [&_h1]:tracking-[-0.04em] [&_h1]:mb-0 [&_h2]:text-display-md [&_h2]:text-white [&_h2]:font-extrabold [&_p]:text-lg [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:mt-4 [&_p]:font-normal"
+                  className="[&_h1]:text-display-sm [&_h1]:md:text-display-md [&_h1]:text-gray-950 [&_h1]:font-extrabold [&_h1]:leading-[1.05] [&_h1]:tracking-tight [&_h1]:mb-0 [&_h2]:text-3xl [&_h2]:md:text-4xl [&_h2]:text-gray-950 [&_h2]:font-extrabold [&_p]:text-lg [&_p]:text-gray-500 [&_p]:leading-relaxed [&_p]:mt-5 [&_p]:font-normal"
                 />
               </div>
             ) : (
-              <h1 className="text-display-lg text-white font-extrabold leading-none mb-4 animate-fade-up [animation-delay:100ms] opacity-0">
-                Kapije i ograde <br />
-                <span className="text-brand">po meri.</span>
+              <h1 className="text-display-sm md:text-display-md text-gray-950 font-extrabold leading-[1.05] tracking-tight animate-fade-up [animation-delay:100ms] opacity-0">
+                Kapije i ograde <span className="text-brand">po meri</span>
               </h1>
             )}
 
-            {/* CTA buttons */}
             {links.length > 0 && (
               <div className="flex flex-wrap items-center gap-3 mt-8 animate-fade-up [animation-delay:250ms] opacity-0">
                 {links.map((link, i) => <HeroCTA key={i} link={link} />)}
               </div>
             )}
 
-            {/* Trust badges */}
-            <div className="flex flex-wrap gap-2 mt-8 animate-fade-up [animation-delay:350ms] opacity-0">
-              <TrustBadge>
-                <span className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />
-                Besplatno merenje
-              </TrustBadge>
-              <TrustBadge>
-                <span className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />
-                Ugradnja po Srbiji
-              </TrustBadge>
-              <TrustBadge>
-                <span className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />
-                Garancija na rad
-              </TrustBadge>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats strip at bottom */}
-        <div className="relative z-10 border-t border-white/10">
-          <div className="container-site">
-            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
-              {HERO_STATS.map((stat, i) => (
-                <div key={i} className="py-6 px-4 md:px-8 text-center first:pl-0 last:pr-0">
-                  <p className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">{stat.value}</p>
-                  <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-medium">{stat.label}</p>
-                </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-8 animate-fade-up [animation-delay:350ms] opacity-0">
+              {TRUST.map((t, i) => (
+                <span key={i} className="inline-flex items-center gap-2 text-sm text-gray-600 font-medium">
+                  <span className="w-4 h-4 rounded-full bg-brand/15 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-2.5 h-2.5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  {t}
+                </span>
               ))}
             </div>
           </div>
-        </div>
-      </section>
-    )
-  }
 
-  // ── Medium / Low Impact ────────────────────────────────────────────────────
-
-  return (
-    <section className="surface-dark py-20 md:py-28 noise-overlay" aria-label="Uvod">
-      <div className="absolute inset-x-0 top-0 h-px bg-white/5" />
-      <div className="container-site relative">
-        <div className="max-w-2xl">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-6 h-px bg-brand" />
-            <span className="text-brand text-[11px] font-bold uppercase tracking-[0.18em]">Palisade d.o.o.</span>
-          </div>
-          {hasContent ? (
-            <RichText
-              content={hero.richText}
-              className="[&_h1]:text-4xl [&_h1]:md:text-5xl [&_h1]:text-white [&_h1]:font-extrabold [&_h1]:tracking-tight [&_p]:text-gray-300 [&_p]:text-lg [&_p]:mt-3"
-            />
-          ) : null}
-          {links.length > 0 && (
-            <div className="flex flex-wrap gap-3 mt-8">
-              {links.map((link, i) => <HeroCTA key={i} link={link} />)}
+          {/* Image side */}
+          <div className="relative animate-fade-up [animation-delay:200ms] opacity-0">
+            <div className="relative aspect-[4/3] lg:aspect-[5/4] rounded-3xl overflow-hidden shadow-card-hover bg-gray-100">
+              {imgUrl ? (
+                <Image
+                  src={imgUrl}
+                  alt="Palisade — kapije i ograde"
+                  fill
+                  priority
+                  quality={90}
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <span className="text-6xl font-extrabold text-gray-300">P</span>
+                </div>
+              )}
+              {/* Brand corner accent */}
+              <div className="absolute top-0 left-0 w-12 h-12" aria-hidden="true">
+                <div className="absolute top-0 left-0 w-full h-1 bg-brand" />
+                <div className="absolute top-0 left-0 w-1 h-full bg-brand" />
+              </div>
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* Stats strip */}
+        <div className="mt-14 lg:mt-16 pt-10 border-t border-gray-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
+            {HERO_STATS.map((stat, i) => (
+              <div key={i} className="px-4 md:px-8 text-center first:pl-0">
+                <p className="text-3xl md:text-4xl font-extrabold text-gray-950 tracking-tight">{stat.value}</p>
+                <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-medium">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

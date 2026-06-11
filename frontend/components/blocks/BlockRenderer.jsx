@@ -9,6 +9,7 @@ import SpacerBlock from './SpacerBlock'
 import MediaBlockComponent from './MediaBlockComponent'
 import VideoBlock from './VideoBlock'
 import FormBlock from './FormBlock'
+import ContactInfoBlock from './ContactInfoBlock'
 
 import ContactCTA from '@/components/sections/ContactCTA'
 import FAQ from '@/components/sections/FAQ'
@@ -24,6 +25,7 @@ const registry = {
   mediaBlock: MediaBlockComponent,
   video:      VideoBlock,
   formBlock:  FormBlock,
+  contactInfo: ContactInfoBlock,
   cta:        ContactCTA,
   faq:        FAQ,
   stats:      Stats,

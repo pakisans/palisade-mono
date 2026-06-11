@@ -13,7 +13,7 @@ function HeroCTA({ link }) {
       href={link.href}
       className={
         isOutline
-          ? 'inline-flex items-center gap-2 h-12 px-7 rounded-xl border border-white/25 text-white text-sm font-semibold hover:bg-white/10 hover:border-white/40 transition-all'
+          ? 'inline-flex items-center gap-2 h-12 px-7 rounded-xl border-2 border-gray-200 text-gray-800 text-sm font-semibold hover:border-brand/50 hover:text-brand transition-all'
           : 'inline-flex items-center gap-2 h-12 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-all shadow-brand-sm hover:shadow-brand'
       }
     >
@@ -50,38 +50,43 @@ export default function PageHero({ hero, title, breadcrumbs }) {
   }
 
   return (
-    <section className="relative bg-gray-950 overflow-hidden noise-overlay" style={{ minHeight: '360px' }}>
-      {/* Background image */}
-      {imgUrl && (
-        <>
-          <Image src={imgUrl} alt={title || ''} fill className="object-cover object-center opacity-35" priority sizes="100vw" />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/95 via-gray-950/70 to-gray-950/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950/70 via-transparent to-transparent" />
-        </>
-      )}
-      {!imgUrl && (
-        <div className="absolute inset-0 opacity-[0.04]" aria-hidden="true" style={{ backgroundImage: 'linear-gradient(rgba(143,198,64,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(143,198,64,0.5) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
-      )}
+    <section className="relative bg-white overflow-hidden border-b border-gray-100">
+      {/* Soft brand wash + dot grid backdrop */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand/[0.04] to-white" aria-hidden="true" />
+      <div
+        className="absolute inset-0 -z-10 opacity-[0.4]"
+        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(143,198,64,0.12) 1px, transparent 0)', backgroundSize: '32px 32px' }}
+        aria-hidden="true"
+      />
 
-      {/* Brand left line */}
-      <div className="absolute left-0 inset-y-0 w-1 bg-brand" aria-hidden="true" />
-
-      <div className="relative z-10 container-site py-16 md:py-24 flex flex-col justify-center" style={{ minHeight: '360px' }}>
+      <div className="container-site py-14 md:py-20">
         {breadcrumbs && <Breadcrumbs items={breadcrumbs} className="mb-8" />}
 
-        <div className="max-w-2xl">
-          {hasRich ? (
-            <RichText
-              content={hero.richText}
-              className="[&_h1]:text-4xl [&_h1]:md:text-5xl [&_h1]:lg:text-6xl [&_h1]:font-extrabold [&_h1]:text-white [&_h1]:tracking-tight [&_h1]:leading-none [&_h1]:mb-0 [&_p]:text-lg [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:mt-4 [&_p]:max-w-xl"
-            />
-          ) : (
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-none">{title}</h1>
-          )}
+        <div className={imgUrl ? 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center' : ''}>
+          <div className="max-w-2xl">
+            {hasRich ? (
+              <RichText
+                content={hero.richText}
+                className="[&_h1]:text-4xl [&_h1]:md:text-5xl [&_h1]:lg:text-6xl [&_h1]:font-extrabold [&_h1]:text-gray-950 [&_h1]:tracking-tight [&_h1]:leading-[1.05] [&_h1]:mb-0 [&_p]:text-lg [&_p]:text-gray-500 [&_p]:leading-relaxed [&_p]:mt-4 [&_p]:max-w-xl"
+              />
+            ) : (
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-950 tracking-tight leading-[1.05]">{title}</h1>
+            )}
 
-          {links.length > 0 && (
-            <div className="flex flex-wrap items-center gap-3 mt-8">
-              {links.map((link, i) => <HeroCTA key={i} link={link} />)}
+            {links.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3 mt-8">
+                {links.map((link, i) => <HeroCTA key={i} link={link} />)}
+              </div>
+            )}
+          </div>
+
+          {imgUrl && (
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-card-hover bg-gray-100">
+              <Image src={imgUrl} alt={title || ''} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 50vw" />
+              <div className="absolute top-0 left-0 w-12 h-12" aria-hidden="true">
+                <div className="absolute top-0 left-0 w-full h-1 bg-brand" />
+                <div className="absolute top-0 left-0 w-1 h-full bg-brand" />
+              </div>
             </div>
           )}
         </div>

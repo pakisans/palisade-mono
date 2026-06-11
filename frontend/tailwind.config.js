@@ -63,8 +63,10 @@ module.exports = {
         'slide-right': 'slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'scale-in':   'scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'line-grow':  'lineGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'marquee':    'marquee 40s linear infinite',
       },
       keyframes: {
+        marquee:   { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-50%)' } },
         fadeUp:    { from: { opacity: '0', transform: 'translateY(32px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
         fadeIn:    { from: { opacity: '0' }, to: { opacity: '1' } },
         slideDown: { from: { opacity: '0', transform: 'translateY(-10px)' }, to: { opacity: '1', transform: 'translateY(0)' } },

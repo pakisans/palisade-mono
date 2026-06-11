@@ -82,21 +82,9 @@ export default async function SavetiPage({ searchParams }) {
     <>
       <AdviceSchema posts={posts} />
 
-      <section className="relative overflow-hidden bg-[#143f43]">
-        <div
-          className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_28%),linear-gradient(143deg,rgba(30,138,138,0.42)_0%,rgba(20,63,67,0.98)_52%,rgba(30,138,138,0.58)_100%)]"
-          aria-hidden="true"
-        />
-        <div className="relative z-10 container-site py-20 md:py-28">
-          <h1 className="text-center text-5xl font-extrabold tracking-tight text-white md:text-6xl">
-            Saveti
-          </h1>
-        </div>
-      </section>
-
       <BlockRenderer blocks={beforeBlocks} />
 
-      <section className="section-y bg-white" aria-labelledby="advice-heading">
+      <section className="bg-white pt-10 pb-16 md:pt-14 md:pb-20" aria-labelledby="advice-heading">
         <div className="container-site">
           <ScrollReveal className="mx-auto mb-10 max-w-3xl text-center md:mb-12">
             <div className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-brand">
@@ -114,13 +102,18 @@ export default async function SavetiPage({ searchParams }) {
               </span>
               Palisada kapije i ograde
             </div>
-            <h2
+            <h1
               id="advice-heading"
               className="text-3xl font-extrabold tracking-tight text-gray-950 md:text-5xl"
             >
               <span className="text-brand">Ograde i kapije </span>
               <span>- saveti i novosti</span>
-            </h2>
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-gray-500">
+              Stručni vodiči, praktični saveti i novosti iz sveta kapija i ograda — kako da
+              izaberete materijal, vrstu ograde i kapije, automatizaciju i opremu, RAL boje,
+              i kako da održavate sve to da traje godinama.
+            </p>
           </ScrollReveal>
 
           {posts.length > 0 ? (

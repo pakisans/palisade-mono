@@ -1,13 +1,14 @@
-import { getPage, getCategories, getFeaturedProducts } from '@/lib/payload'
+import { getPage, getCategories, getProjects, getClients } from '@/lib/payload'
 import { SITE_NAME, SITE_URL } from '@/lib/constants'
 import { extractText } from '@/components/ui/RichText'
 
 import Hero from '@/components/sections/Hero'
-import Stats from '@/components/sections/Stats'
-import Categories from '@/components/sections/Categories'
-import ProcessSteps from '@/components/sections/ProcessSteps'
-import FeaturedProducts from '@/components/sections/FeaturedProducts'
+import ClientLogos from '@/components/sections/ClientLogos'
+import WhyUs from '@/components/sections/WhyUs'
 import BrandStory from '@/components/sections/BrandStory'
+import Services from '@/components/sections/Services'
+import ProjectsPreview from '@/components/sections/ProjectsPreview'
+import Stats from '@/components/sections/Stats'
 import Testimonials from '@/components/sections/Testimonials'
 import FAQ from '@/components/sections/FAQ'
 import ContactCTA from '@/components/sections/ContactCTA'
@@ -111,16 +112,17 @@ function sortBlocks(layout = []) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const [page, categoriesData, featuredProducts] = await Promise.all([
+  const [page, categoriesData, projectsData, clientsData] = await Promise.all([
     getPage('home').catch(() => null),
     getCategories().catch(() => null),
-    getFeaturedProducts(8).catch(() => null),
+    getProjects({ limit: 4 }).catch(() => null),
+    getClients().catch(() => null),
   ])
 
   const blocks = sortBlocks(page?.layout ?? [])
 
-  // Process steps — typically the first content block
-  const processBlock = blocks.contentBlocks[0] ?? null
+  // Client logos from the `clients` global (falls back to text chips inside the component)
+  const clientLogos = clientsData?.logos?.length ? clientsData.logos : null
 
   return (
     <>
@@ -128,31 +130,34 @@ export default async function HomePage() {
       <WebsiteSchema />
       <FAQSchema faqBlock={blocks.faq} />
 
-      {/* Hero */}
+      {/* 1 — Hero (light) */}
       <Hero hero={page?.hero} />
 
-      {/* Stats */}
-      {blocks.stats && <Stats block={blocks.stats} />}
+      {/* 2 — Client logos carousel */}
+      <ClientLogos logos={clientLogos} title={clientsData?.heading || undefined} />
 
-      {/* Product categories */}
-      <Categories categories={categoriesData} />
+      {/* 3 — Why us */}
+      <WhyUs block={blocks.whyUs} />
 
-      {/* Process steps */}
-      <ProcessSteps block={processBlock} />
-
-      {/* Featured products */}
-      <FeaturedProducts products={featuredProducts} />
-
-      {/* Brand story / About */}
+      {/* 4 — Company + CEO video */}
       {blocks.brandStory && <BrandStory block={blocks.brandStory} />}
 
-      {/* Testimonials */}
+      {/* 5 — Services */}
+      <Services categories={categoriesData} />
+
+      {/* 6 — Projects preview */}
+      <ProjectsPreview projects={projectsData} />
+
+      {/* 7 — Stats */}
+      {blocks.stats && <Stats block={blocks.stats} />}
+
+      {/* 8 — Testimonials */}
       {blocks.quotes.length > 0 && <Testimonials quotes={blocks.quotes} />}
 
-      {/* FAQ */}
+      {/* 9 — FAQ */}
       {blocks.faq && <FAQ block={blocks.faq} />}
 
-      {/* CTA */}
+      {/* 10 — CTA */}
       {blocks.cta && <ContactCTA block={blocks.cta} />}
     </>
   )

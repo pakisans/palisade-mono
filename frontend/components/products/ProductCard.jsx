@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getMediaURL } from '@/lib/payload'
 import { formatPrice } from '@/lib/utils'
+import { categoryPath } from '@/lib/routes'
 
 export default function ProductCard({ product, priority = false }) {
   const gallery   = product.gallery ?? []
@@ -65,7 +66,7 @@ export default function ProductCard({ product, priority = false }) {
         {/* Category chip */}
         {category && (
           <Link
-            href={`/kategorije/${category.slug}`}
+            href={categoryPath(category)}
             className="self-start mb-2 inline-flex items-center h-5 px-2 rounded-md bg-gray-100 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:bg-brand/[0.08] hover:text-brand transition-colors"
           >
             {category.title}

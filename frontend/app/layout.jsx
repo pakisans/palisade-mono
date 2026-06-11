@@ -2,7 +2,7 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { getHeader, getFooter } from '@/lib/payload'
+import { getHeader, getFooter, getCategories } from '@/lib/payload'
 import { SITE_NAME, SITE_URL } from '@/lib/constants'
 
 const montserrat = Montserrat({
@@ -51,9 +51,10 @@ function buildOrgSchema(headerData, footerData) {
 }
 
 export default async function RootLayout({ children }) {
-  const [headerData, footerData] = await Promise.all([
+  const [headerData, footerData, categoriesData] = await Promise.all([
     getHeader().catch(() => null),
     getFooter().catch(() => null),
+    getCategories().catch(() => null),
   ])
 
   return (
@@ -65,11 +66,11 @@ export default async function RootLayout({ children }) {
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand focus:text-white focus:rounded-lg focus:font-semibold focus:shadow-brand">
           Preskoči na sadržaj
         </a>
-        <Header data={headerData} />
+        <Header data={headerData} categories={categoriesData} />
         <main id="main-content" tabIndex={-1}>
           {children}
         </main>
-        <Footer data={footerData} headerData={headerData} />
+        <Footer data={footerData} headerData={headerData} categories={categoriesData} />
       </body>
     </html>
   )

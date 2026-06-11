@@ -70,7 +70,7 @@ export default function Testimonials({ quotes }) {
         <ScrollReveal className="text-center max-w-xl mx-auto mb-14">
           <span className="eyebrow justify-center mb-4">Klijenti o nama</span>
           <h2 id="testimonials-heading" className="text-3xl md:text-4xl font-extrabold text-gray-950 tracking-tight mt-4">
-            Šta kažu naši klijenti
+            Utisci klijenata
           </h2>
         </ScrollReveal>
 

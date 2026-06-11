@@ -3,7 +3,63 @@ import Image from 'next/image'
 import { SITE_NAME } from '@/lib/constants'
 import { resolveLink, formatDate } from '@/lib/utils'
 import { getMediaURL } from '@/lib/payload'
+import { CATEGORY_BASE } from '@/lib/routes'
 // Footer uses inline container classes for Tailwind JIT purge safety
+
+// ─── Category grouping (top categories + their children) ───────────────────────
+
+const PARENT_ORDER = ['kapije', 'ograde', 'automatizacija-kapija', 'kontrola-pristupa', 'oprema-i-dodaci', 'visoka-sigurnost']
+const parentIdOf = (c) => (typeof c?.parent === 'object' ? c.parent?.id : c?.parent)
+
+function groupCategories(categories) {
+  const docs = categories?.docs ?? categories ?? []
+  if (!docs.length) return []
+  const parents = docs.filter((c) => !parentIdOf(c))
+  return parents
+    .map((p) => ({ ...p, children: docs.filter((c) => parentIdOf(c) === p.id) }))
+    .sort((a, b) => {
+      const ai = PARENT_ORDER.indexOf(a.slug)
+      const bi = PARENT_ORDER.indexOf(b.slug)
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+    })
+}
+
+// ─── Footer categories block (all top categories + their subcategories) ─────────
+
+function FooterCategories({ groups }) {
+  if (!groups?.length) return null
+  return (
+    <div>
+      <h3 className="text-white font-semibold text-xs uppercase tracking-widest mb-5">Kategorije</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-7">
+        {groups.map((cat) => (
+          <div key={cat.id} className="min-w-0">
+            <Link
+              href={`${CATEGORY_BASE}/${cat.slug}`}
+              className="block text-sm font-bold text-white hover:text-brand transition-colors"
+            >
+              {cat.title}
+            </Link>
+            {cat.children?.length > 0 && (
+              <ul className="mt-2.5 space-y-2" role="list">
+                {cat.children.map((kid) => (
+                  <li key={kid.id}>
+                    <Link
+                      href={`${CATEGORY_BASE}/${cat.slug}/${kid.slug}`}
+                      className="text-[13px] text-slate-400 hover:text-white transition-colors"
+                    >
+                      {kid.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // ─── Social icons ─────────────────────────────────────────────────────────────
 
@@ -237,14 +293,14 @@ function CtaStrip({ headerData }) {
   return (
     <div className="bg-brand">
       <div className="container-site">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-10">
-          <div>
-            <p className="text-2xl font-display font-bold text-white leading-snug">{banner.text}</p>
-          </div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 py-8 md:py-10 text-center md:text-left">
+          <p className="text-xl md:text-2xl font-display font-bold text-white leading-snug max-w-2xl">
+            {banner.text}
+          </p>
           {cta?.href && (
             <Link
               href={cta.href}
-              className="flex-shrink-0 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-brand font-bold text-sm hover:bg-slate-50 transition-colors shadow-lg"
+              className="flex-shrink-0 inline-flex items-center justify-center gap-2 w-full md:w-auto h-12 px-8 rounded-xl bg-white text-brand font-bold text-sm hover:bg-slate-50 transition-colors shadow-lg"
             >
               {cta.label}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
@@ -260,7 +316,7 @@ function CtaStrip({ headerData }) {
 
 // ─── Main Footer ──────────────────────────────────────────────────────────────
 
-export default function Footer({ data, headerData }) {
+export default function Footer({ data, headerData, categories }) {
   const year       = new Date().getFullYear()
   const sections   = data?.sections ?? []
   const navItems   = data?.navItems ?? []
@@ -268,22 +324,30 @@ export default function Footer({ data, headerData }) {
   const siteLogoUrl = getMediaURL(data?.logo)
   const siteName   = headerData?.siteName || SITE_NAME
 
-  // Derive columns count for grid from number of block sections
-  const colCount = Math.min(Math.max(sections.length, 2), 4)
+  const groups = groupCategories(categories)
+  // Brand / contact / social come from CMS; category columns are rendered dynamically
+  // (all top categories + subs), so drop any manual footerColumn category lists.
+  const infoSections = sections.filter((s) => s.blockType !== 'footerColumn')
 
   return (
     <footer role="contentinfo" className="bg-slate-950 text-slate-400">
       <CtaStrip headerData={headerData} />
 
-      <div className="container-site py-14 lg:py-20">
-        {sections.length > 0 ? (
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8"
-            style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
-          >
-            {sections.map((section, i) => (
-              <FooterBlock key={section.id || i} section={section} siteLogoUrl={siteLogoUrl} siteName={siteName} />
-            ))}
+      <div className="container-site py-12 sm:py-14 lg:py-20">
+        {sections.length > 0 || groups.length > 0 ? (
+          <div className="grid gap-10 lg:gap-12 lg:grid-cols-12">
+            {/* Left: brand + contact + social */}
+            <div className="space-y-8 lg:col-span-4">
+              {infoSections.map((section, i) => (
+                <FooterBlock key={section.id || i} section={section} siteLogoUrl={siteLogoUrl} siteName={siteName} />
+              ))}
+            </div>
+            {/* Right: all product categories + subcategories */}
+            {groups.length > 0 && (
+              <div className="lg:col-span-8">
+                <FooterCategories groups={groups} />
+              </div>
+            )}
           </div>
         ) : (
           /* Fallback when no CMS sections: show minimal brand */
@@ -319,7 +383,7 @@ export default function Footer({ data, headerData }) {
       {/* Bottom bar */}
       <div className="border-t border-slate-800">
         <div className="container-site">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-5 text-xs text-slate-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-5 text-xs text-slate-500 text-center sm:text-left">
             <p>
               {bottomBar?.copyright
                 ? bottomBar.copyright.replace('{year}', year)

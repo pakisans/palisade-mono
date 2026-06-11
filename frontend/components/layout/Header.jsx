@@ -8,6 +8,26 @@ import { useScrolled } from '@/hooks/useScrolled'
 import { cn, resolveLink } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
 import { getMediaURL } from '@/lib/payload'
+import { CATEGORY_BASE } from '@/lib/routes'
+
+// ─── Category grouping (top categories + their children) ───────────────────────
+
+const PARENT_ORDER = ['kapije', 'ograde', 'automatizacija-kapija', 'kontrola-pristupa', 'oprema-i-dodaci', 'visoka-sigurnost']
+const parentIdOf = (c) => (typeof c?.parent === 'object' ? c.parent?.id : c?.parent)
+
+function groupCategories(categories) {
+  const docs = categories?.docs ?? categories ?? []
+  if (!docs.length) return []
+  const parents = docs.filter((c) => !parentIdOf(c))
+  const childrenOf = (pid) => docs.filter((c) => parentIdOf(c) === pid)
+  return parents
+    .map((p) => ({ ...p, children: childrenOf(p.id) }))
+    .sort((a, b) => {
+      const ai = PARENT_ORDER.indexOf(a.slug)
+      const bi = PARENT_ORDER.indexOf(b.slug)
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+    })
+}
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -126,9 +146,74 @@ function Dropdown({ label, subItems, parentHref, isOpen, onClose }) {
   )
 }
 
+// ─── Mega menu (all product categories) ────────────────────────────────────────
+
+function MegaMenu({ groups, isOpen, onClose }) {
+  if (!groups?.length) return null
+  return (
+    <div
+      role="menu"
+      aria-label="Kategorije proizvoda"
+      className={cn(
+        'absolute top-[calc(100%+8px)] left-0',
+        'z-50 w-[min(820px,92vw)]',
+        'bg-white rounded-2xl border border-gray-100/80',
+        'shadow-[0_8px_40px_-8px_rgba(0,0,0,0.16),0_2px_8px_-2px_rgba(0,0,0,0.06)]',
+        'overflow-hidden transition-all duration-200 origin-top',
+        isOpen
+          ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+          : 'opacity-0 scale-[0.98] -translate-y-1 pointer-events-none',
+      )}
+    >
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-5 p-6">
+        {groups.map((cat) => (
+          <div key={cat.id} className="min-w-0">
+            <Link
+              href={`${CATEGORY_BASE}/${cat.slug}`}
+              onClick={onClose}
+              className="group flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-gray-950 hover:text-brand transition-colors"
+            >
+              {cat.title}
+              <ArrowRightIcon className="w-3 h-3 text-brand opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+            </Link>
+            <span className="mt-2 block h-px w-8 bg-brand/40" aria-hidden="true" />
+            {cat.children?.length > 0 && (
+              <ul className="mt-3 space-y-1.5" role="list">
+                {cat.children.map((kid) => (
+                  <li key={kid.id}>
+                    <Link
+                      href={`${CATEGORY_BASE}/${cat.slug}/${kid.slug}`}
+                      onClick={onClose}
+                      className="block text-[13px] text-gray-600 hover:text-brand hover:translate-x-0.5 transition-all duration-150"
+                    >
+                      {kid.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between px-6 py-3 bg-gray-50 border-t border-gray-100">
+        <span className="text-xs text-gray-400">Sve kategorije i proizvodi</span>
+        <Link
+          href="/proizvodi"
+          onClick={onClose}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand-700 transition-colors"
+        >
+          Svi proizvodi
+          <ArrowRightIcon className="w-3 h-3" />
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 // ─── Desktop Nav ──────────────────────────────────────────────────────────────
 
-function DesktopNav({ navItems }) {
+function DesktopNav({ navItems, categories }) {
   const pathname = usePathname()
   const [active, setActive] = useState(null)
   const timer = useRef(null)
@@ -205,9 +290,10 @@ function DesktopNav({ navItems }) {
 
 // ─── Mobile Drawer ────────────────────────────────────────────────────────────
 
-function MobileDrawer({ isOpen, onClose, data, ctaLink }) {
+function MobileDrawer({ isOpen, onClose, data, ctaLink, categories }) {
   const pathname  = usePathname()
   const [expanded, setExpanded] = useState(null)
+  const groups = groupCategories(categories)
 
   // Reset expanded on close
   useEffect(() => { if (!isOpen) setExpanded(null) }, [isOpen])
@@ -254,6 +340,76 @@ function MobileDrawer({ isOpen, onClose, data, ctaLink }) {
 
         {/* Nav items */}
         <nav className="flex-1 overflow-y-auto py-3 px-2.5" aria-label="Mobilna navigacija">
+          {/* Categories — always shown as top-level items (independent of nav config) */}
+          {groups.length > 0 && (
+            <>
+              <p className="px-4 pt-1 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                Kategorije
+              </p>
+              {groups.map((cat) => {
+                const hasKids = cat.children?.length > 0
+                const catKey = `cat-${cat.id}`
+                const catOpen = expanded === catKey
+                const catHref = `${CATEGORY_BASE}/${cat.slug}`
+                return (
+                  <div key={cat.id} className="mb-0.5">
+                    <div
+                      className={cn(
+                        'flex items-center rounded-xl transition-colors',
+                        catOpen ? 'bg-brand/[0.08]' : 'hover:bg-gray-100',
+                      )}
+                    >
+                      <Link
+                        href={catHref}
+                        onClick={onClose}
+                        className={cn('flex-1 px-4 py-3 text-sm font-semibold', catOpen ? 'text-brand-700' : 'text-gray-700')}
+                      >
+                        {cat.title}
+                      </Link>
+                      {hasKids && (
+                        <button
+                          type="button"
+                          onClick={() => setExpanded(catOpen ? null : catKey)}
+                          aria-expanded={catOpen}
+                          aria-label={`${cat.title} podkategorije`}
+                          className="flex-shrink-0 w-11 h-11 flex items-center justify-center text-gray-500"
+                        >
+                          <ChevronDown className={cn('w-4 h-4 transition-transform duration-200', catOpen && 'rotate-180')} />
+                        </button>
+                      )}
+                    </div>
+                    {hasKids && (
+                      <div className={cn('overflow-hidden transition-all duration-250 ease-spring', catOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0')}>
+                        <div className="ml-3 pl-3 border-l-2 border-gray-100 py-1 space-y-0.5 mt-0.5 mb-1">
+                          {cat.children.map((kid) => (
+                            <Link
+                              key={kid.id}
+                              href={`${CATEGORY_BASE}/${cat.slug}/${kid.slug}`}
+                              onClick={onClose}
+                              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-brand hover:bg-brand/[0.06] transition-colors"
+                            >
+                              <span className="w-1 h-1 rounded-full bg-brand/40 flex-shrink-0" />
+                              {kid.title}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              <Link
+                href="/proizvodi"
+                onClick={onClose}
+                className="flex items-center gap-1.5 px-4 py-3 mb-1 rounded-xl text-sm font-semibold text-brand hover:bg-brand/[0.06] transition-colors"
+              >
+                Svi proizvodi
+                <ArrowRightIcon className="w-3.5 h-3.5" />
+              </Link>
+              <div className="mx-4 my-2 border-t border-gray-100" />
+            </>
+          )}
+
           {(data?.navItems ?? []).map((rawItem, idx) => {
             const resolved    = resolveLink(rawItem?.link)
             const subItems    = (rawItem?.subItems ?? []).map((s) => resolveLink(s?.link)).filter(s => s.label)
@@ -359,9 +515,9 @@ function MobileDrawer({ isOpen, onClose, data, ctaLink }) {
 function TopBar({ topBar }) {
   if (!topBar?.length) return null
   return (
-    <div className="hidden md:block bg-gray-950 text-gray-500 text-[11px] font-medium tracking-wide">
+    <div className="hidden md:block bg-gray-50 text-gray-500 text-[11px] font-medium tracking-wide border-b border-gray-100">
       <div className="container-site">
-        <div className="flex items-center justify-between h-8 gap-6">
+        <div className="flex items-center justify-end h-8 gap-6">
           <div className="flex items-center gap-5">
             {topBar.map((item, i) => {
               const { href, label, newTab } = resolveLink(item?.link)
@@ -371,7 +527,7 @@ function TopBar({ topBar }) {
                   href={href}
                   target={newTab ? '_blank' : undefined}
                   rel={newTab ? 'noopener noreferrer' : undefined}
-                  className="hover:text-gray-200 transition-colors duration-150"
+                  className="inline-flex items-center gap-1.5 hover:text-gray-900 transition-colors duration-150"
                 >
                   {label}
                 </a>
@@ -414,9 +570,105 @@ function PromoBanner({ banner }) {
   )
 }
 
+// ─── Category bar (all top categories, always visible) ─────────────────────────
+
+function CategoryBar({ categories }) {
+  const groups = groupCategories(categories)
+  const pathname = usePathname()
+  const [active, setActive] = useState(null)
+  const timer = useRef(null)
+  const open = useCallback((id) => { clearTimeout(timer.current); setActive(id) }, [])
+  const close = useCallback(() => { timer.current = setTimeout(() => setActive(null), 160) }, [])
+  const closeNow = useCallback(() => { clearTimeout(timer.current); setActive(null) }, [])
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  if (!groups.length) return null
+
+  return (
+    <div className="hidden lg:block bg-white border-b border-gray-100 shadow-[0_2px_8px_-6px_rgba(15,23,42,0.25)]">
+      <div className="container-site">
+        <nav aria-label="Kategorije proizvoda" className="flex items-center gap-0.5 h-12">
+          {groups.map((cat, idx) => {
+            const hasKids = cat.children?.length > 0
+            const href = `${CATEGORY_BASE}/${cat.slug}`
+            const isActive = pathname === href || pathname.startsWith(`${href}/`)
+            const isOpen = active === idx
+            return (
+              <div
+                key={cat.id}
+                className="relative h-full flex items-center"
+                onMouseEnter={() => hasKids && open(idx)}
+                onMouseLeave={close}
+              >
+                <Link
+                  href={href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 h-full text-[13px] font-semibold transition-colors',
+                    isActive ? 'text-brand' : 'text-gray-700 hover:text-brand',
+                  )}
+                >
+                  {cat.title}
+                  {hasKids && <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', isOpen && 'rotate-180')} />}
+                </Link>
+
+                {hasKids && (
+                  <div
+                    role="menu"
+                    className={cn(
+                      'absolute top-full left-0 z-50 w-60',
+                      'bg-white rounded-2xl border border-gray-100/80',
+                      'shadow-[0_8px_40px_-8px_rgba(0,0,0,0.14),0_2px_8px_-2px_rgba(0,0,0,0.06)]',
+                      'overflow-hidden transition-all duration-200 origin-top',
+                      isOpen
+                        ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                        : 'opacity-0 scale-[0.97] -translate-y-1 pointer-events-none',
+                    )}
+                  >
+                    <ul className="py-1.5" role="list">
+                      {cat.children.map((kid) => (
+                        <li key={kid.id}>
+                          <Link
+                            href={`${CATEGORY_BASE}/${cat.slug}/${kid.slug}`}
+                            role="menuitem"
+                            onClick={closeNow}
+                            className="group flex items-center gap-3 mx-1.5 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand/[0.06] hover:text-gray-950 transition-colors duration-150"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand/40 group-hover:bg-brand flex-shrink-0 transition-colors" />
+                            {kid.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mx-2 mb-1.5 px-4 py-2.5 bg-gray-50 rounded-xl flex items-center justify-between border-t border-gray-100 mt-1">
+                      <span className="text-xs text-gray-400">Sve u kategoriji</span>
+                      <Link href={href} onClick={closeNow} className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand-700 transition-colors">
+                        Pogledaj sve
+                        <ArrowRightIcon className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+          <Link
+            href="/proizvodi"
+            className="ml-auto inline-flex items-center gap-1.5 px-3 h-full text-[13px] font-bold text-brand hover:text-brand-700 transition-colors"
+          >
+            Svi proizvodi
+            <ArrowRightIcon className="w-3.5 h-3.5" />
+          </Link>
+        </nav>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Header ──────────────────────────────────────────────────────────────
 
-export default function Header({ data }) {
+export default function Header({ data, categories }) {
   const scrolled  = useScrolled(12)
   const pathname  = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -453,7 +705,7 @@ export default function Header({ data }) {
         <div className="container-site">
           <div className="flex items-center justify-between h-[var(--header-height)] gap-6">
             <Logo data={data} />
-            <DesktopNav navItems={data?.navItems} />
+            <DesktopNav navItems={data?.navItems} categories={categories} />
 
             {/* Desktop actions */}
             <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
@@ -496,7 +748,10 @@ export default function Header({ data }) {
         </div>
       </div>
 
-      <MobileDrawer isOpen={mobileOpen} onClose={() => setMobileOpen(false)} data={data} ctaLink={ctaLink} />
+      {/* Category bar — all top categories, always visible (desktop) */}
+      <CategoryBar categories={categories} />
+
+      <MobileDrawer isOpen={mobileOpen} onClose={() => setMobileOpen(false)} data={data} ctaLink={ctaLink} categories={categories} />
     </header>
   )
 }

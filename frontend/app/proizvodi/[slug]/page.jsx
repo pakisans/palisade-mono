@@ -5,10 +5,14 @@ import {
   getCategories,
   getProduct,
   getProducts,
+  getProductVariants,
+  getInquiryForm,
   getMediaURL,
 } from "@/lib/payload";
+import ProductInquiry from "@/components/products/ProductInquiry";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
+import { categoryPath } from "@/lib/routes";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductCard from "@/components/products/ProductCard";
@@ -321,6 +325,12 @@ export default async function ProductPage({ params }) {
 
   if (!product) notFound();
 
+  // Variable products: load variants + the inquiry form (shown after selection).
+  const [variants, inquiryForm] = await Promise.all([
+    product.enableVariants ? getProductVariants(product.id).catch(() => []) : Promise.resolve([]),
+    getInquiryForm().catch(() => null),
+  ]);
+
   // Resolve categories for breadcrumbs
   const categories = (product.categories ?? [])
     .map((c) => (typeof c === "object" ? c : null))
@@ -334,10 +344,10 @@ export default async function ProductPage({ params }) {
     { label: "Naslovna", href: "/" },
     { label: "Proizvodi", href: "/proizvodi" },
     ...(parentCat
-      ? [{ label: parentCat.title, href: `/kategorije/${parentCat.slug}` }]
+      ? [{ label: parentCat.title, href: categoryPath(parentCat) }]
       : []),
     ...(primaryCat
-      ? [{ label: primaryCat.title, href: `/kategorije/${primaryCat.slug}` }]
+      ? [{ label: primaryCat.title, href: categoryPath(primaryCat) }]
       : []),
     { label: product.title },
   ];
@@ -382,7 +392,7 @@ export default async function ProductPage({ params }) {
               {categories.map((cat) => (
                 <Link
                   key={cat.id}
-                  href={`/kategorije/${cat.slug}`}
+                  href={categoryPath(cat)}
                   className="inline-flex items-center h-7 px-3 rounded-lg bg-brand/[0.08] text-brand text-[11px] font-bold uppercase tracking-wider hover:bg-brand/15 transition-colors"
                 >
                   {cat.title}
@@ -400,9 +410,6 @@ export default async function ProductPage({ params }) {
               {product.title}
             </h1>
 
-            {/* Price */}
-            <PriceBlock price={product.price} salePrice={product.salePrice} />
-
             {/* Highlights */}
             {product.highlights?.length > 0 && (
               <div>
@@ -413,8 +420,8 @@ export default async function ProductPage({ params }) {
               </div>
             )}
 
-            {/* CTA */}
-            <ProductCTA title={product.title} />
+            {/* Variants + price + inquiry form (form shows only after a variation is selected) */}
+            <ProductInquiry product={product} variants={variants} form={inquiryForm} />
 
             {/* Trust strip */}
             <div className="grid grid-cols-3 gap-3 pt-2">

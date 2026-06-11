@@ -91,7 +91,7 @@ function ResultsHeader({
               <span className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-gray-100 border border-gray-200 text-gray-700 text-[12px] font-semibold">
                 "{search}"
                 <Link
-                  href={activeSlug ? `/kategorije/${activeSlug}` : "/proizvodi"}
+                  href={activeSlug ? `/kategorija/${activeSlug}` : "/proizvodi"}
                   className="text-gray-400 hover:text-gray-700"
                   aria-label="Ukloni pretragu"
                 >

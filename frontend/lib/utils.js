@@ -64,7 +64,7 @@ export function resolveLink(link) {
     const paths = {
       pages:             slug === 'home' ? '/' : `/${slug}`,
       products:          `/proizvodi/${slug}`,
-      categories:        `/kategorije/${slug}`,
+      categories:        `/kategorija/${slug}`,
       posts:             `/blog/${slug}`,
       brands:            `/brendovi/${slug}`,
       'post-categories': `/blog?kategorija=${slug}`,

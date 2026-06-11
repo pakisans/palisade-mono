@@ -112,9 +112,9 @@ const widthCls = {
 
 // ─── Form ─────────────────────────────────────────────────────────────────────
 
-export default function FormClient({ formId, fields, submitLabel, confirmationType, confirmationMessage }) {
+export default function FormClient({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp }) {
   const searchParams = useSearchParams()
-  const prefill      = searchParams.get('proizvod') // pre-fill from product page
+  const prefill      = prefillProp || searchParams.get('proizvod') // pre-fill (prop or ?proizvod=)
 
   const [values, setValues]   = useState({})
   const [errors, setErrors]   = useState({})

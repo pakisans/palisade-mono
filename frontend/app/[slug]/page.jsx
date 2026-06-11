@@ -12,6 +12,8 @@ const RESERVED = new Set([
   "home",
   "proizvodi",
   "kategorije",
+  "kategorija",
+  "projekti",
   "blog",
   "brendovi",
   "saveti",

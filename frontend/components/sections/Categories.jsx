@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { getMediaURL } from '@/lib/payload'
+import { categoryPath } from '@/lib/routes'
 import ScrollReveal from '@/components/ui/ScrollReveal'
 
 const ArrowRight = () => (
@@ -11,7 +12,7 @@ const ArrowRight = () => (
 
 function CategoryCard({ category, large = false }) {
   const imgUrl = getMediaURL(category.media || category.image)
-  const href   = `/kategorije/${category.slug}`
+  const href   = categoryPath(category)
 
   return (
     <Link href={href} className={`category-card group ${large ? 'min-h-[380px] md:min-h-[480px]' : 'min-h-[280px] md:min-h-[320px]'}`} aria-label={`Kategorija: ${category.title}`}>
