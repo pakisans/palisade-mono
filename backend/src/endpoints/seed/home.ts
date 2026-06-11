@@ -44,7 +44,7 @@ export const homePageData: (args: HomeArgs) => RequiredDataFromCollectionSlug<'p
           type: 'custom',
           appearance: 'outline',
           label: 'Pogledajte kategorije',
-          url: '/kategorije/kapije',
+          url: '/kategorija/kapije',
         },
       },
     ],

@@ -188,23 +188,18 @@ export const seed = async ({
     }),
   ])
 
-  const [
-    pesackeKapijeCat,
-    dvokrilneCat,
-    klizneCat,
-    samonosiveCat,
-    panelne3dCat,
-    panelne2dCat,
-    aluminijumskeOgradeCat,
-  ] = await Promise.all([
+  // Subcategories mirror the real palisada.rs taxonomy:
+  //   Kapije → Jednokrilne, Dvokrilne, Klizne, Samonosive
+  //   Ograde → Dekorativne, Panelne
+  await Promise.all([
     payload.create({
       collection: 'categories',
       data: {
-        title: 'Pešačke kapije',
-        slug: 'pesacke-kapije',
+        title: 'Jednokrilne kapije',
+        slug: 'jednokrilne-kapije',
         parent: kapijeCat.id,
         image: mediaByKey.pesacke.id,
-        ...categoryContent('pesacke-kapije', mediaByKey.pesacke),
+        ...categoryContent('jednokrilne-kapije', mediaByKey.pesacke),
       },
     }),
     payload.create({
@@ -240,31 +235,21 @@ export const seed = async ({
     payload.create({
       collection: 'categories',
       data: {
-        title: '3D Panelne ograde',
-        slug: '3d-panelne-ograde',
-        parent: ogradeCat.id,
-        image: mediaByKey.panel3d.id,
-        ...categoryContent('3d-panelne-ograde', mediaByKey.panel3d),
-      },
-    }),
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: '2D Panelne ograde',
-        slug: '2d-panelne-ograde',
+        title: 'Dekorativne ograde',
+        slug: 'dekorativne-ograde',
         parent: ogradeCat.id,
         image: mediaByKey.panel2d.id,
-        ...categoryContent('2d-panelne-ograde', mediaByKey.panel2d),
+        ...categoryContent('dekorativne-ograde', mediaByKey.panel2d),
       },
     }),
     payload.create({
       collection: 'categories',
       data: {
-        title: 'Aluminijumske ograde',
-        slug: 'aluminijumske-ograde',
+        title: 'Panelne ograde',
+        slug: 'panelne-ograde',
         parent: ogradeCat.id,
-        image: mediaByKey.aluminijumske.id,
-        ...categoryContent('aluminijumske-ograde', mediaByKey.aluminijumske),
+        image: mediaByKey.panel3d.id,
+        ...categoryContent('panelne-ograde', mediaByKey.panel3d),
       },
     }),
   ])
@@ -399,93 +384,14 @@ export const seed = async ({
         },
         { link: { type: 'custom', label: 'Pon–Pet: 08:00–16:00', url: '/kontakt', newTab: false } },
       ],
+      // "Proizvodi" renders a mega-menu (all top categories) in the header — code-driven.
       navItems: [
-        {
-          link: { type: 'custom', label: 'Naslovna', url: '/', newTab: false },
-          subItems: [],
-        },
-        {
-          link: { type: 'custom', label: 'Kapije', url: '/kategorije/kapije', newTab: false },
-          subItems: [
-            {
-              link: {
-                type: 'custom',
-                label: 'Pešačke kapije',
-                url: '/kategorije/pesacke-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Dvokrilne kapije',
-                url: '/kategorije/dvokrilne-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Klizne kapije',
-                url: '/kategorije/klizne-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Samonosive kapije',
-                url: '/kategorije/samonosive-kapije',
-                newTab: false,
-              },
-            },
-          ],
-        },
-        {
-          link: { type: 'custom', label: 'Ograde', url: '/kategorije/ograde', newTab: false },
-          subItems: [
-            {
-              link: {
-                type: 'custom',
-                label: '3D Panelne ograde',
-                url: '/kategorije/3d-panelne-ograde',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: '2D Panelne ograde',
-                url: '/kategorije/2d-panelne-ograde',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Aluminijumske ograde',
-                url: '/kategorije/aluminijumske-ograde',
-                newTab: false,
-              },
-            },
-          ],
-        },
-        {
-          link: { type: 'custom', label: 'Saveti', url: '/saveti', newTab: false },
-          subItems: [],
-        },
-        {
-          link: { type: 'custom', label: 'Projekti', url: '/projekti', newTab: false },
-          subItems: [],
-        },
-        {
-          link: { type: 'custom', label: 'O nama', url: '/o-nama', newTab: false },
-          subItems: [],
-        },
-        {
-          link: { type: 'custom', label: 'Kontakt', url: '/kontakt', newTab: false },
-          subItems: [],
-        },
+        { link: { type: 'custom', label: 'Naslovna', url: '/', newTab: false }, subItems: [] },
+        { link: { type: 'custom', label: 'Proizvodi', url: '/proizvodi', newTab: false }, subItems: [] },
+        { link: { type: 'custom', label: 'O nama', url: '/o-nama', newTab: false }, subItems: [] },
+        { link: { type: 'custom', label: 'Saveti', url: '/saveti', newTab: false }, subItems: [] },
+        { link: { type: 'custom', label: 'Projekti', url: '/projekti', newTab: false }, subItems: [] },
+        { link: { type: 'custom', label: 'Kontakt', url: '/kontakt', newTab: false }, subItems: [] },
       ],
       promoBanner: {
         enabled: true,
@@ -516,92 +422,8 @@ export const seed = async ({
           description:
             'Palisade d.o.o. je jedna od najvećih kompanija za kapije i ograde u Srbiji. Projektujemo, izrađujemo i montiramo — sa punom garancijom na rad i materijal.',
         },
-        // ── Kapije
-        {
-          blockType: 'footerColumn',
-          title: 'Kapije',
-          links: [
-            {
-              link: {
-                type: 'custom',
-                label: 'Pešačke kapije',
-                url: '/kategorije/pesacke-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Dvokrilne kapije',
-                url: '/kategorije/dvokrilne-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Klizne kapije',
-                url: '/kategorije/klizne-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Samonosive kapije',
-                url: '/kategorije/samonosive-kapije',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Sve kapije →',
-                url: '/kategorije/kapije',
-                newTab: false,
-              },
-            },
-          ],
-        },
-        // ── Ograde
-        {
-          blockType: 'footerColumn',
-          title: 'Ograde',
-          links: [
-            {
-              link: {
-                type: 'custom',
-                label: '3D Panelne ograde',
-                url: '/kategorije/3d-panelne-ograde',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: '2D Panelne ograde',
-                url: '/kategorije/2d-panelne-ograde',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Aluminijumske ograde',
-                url: '/kategorije/aluminijumske-ograde',
-                newTab: false,
-              },
-            },
-            {
-              link: {
-                type: 'custom',
-                label: 'Sve ograde →',
-                url: '/kategorije/ograde',
-                newTab: false,
-              },
-            },
-          ],
-        },
+        // Sve kategorije (sa podkategorijama) prikazuju se u footeru DINAMIČKI
+        // (Footer komponenta čita kategorije iz baze) — nema potrebe za ručnim kolonama.
         // ── Contact
         {
           blockType: 'footerContact',
@@ -626,16 +448,10 @@ export const seed = async ({
       ],
       bottomBar: {
         copyright: `© ${new Date().getFullYear()} Palisade d.o.o. Sva prava zadržana.`,
+        // Sadržaj ovih stranica puni `pnpm scrape:legal` (skida sa palisada.rs).
         legalLinks: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Politika privatnosti',
-              url: '/privatnost',
-              newTab: false,
-            },
-          },
-          { link: { type: 'custom', label: 'Uslovi korišćenja', url: '/uslovi', newTab: false } },
+          { link: { type: 'custom', label: 'Politika privatnosti', url: '/politika-privatnosti', newTab: false } },
+          { link: { type: 'custom', label: 'Pravila o kolačićima', url: '/pravila-o-kolacicima', newTab: false } },
         ],
       },
     } as any,

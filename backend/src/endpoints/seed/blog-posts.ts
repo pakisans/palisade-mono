@@ -209,7 +209,7 @@ export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedA
         ],
         links: [
           { label: 'Zatražite konsultaciju', url: '/kontakt' },
-          { appearance: 'outline', label: 'Pogledajte kapije', url: '/kategorije/kapije' },
+          { appearance: 'outline', label: 'Pogledajte kapije', url: '/kategorija/kapije' },
         ],
       }),
     ],

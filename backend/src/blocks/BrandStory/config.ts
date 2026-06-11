@@ -61,6 +61,14 @@ export const BrandStory: Block = {
       relationTo: 'media',
     },
     {
+      name: 'videoUrl',
+      type: 'text',
+      admin: {
+        description: 'Optional YouTube URL — if set, a video embed replaces the image (e.g. CEO/company video).',
+        placeholder: 'https://www.youtube.com/watch?v=…',
+      },
+    },
+    {
       name: 'stats',
       type: 'array',
       maxRows: 4,

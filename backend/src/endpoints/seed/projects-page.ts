@@ -50,7 +50,7 @@ export const projectsPageData: (args: ProjectsArgs) => RequiredDataFromCollectio
           type: 'custom',
           appearance: 'outline',
           label: 'Pogledajte kategorije',
-          url: '/kategorije/kapije',
+          url: '/kategorija/kapije',
         },
       },
     ],
@@ -116,7 +116,7 @@ export const projectsPageData: (args: ProjectsArgs) => RequiredDataFromCollectio
       ],
       links: [
         { label: 'Pošaljite upit', url: '/kontakt' },
-        { appearance: 'outline', label: 'Pogledajte kapije', url: '/kategorije/kapije' },
+        { appearance: 'outline', label: 'Pogledajte kapije', url: '/kategorija/kapije' },
       ],
     }),
   ],

@@ -110,6 +110,7 @@ export const Posts: CollectionConfig = {
             flexibleContent({
               name: 'layout',
               label: 'Layout',
+              maxRows: 60, // project galleries can hold many image blocks
             }),
           ],
         },

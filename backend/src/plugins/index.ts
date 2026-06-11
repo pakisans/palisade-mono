@@ -171,6 +171,16 @@ export const plugins: Plugin[] = [
             ...defaultCollection.admin,
             hidden: true,
           },
+          fields: [
+            ...defaultCollection.fields,
+            {
+              // RSD cena po varijaciji (integer dinari), kao i na proizvodu
+              name: 'price',
+              type: 'number',
+              min: 0,
+              admin: { description: 'Cena ove varijacije u RSD (dinari, integer).' },
+            },
+          ],
         }),
       },
     },

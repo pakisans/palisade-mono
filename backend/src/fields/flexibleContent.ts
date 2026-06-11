@@ -7,6 +7,7 @@ import { BrandStory } from '@/blocks/BrandStory/config'
 import { CallToAction } from '@/blocks/CallToAction/config'
 import { Carousel } from '@/blocks/Carousel/config'
 import { Code } from '@/blocks/Code/config'
+import { ContactInfo } from '@/blocks/ContactInfo/config'
 import { Content } from '@/blocks/Content/config'
 import { FAQ } from '@/blocks/FAQ/config'
 import { FormBlock } from '@/blocks/Form/config'
@@ -28,6 +29,7 @@ export const defaultContentBlocks: Block[] = [
   ThreeItemGrid,
   Archive,
   Code,
+  ContactInfo,
   FormBlock,
   Quote,
   FAQ,

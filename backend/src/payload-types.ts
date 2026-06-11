@@ -143,10 +143,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    clients: Client;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    clients: ClientsSelect<false> | ClientsSelect<true>;
   };
   locale: 'sr' | 'en';
   widgets: {
@@ -312,6 +314,7 @@ export interface Product {
         | ThreeItemGridBlock
         | ArchiveBlock
         | CodeBlock
+        | ContactInfoBlock
         | FormBlock
         | QuoteBlock
         | FAQBlock
@@ -518,6 +521,10 @@ export interface BrandStoryBlock {
   };
   image?: (number | null) | Media;
   /**
+   * Optional YouTube URL — if set, a video embed replaces the image (e.g. CEO/company video).
+   */
+  videoUrl?: string | null;
+  /**
    * Up to 4 key figures displayed in a 2×2 grid
    */
   stats?:
@@ -706,6 +713,7 @@ export interface Page {
         | ThreeItemGridBlock
         | ArchiveBlock
         | CodeBlock
+        | ContactInfoBlock
         | FormBlock
         | QuoteBlock
         | FAQBlock
@@ -761,6 +769,7 @@ export interface Category {
         | ThreeItemGridBlock
         | ArchiveBlock
         | CodeBlock
+        | ContactInfoBlock
         | FormBlock
         | QuoteBlock
         | FAQBlock
@@ -872,6 +881,7 @@ export interface Brand {
         | ThreeItemGridBlock
         | ArchiveBlock
         | CodeBlock
+        | ContactInfoBlock
         | FormBlock
         | QuoteBlock
         | FAQBlock
@@ -987,10 +997,32 @@ export interface CodeBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactInfoBlock".
+ */
+export interface ContactInfoBlock {
+  heading?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
+  address?: string | null;
+  /**
+   * Google Maps link za adresu (opciono).
+   */
+  mapUrl?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contactInfo';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock".
  */
 export interface FormBlock {
   form: number | Form;
+  /**
+   * Ako je popunjeno, Google mapa za ovu adresu se prikazuje pored forme.
+   */
+  mapAddress?: string | null;
   enableIntro?: boolean | null;
   introContent?: {
     root: {
@@ -1313,6 +1345,7 @@ export interface Post {
         | ThreeItemGridBlock
         | ArchiveBlock
         | CodeBlock
+        | ContactInfoBlock
         | FormBlock
         | QuoteBlock
         | FAQBlock
@@ -1364,6 +1397,7 @@ export interface PostCategory {
         | ThreeItemGridBlock
         | ArchiveBlock
         | CodeBlock
+        | ContactInfoBlock
         | FormBlock
         | QuoteBlock
         | FAQBlock
@@ -1395,6 +1429,10 @@ export interface Variant {
   inventory?: number | null;
   priceInUSDEnabled?: boolean | null;
   priceInUSD?: number | null;
+  /**
+   * Cena ove varijacije u RSD (dinari, integer).
+   */
+  price?: number | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1817,6 +1855,7 @@ export interface PagesSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         code?: T | CodeBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         quote?: T | QuoteBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -1874,6 +1913,7 @@ export interface BrandStoryBlockSelect<T extends boolean = true> {
   heading?: T;
   description?: T;
   image?: T;
+  videoUrl?: T;
   stats?:
     | T
     | {
@@ -2009,10 +2049,25 @@ export interface CodeBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactInfoBlock_select".
+ */
+export interface ContactInfoBlockSelect<T extends boolean = true> {
+  heading?: T;
+  phone?: T;
+  whatsapp?: T;
+  email?: T;
+  address?: T;
+  mapUrl?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock_select".
  */
 export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
+  mapAddress?: T;
   enableIntro?: T;
   introContent?: T;
   id?: T;
@@ -2112,6 +2167,7 @@ export interface PostsSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         code?: T | CodeBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         quote?: T | QuoteBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -2156,6 +2212,7 @@ export interface CategoriesSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         code?: T | CodeBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         quote?: T | QuoteBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -2196,6 +2253,7 @@ export interface PostCategoriesSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         code?: T | CodeBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         quote?: T | QuoteBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -2236,6 +2294,7 @@ export interface BrandsSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         code?: T | CodeBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         quote?: T | QuoteBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -2497,6 +2556,7 @@ export interface VariantsSelect<T extends boolean = true> {
   inventory?: T;
   priceInUSDEnabled?: T;
   priceInUSD?: T;
+  price?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -2554,6 +2614,7 @@ export interface ProductsSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         code?: T | CodeBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         quote?: T | QuoteBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -3139,6 +3200,23 @@ export interface FooterNewsletterBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients".
+ */
+export interface Client {
+  id: number;
+  heading?: string | null;
+  logos?:
+    | {
+        image: number | Media;
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -3344,6 +3422,23 @@ export interface FooterNewsletterBlockSelect<T extends boolean = true> {
   privacyNote?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients_select".
+ */
+export interface ClientsSelect<T extends boolean = true> {
+  heading?: T;
+  logos?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -18,6 +18,14 @@ export const FormBlock: Block = {
       required: true,
     },
     {
+      name: 'mapAddress',
+      type: 'text',
+      admin: {
+        description: 'Ako je popunjeno, Google mapa za ovu adresu se prikazuje pored forme.',
+        placeholder: 'Zrenjaninski put 139E, Beograd',
+      },
+    },
+    {
       name: 'enableIntro',
       type: 'checkbox',
       label: 'Enable Intro Content',

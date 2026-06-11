@@ -24,6 +24,7 @@ import { Media } from '@/collections/Media'
 import { Pages } from '@/collections/Pages'
 import { Tags } from '@/collections/Tags'
 import { Users } from '@/collections/Users'
+import { Clients } from '@/globals/Clients'
 import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
 import { plugins } from './plugins'
@@ -93,7 +94,7 @@ export default buildConfig({
   }),
   //email: nodemailerAdapter(),
   endpoints: [],
-  globals: [Header, Footer],
+  globals: [Header, Footer, Clients],
   localization: {
     locales: [
       {

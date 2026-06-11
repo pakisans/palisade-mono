@@ -26,7 +26,13 @@
     "scrape:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-projects.ts",
     "scrape:saveti": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-saveti.ts",
     "seed:projekti-page": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-projekti-page.ts",
-    "reorder:contact-form": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/reorder-contact-form.ts"
+    "reorder:contact-form": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/reorder-contact-form.ts",
+    "scrape:site": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-site.ts",
+    "scrape:saveti-palisada": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-saveti-palisada.ts",
+    "scrape:projekti-palisada": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-projekti-palisada.ts",
+    "fix:categories": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-categories.ts",
+    "import:variants": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-variants.ts",
+    "scrape:legal": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-legal.ts"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.80.0",
