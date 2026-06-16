@@ -385,7 +385,7 @@ function ProductsSection({ products, category, page, totalPages }) {
             </p>
             <Link
               href="/kontakt"
-              className="inline-flex items-center h-10 px-6 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors"
+              className="btn btn-primary"
             >
               Zatražite ponudu
             </Link>
@@ -422,16 +422,10 @@ function CategoryCTA({ categoryTitle }) {
             </p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <Link
-              href="/kontakt"
-              className="inline-flex items-center h-11 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-brand-sm"
-            >
+            <Link href="/kontakt" className="btn btn-primary">
               Zatražite ponudu
             </Link>
-            <Link
-              href="/proizvodi"
-              className="inline-flex items-center h-11 px-5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
-            >
+            <Link href="/proizvodi" className="btn btn-outline">
               Svi proizvodi
             </Link>
           </div>

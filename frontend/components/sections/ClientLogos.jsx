@@ -1,52 +1,70 @@
+import { Fragment } from 'react'
 import Image from 'next/image'
 import { getMediaURL } from '@/lib/payload'
 import ScrollReveal from '@/components/ui/ScrollReveal'
 
-// Fallback client names (text chips) when no logo images are provided from the CMS.
-// Mirrors the reference site "Preko 700 firmi ogradila je PALISADA".
-const FALLBACK_CLIENTS = [
-  'LIDL', 'Roda', 'IDEA', 'Frikom', 'Coca-Cola', 'Telekom',
-  'Delhaize', 'Metro', 'Nelt', 'Knjaz Miloš', 'Štark', 'Univerexport',
-]
+// Highlight the number and the word PALISADA in brand color (matches reference).
+function EmphHeading({ text }) {
+  const parts = String(text).split(/(\d+|PALISADA)/g)
+  return parts.map((p, i) =>
+    /^\d+$/.test(p) || p === 'PALISADA'
+      ? <span key={i} className="text-brand">{p}</span>
+      : <Fragment key={i}>{p}</Fragment>,
+  )
+}
 
 function LogoItem({ logo }) {
-  // String logos render as text chips; only object logos resolve to an image URL.
   const isObject = logo && typeof logo === 'object'
   const url = isObject ? getMediaURL(logo.image || logo) : null
   const alt = (isObject && (logo.alt || logo.name)) || 'Klijent'
   if (url) {
     return (
-      <div className="flex-shrink-0 flex items-center justify-center h-12 w-36 px-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-        <Image src={url} alt={alt} width={144} height={48} className="max-h-12 w-auto object-contain" />
+      <div className="flex h-16 w-44 flex-shrink-0 items-center justify-center px-2">
+        <Image src={url} alt={alt} width={176} height={64} className="max-h-12 w-auto object-contain" />
       </div>
     )
   }
   return (
-    <span className="flex-shrink-0 flex items-center justify-center h-12 px-6 text-lg font-extrabold tracking-tight text-gray-300 select-none">
+    <span className="flex h-16 flex-shrink-0 select-none items-center justify-center px-8 text-xl font-extrabold tracking-tight text-gray-300">
       {typeof logo === 'string' ? logo : alt}
     </span>
   )
 }
 
-export default function ClientLogos({ logos, title = 'Preko 700 firmi ogradila je PALISADA' }) {
-  const items = logos?.length ? logos : FALLBACK_CLIENTS
+export default function ClientLogos({ block }) {
+  const items = block?.logos ?? []
+  if (!items.length) return null
+  const heading = block?.heading
   // Duplicate the row so the marquee loops seamlessly (-50% translate).
   const loop = [...items, ...items]
 
   return (
-    <section className="section-y-sm bg-white border-y border-gray-100" aria-labelledby="clients-heading">
-      <div className="container-site">
-        <ScrollReveal className="text-center mb-10">
-          <span className="eyebrow justify-center mb-3">Poverenje</span>
-          <h2 id="clients-heading" className="text-2xl md:text-3xl font-extrabold text-gray-950 tracking-tight mt-3">
-            {title}
-          </h2>
-        </ScrollReveal>
+    <section className="section-y-sm relative overflow-hidden bg-white border-y border-gray-100" aria-labelledby="clients-heading">
+      {/* Brand ring-P watermark — large, centered, transparent middle (logos show through) */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand-mark.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[300px] -translate-x-1/2 -translate-y-1/2 opacity-[0.07] md:w-[440px]"
+      />
+
+      <div className="container-site relative z-10">
+        {heading && (
+          <ScrollReveal className="text-center mb-10">
+            <h2 id="clients-heading" className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-950 tracking-tight">
+              <EmphHeading text={heading} />
+            </h2>
+          </ScrollReveal>
+        )}
       </div>
 
-      {/* Marquee */}
-      <div className="relative overflow-hidden mask-fade-x" aria-hidden="true">
-        <div className="flex w-max items-center gap-4 animate-marquee hover:[animation-play-state:paused]">
+      {/* Marquee — continuous scroll, pauses on hover, fades at the edges */}
+      <div className="group relative z-10 overflow-hidden mask-fade-x" aria-hidden="true">
+        <div
+          className="flex w-max items-center gap-12 md:gap-16 animate-marquee group-hover:[animation-play-state:paused]"
+          style={{ animationDuration: `${Math.max(30, loop.length * 3.5)}s` }}
+        >
           {loop.map((logo, i) => (
             <LogoItem key={i} logo={logo} />
           ))}

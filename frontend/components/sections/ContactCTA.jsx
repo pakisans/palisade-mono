@@ -56,7 +56,7 @@ export default function ContactCTA({ block }) {
                     <Link
                       key={i}
                       href={link.href}
-                      className="inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-white text-brand-700 text-sm font-bold hover:bg-gray-50 transition-all duration-200 shadow-lg"
+                      className="btn btn-lg btn-white"
                     >
                       {link.label}
                       <svg

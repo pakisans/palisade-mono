@@ -13,7 +13,7 @@ const PER_PAGE = 12;
 export const metadata = {
   title: `Katalog kapija i ograda | ${SITE_NAME}`,
   description:
-    "Kompletna ponuda kapija i ograda — pešačke, dvokrilne, klizne, samonosive kapije, 2D/3D panelne i aluminijumske ograde. Sve dimenzije i RAL boje.",
+    "Kompletna ponuda: jednokrilne, dvokrilne, klizne i samonosive kapije, panelne i dekorativne ograde, automatizacija i kontrola pristupa. Sve dimenzije i RAL boje.",
   alternates: { canonical: "/proizvodi" },
 };
 
@@ -49,7 +49,7 @@ function SearchBar({ defaultValue }) {
       />
       <button
         type="submit"
-        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 rounded-xl bg-brand text-white text-[12px] font-bold hover:bg-brand-600 transition-colors"
+        className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-sm btn-primary"
       >
         Pretraži
       </button>
@@ -147,7 +147,7 @@ function EmptyState({ search }) {
       <div className="flex items-center justify-center gap-3">
         <Link
           href="/proizvodi"
-          className="inline-flex items-center h-10 px-5 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors"
+          className="btn btn-primary"
         >
           Sve kategorije
         </Link>
@@ -252,7 +252,7 @@ export default async function ProductsPage({ searchParams }) {
             </div>
             <Link
               href="/kontakt"
-              className="flex-shrink-0 inline-flex items-center h-11 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-brand-sm"
+              className="btn btn-primary flex-shrink-0"
             >
               Zatražite ponudu
             </Link>

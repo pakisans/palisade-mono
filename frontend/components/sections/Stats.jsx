@@ -1,4 +1,5 @@
 import ScrollReveal from '@/components/ui/ScrollReveal'
+import CountUp from '@/components/ui/CountUp'
 
 export default function Stats({ block }) {
   if (!block?.items?.length) return null
@@ -15,7 +16,7 @@ export default function Stats({ block }) {
             <ScrollReveal key={i} delay={i * 80}>
               <div className="bg-white px-8 py-8 text-center">
                 <p className="text-4xl md:text-5xl font-extrabold text-brand tracking-tight leading-none">
-                  {stat.value}
+                  <CountUp value={stat.value} />
                 </p>
                 <p className="text-sm text-gray-500 mt-2 font-medium leading-snug">{stat.label}</p>
               </div>

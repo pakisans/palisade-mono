@@ -1,8 +1,5 @@
-'use client'
-
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import ScrollReveal from '@/components/ui/ScrollReveal'
+import { getMediaURL } from '@/lib/payload'
 
 const StarIcon = () => (
   <svg className="w-4 h-4 fill-brand" viewBox="0 0 20 20" aria-hidden="true">
@@ -11,7 +8,7 @@ const StarIcon = () => (
 )
 
 const QuoteIcon = () => (
-  <svg className="w-10 h-10 text-brand/15" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+  <svg className="w-9 h-9 text-brand/15" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
     <path d="M10 8C6.686 8 4 10.686 4 14v10h10V14H7.5C7.5 11.52 8.99 9.5 11 8.5L10 8zm15 0c-3.314 0-6 2.686-6 6v10h10V14h-6.5C22.5 11.52 23.99 9.5 26 8.5L25 8z" />
   </svg>
 )
@@ -27,98 +24,67 @@ function Stars({ rating }) {
   )
 }
 
-function TestimonialCard({ quote, active }) {
+function TestimonialCard({ quote }) {
+  const logo = getMediaURL(quote.avatar)
   return (
-    <article
-      className={cn(
-        'relative flex flex-col bg-white rounded-3xl p-8 border transition-all duration-400',
-        active
-          ? 'border-brand/30 shadow-card-hover scale-[1.01]'
-          : 'border-gray-100 shadow-card opacity-60 scale-[0.98]',
-      )}
-    >
-      <QuoteIcon />
+    <article className="flex h-full w-[300px] flex-shrink-0 flex-col rounded-3xl bg-white p-7 card sm:w-[380px]">
+      <div className="flex items-start justify-between">
+        <QuoteIcon />
+        {quote.rating && <Stars rating={quote.rating} />}
+      </div>
 
-      <blockquote className="flex-1 mt-4">
-        <p className="text-gray-700 text-base leading-relaxed font-medium italic">
-          "{quote.text}"
-        </p>
+      <blockquote className="mt-3 flex-1">
+        <p className="text-[15px] leading-relaxed text-gray-700">{quote.text}</p>
       </blockquote>
 
-      <footer className="mt-6 pt-5 border-t border-gray-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <cite className="text-sm font-bold text-gray-950 not-italic">{quote.author}</cite>
-            {quote.role && (
-              <p className="text-xs text-gray-400 mt-0.5">{quote.role}</p>
-            )}
-          </div>
-          {quote.rating && <Stars rating={quote.rating} />}
+      <footer className="mt-6 flex items-center gap-4 border-t border-gray-100 pt-5">
+        {logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt={quote.author} className="h-9 w-auto max-w-[120px] object-contain" loading="lazy" />
+        ) : (
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-brand/10 text-base font-extrabold text-brand">
+            {quote.author?.charAt(0) || 'P'}
+          </span>
+        )}
+        <div className="min-w-0">
+          <cite className="block text-sm font-bold not-italic text-gray-950">{quote.author}</cite>
+          {quote.role && <p className="mt-0.5 text-xs text-gray-400">{quote.role}</p>}
         </div>
       </footer>
     </article>
   )
 }
 
-export default function Testimonials({ quotes }) {
-  const [active, setActive] = useState(0)
-  if (!quotes?.length) return null
+export default function Testimonials({ block, quotes }) {
+  const items = block?.items?.length ? block.items : quotes ?? []
+  if (!items.length) return null
+  // Duplicate the set so the marquee loops seamlessly (track animates to -50%).
+  const track = [...items, ...items]
 
   return (
-    <section className="section-y bg-gray-50" aria-labelledby="testimonials-heading">
+    <section className="section-y bg-gray-50 overflow-hidden" aria-labelledby="testimonials-heading">
       <div className="container-site">
-        <ScrollReveal className="text-center max-w-xl mx-auto mb-14">
-          <span className="eyebrow justify-center mb-4">Klijenti o nama</span>
-          <h2 id="testimonials-heading" className="text-3xl md:text-4xl font-extrabold text-gray-950 tracking-tight mt-4">
-            Utisci klijenata
-          </h2>
+        <ScrollReveal className="mx-auto mb-12 max-w-xl text-center">
+          {block?.eyebrow && <span className="eyebrow justify-center mb-4">{block.eyebrow}</span>}
+          {block?.heading && (
+            <h2 id="testimonials-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-gray-950 md:text-4xl">
+              {block.heading}
+            </h2>
+          )}
+          {block?.intro && <p className="mt-4 text-gray-500">{block.intro}</p>}
         </ScrollReveal>
+      </div>
 
-        {/* Grid — up to 3 visible */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {quotes.slice(0, 3).map((quote, i) => (
-            <ScrollReveal key={i} delay={i * 100}>
-              <div onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)}>
-                <TestimonialCard quote={quote} active={active === i} />
-              </div>
-            </ScrollReveal>
+      {/* Auto-scrolling marquee — pauses on hover, fades at the edges */}
+      <div className="group relative mask-fade-x">
+        <div
+          className="flex w-max gap-6 px-6 animate-marquee group-hover:[animation-play-state:paused]"
+          style={{ animationDuration: `${Math.max(36, track.length * 7)}s` }}
+        >
+          {track.map((quote, i) => (
+            <TestimonialCard key={i} quote={quote} />
           ))}
         </div>
-
-        {/* Dot navigation for mobile */}
-        {quotes.length > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8" role="tablist" aria-label="Izaberi recenziju">
-            {quotes.slice(0, Math.min(quotes.length, 6)).map((_, i) => (
-              <button
-                key={i}
-                role="tab"
-                aria-selected={active === i}
-                onClick={() => setActive(i)}
-                className={cn('h-1.5 rounded-full transition-all duration-300 focus-visible:outline-2 focus-visible:outline-brand', active === i ? 'w-6 bg-brand' : 'w-1.5 bg-gray-300 hover:bg-gray-400')}
-                aria-label={`Recenzija ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Trust signal */}
-        <ScrollReveal delay={200}>
-          <div className="flex items-center justify-center gap-6 mt-12 pt-10 border-t border-gray-200">
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-1">
-                {[1,2,3,4,5].map((n) => (
-                  <div key={n} className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 border-2 border-white flex items-center justify-center text-white text-[9px] font-bold">{n}</div>
-                ))}
-              </div>
-              <span className="text-sm text-gray-600 font-medium">700+ zadovoljnih klijenata</span>
-            </div>
-            <div className="h-4 w-px bg-gray-200 hidden sm:block" />
-            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-600 font-medium">
-              <div className="flex"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
-              4.9/5 na Google-u
-            </div>
-          </div>
-        </ScrollReveal>
       </div>
     </section>
   )

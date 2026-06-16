@@ -18,7 +18,7 @@ export default function ProductCard({ product, priority = false }) {
     .filter(Boolean)[0]
 
   return (
-    <article className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-300 ease-spring hover:border-gray-200 hover:shadow-[0_8px_40px_-8px_rgba(0,0,0,0.12)] hover:-translate-y-1">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl card card-hover">
 
       {/* ─── Image ─────────────────────────────────────────────── */}
       <Link href={href} tabIndex={-1} aria-hidden="true" className="block relative overflow-hidden aspect-[4/3] bg-gray-50">

@@ -57,6 +57,8 @@ function serialize(nodes) {
         );
       case "listitem":
         return <li key={i}>{children}</li>;
+      case "linebreak":
+        return <br key={i} />;
       case "link": {
         const href = node.fields?.url || node.url || "#";
         return (

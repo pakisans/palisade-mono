@@ -484,11 +484,7 @@ function MobileDrawer({ isOpen, onClose, data, ctaLink, categories }) {
         {/* Footer CTA */}
         <div className="flex-shrink-0 border-t border-gray-100 p-4 space-y-2.5">
           {ctaLink && (
-            <Link
-              href={ctaLink.href}
-              onClick={onClose}
-              className="flex items-center justify-center w-full h-12 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-600 transition-colors shadow-brand-sm"
-            >
+            <Link href={ctaLink.href} onClick={onClose} className="btn btn-lg btn-primary w-full">
               {ctaLink.label}
             </Link>
           )}
@@ -724,10 +720,7 @@ export default function Header({ data, categories }) {
 
               {/* CTA */}
               {ctaLink && (
-                <Link
-                  href={ctaLink.href}
-                  className="inline-flex items-center h-9 px-5 rounded-xl bg-brand text-white text-[13px] font-bold tracking-tight hover:bg-brand-600 transition-all duration-200 shadow-brand-sm hover:shadow-brand"
-                >
+                <Link href={ctaLink.href} className="btn btn-sm btn-primary">
                   {ctaLink.label}
                 </Link>
               )}

@@ -88,6 +88,63 @@
     @apply py-12 md:py-20;
   }
 
+  /* ── Buttons — single source of truth for the whole site ───────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl text-sm font-bold
+           transition-all duration-200 ease-spring
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2
+           disabled:opacity-60 disabled:pointer-events-none;
+  }
+  .btn-lg { @apply h-12 px-8; }
+  .btn-sm { @apply h-9 px-4 text-[13px]; }
+  .btn-primary {
+    @apply bg-brand text-white shadow-brand-sm hover:bg-brand-600 hover:shadow-brand hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .btn-outline {
+    @apply border-2 border-gray-200 text-gray-800 hover:border-brand/50 hover:text-brand;
+  }
+  .btn-ghost { @apply text-gray-700 hover:bg-gray-100 hover:text-gray-950; }
+  .btn-white { @apply bg-white text-brand-700 shadow-lg hover:bg-gray-50 hover:-translate-y-0.5; }
+
+  /* ── Cards ─────────────────────────────────────────────────────────────── */
+  .card {
+    @apply rounded-2xl bg-white border border-gray-100 shadow-card ring-1 ring-black/[0.02]
+           transition-all duration-300 ease-spring;
+  }
+  .card-hover {
+    @apply hover:-translate-y-1 hover:shadow-card-hover hover:border-brand/30;
+  }
+
+  /* ── Chip / tag ────────────────────────────────────────────────────────── */
+  .chip {
+    @apply inline-flex items-center h-7 px-3 rounded-full bg-gray-100 text-gray-600
+           text-[11px] font-bold uppercase tracking-wider;
+  }
+  .chip-brand { @apply bg-brand/[0.1] text-brand; }
+
+  /* ── Hover utilities ───────────────────────────────────────────────────── */
+  .hover-lift { @apply transition-transform duration-300 ease-spring hover:-translate-y-1; }
+
+  /* ── Reduced motion (accessibility) ────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal-fade {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .animate-fade-up,
+    .animate-fade-in,
+    .animate-marquee,
+    .animate-scale-in,
+    .animate-glow,
+    .animate-float,
+    .animate-shimmer {
+      animation: none !important;
+      opacity: 1 !important;
+    }
+  }
+
   /* Eyebrow label */
   .eyebrow {
     @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand;

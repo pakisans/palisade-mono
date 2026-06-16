@@ -8,7 +8,7 @@ export default function AdviceCardClassic({ post, priority = false }) {
   const href = `/saveti/${post.slug}`;
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-card">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl card card-hover">
       <Link
         href={href}
         tabIndex={-1}

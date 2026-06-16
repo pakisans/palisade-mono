@@ -64,9 +64,14 @@ export default async function DynamicPage({ params }) {
 
   const breadcrumbs = [{ label: "Naslovna", href: "/" }, { label: page.title }];
 
+  // When the first content block already carries a prominent heading (brandStory/mission),
+  // keep the page H1 for SEO but visually hidden — no big "title" hero strip.
+  const leadBlock = Array.isArray(page.layout) ? page.layout[0]?.blockType : null;
+  const compactHero = ["brandStory", "mission"].includes(leadBlock);
+
   return (
     <>
-      <PageHero hero={page.hero} title={page.title} breadcrumbs={breadcrumbs} />
+      <PageHero hero={page.hero} title={page.title} breadcrumbs={breadcrumbs} compact={compactHero} />
       <BlockRenderer blocks={page.layout} />
     </>
   );

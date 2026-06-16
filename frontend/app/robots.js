@@ -1,10 +1,8 @@
 export default function robots() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://palisade.rs'
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://palisada.rs';
   return {
-    rules: [
-      { userAgent: '*', allow: '/', disallow: ['/api/', '/admin/'] },
-    ],
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/admin/'] }],
     sitemap: `${base}/sitemap.xml`,
     host: base,
-  }
+  };
 }

@@ -1,15 +1,19 @@
 // Generic dispatcher: maps Payload `layout` blocks → React components.
 // Reuses premium section components where they exist (cta, faq, stats, brandStory)
-// and dedicated block components for the rest.
+// and dedicated block components for the rest. Consecutive `mediaBlock`s are grouped
+// into a premium MediaGallery (grid + fullscreen lightbox).
+
+import { getMediaURL } from '@/lib/payload'
 
 import ContentBlock from './ContentBlock'
 import QuoteBlock from './QuoteBlock'
 import BannerBlock from './BannerBlock'
 import SpacerBlock from './SpacerBlock'
-import MediaBlockComponent from './MediaBlockComponent'
 import VideoBlock from './VideoBlock'
 import FormBlock from './FormBlock'
 import ContactInfoBlock from './ContactInfoBlock'
+import MissionBlock from './MissionBlock'
+import MediaGallery from './MediaGallery'
 
 import ContactCTA from '@/components/sections/ContactCTA'
 import FAQ from '@/components/sections/FAQ'
@@ -22,10 +26,10 @@ const registry = {
   quote:      QuoteBlock,
   banner:     BannerBlock,
   spacer:     SpacerBlock,
-  mediaBlock: MediaBlockComponent,
   video:      VideoBlock,
   formBlock:  FormBlock,
   contactInfo: ContactInfoBlock,
+  mission:    MissionBlock,
   cta:        ContactCTA,
   faq:        FAQ,
   stats:      Stats,
@@ -35,19 +39,35 @@ const registry = {
 export default function BlockRenderer({ blocks }) {
   if (!Array.isArray(blocks) || blocks.length === 0) return null
 
-  return (
-    <>
-      {blocks.map((block, i) => {
-        const Component = registry[block?.blockType]
-        if (!Component) {
-          // Unknown / not-yet-implemented block type — skip gracefully
-          if (process.env.NODE_ENV === 'development') {
-            console.warn(`[BlockRenderer] No component for blockType: "${block?.blockType}"`)
-          }
-          return null
+  const out = []
+  let i = 0
+  while (i < blocks.length) {
+    const block = blocks[i]
+
+    // Group consecutive media blocks into one premium gallery.
+    if (block?.blockType === 'mediaBlock') {
+      const images = []
+      while (i < blocks.length && blocks[i]?.blockType === 'mediaBlock') {
+        const b = blocks[i]
+        const url = getMediaURL(b?.media)
+        if (url) {
+          const alt = typeof b?.media === 'object' ? b.media?.alt : ''
+          images.push({ url, alt: alt || '', caption: b?.caption || '' })
         }
-        return <Component key={block.id || `${block.blockType}-${i}`} block={block} />
-      })}
-    </>
-  )
+        i++
+      }
+      if (images.length) out.push(<MediaGallery key={`gallery-${i}`} images={images} />)
+      continue
+    }
+
+    const Component = registry[block?.blockType]
+    if (Component) {
+      out.push(<Component key={block.id || `${block.blockType}-${i}`} block={block} />)
+    } else if (process.env.NODE_ENV === 'development') {
+      console.warn(`[BlockRenderer] No component for blockType: "${block?.blockType}"`)
+    }
+    i++
+  }
+
+  return <>{out}</>
 }

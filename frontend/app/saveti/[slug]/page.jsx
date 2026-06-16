@@ -27,7 +27,9 @@ export async function generateMetadata({ params }) {
   const post = await getAdvicePost(slug).catch(() => null);
   if (!post) return {};
 
-  const title = post.meta?.title || `${post.title} | Saveti`;
+  // Strip any pre-baked "| Palisade" suffix so we don't double the brand.
+  const cleanTitle = (post.meta?.title || post.title || "").replace(/\s*\|\s*Palisade.*$/i, "").trim() || post.title;
+  const title = `${cleanTitle} | ${SITE_NAME}`;
   const description =
     post.meta?.description ||
     post.excerpt ||
@@ -36,9 +38,7 @@ export async function generateMetadata({ params }) {
     getMediaURL(post.meta?.image) || getMediaURL(post.featuredImage);
 
   return {
-    title: {
-      absolute: title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`,
-    },
+    title: { absolute: title },
     description,
     alternates: { canonical: `/saveti/${slug}` },
     openGraph: {
@@ -106,7 +106,7 @@ export default async function AdviceDetailPage({ params }) {
           aria-hidden="true"
         />
         <div className="relative z-10 container-site py-16 md:py-24">
-          <Breadcrumbs items={breadcrumbs} className="mb-7" />
+          <Breadcrumbs items={breadcrumbs} variant="dark" className="mb-7" />
           <p className="mb-4 text-sm font-semibold text-brand-100">
             Palisada kapije i ograde
           </p>

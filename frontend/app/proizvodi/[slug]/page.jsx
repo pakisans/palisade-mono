@@ -66,35 +66,37 @@ function ProductSchema({ product }) {
 
   const brand = typeof product.brand === "object" ? product.brand : null;
 
+  const url = `${SITE_URL}/proizvodi/${product.slug}`;
+  const hasPrice = product.price > 0;
   const schema = {
     "@context": "https://schema.org",
     "@type": "Product",
-    "@id": `${SITE_URL}/proizvodi/${product.slug}`,
+    "@id": url,
+    url,
     name: product.title,
-    description: product.meta?.description || "",
+    description: product.meta?.description || product.excerpt || "",
+    ...(product.sku ? { sku: String(product.sku) } : {}),
     ...(images.length ? { image: images } : {}),
-    ...(brand
-      ? { brand: { "@type": "Brand", name: brand.title } }
-      : {
-          brand: { "@type": "Brand", name: SITE_NAME },
-        }),
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "RSD",
-      price: product.price > 0 ? String(product.price) : "0",
-      availability: "https://schema.org/InStock",
-      seller: {
-        "@type": "Organization",
-        name: SITE_NAME,
-        url: SITE_URL,
-      },
-    },
+    brand: { "@type": "Brand", name: brand ? brand.title : SITE_NAME },
     ...(product.categories?.length
       ? {
           category: product.categories
             .map((c) => (typeof c === "object" ? c.title : ""))
             .filter(Boolean)
             .join(" > "),
+        }
+      : {}),
+    // Only emit Offer when a real price exists — avoids contradictory price:"0" + InStock.
+    ...(hasPrice
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "RSD",
+            price: String(product.salePrice > 0 && product.salePrice < product.price ? product.salePrice : product.price),
+            availability: "https://schema.org/InStock",
+            url,
+            seller: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+          },
         }
       : {}),
   };
@@ -488,7 +490,7 @@ export default async function ProductPage({ params }) {
             </div>
             <Link
               href="/kontakt"
-              className="flex-shrink-0 inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-600 transition-colors shadow-brand-sm hover:shadow-brand"
+              className="btn btn-lg btn-primary flex-shrink-0"
             >
               Zatražite ponudu
               <svg

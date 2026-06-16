@@ -9,7 +9,6 @@ import {
 } from '@/lib/payload';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
 import { formatDate } from '@/lib/utils';
-import { categoryPath } from '@/lib/routes';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import RichText from '@/components/ui/RichText';
 import BlockRenderer from '@/components/blocks/BlockRenderer';
@@ -28,7 +27,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const project = await getProject(slug).catch(() => null);
   if (!project) return {};
-  const title = project.meta?.title || `${project.title} | Gotovi projekti`;
+  const cleanTitle = (project.meta?.title || project.title || '').replace(/\s*\|\s*Palisade.*$/i, '').trim() || project.title;
   const description =
     project.meta?.description ||
     project.excerpt ||
@@ -36,11 +35,11 @@ export async function generateMetadata({ params }) {
   const imgUrl =
     getMediaURL(project.meta?.image) || getMediaURL(project.featuredImage);
   return {
-    title: { absolute: `${title} | ${SITE_NAME}` },
+    title: { absolute: `${cleanTitle} | ${SITE_NAME}` },
     description,
     alternates: { canonical: `/projekti/${slug}` },
     openGraph: {
-      title,
+      title: cleanTitle,
       description,
       url: `${SITE_URL}/projekti/${slug}`,
       type: 'article',
@@ -148,13 +147,13 @@ export default async function ProjectDetailPage({ params }) {
           className="relative z-10 container-site py-14 md:py-20 flex flex-col justify-end"
           style={{ minHeight: '440px' }}
         >
-          <Breadcrumbs items={breadcrumbs} className="mb-7" />
+          <Breadcrumbs items={breadcrumbs} variant="dark" className="mb-7" />
           {cats.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               {cats.map((c) => (
                 <Link
                   key={c.id}
-                  href={categoryPath(c)}
+                  href="/projekti"
                   className="inline-flex items-center h-7 px-3 rounded-full bg-white/15 backdrop-blur-sm text-white text-[11px] font-bold uppercase tracking-wider hover:bg-brand transition-colors"
                 >
                   {c.title}
@@ -219,7 +218,7 @@ export default async function ProjectDetailPage({ params }) {
                             {cats.map((c) => (
                               <Link
                                 key={c.id}
-                                href={categoryPath(c)}
+                                href="/projekti"
                                 className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700 transition-colors hover:bg-brand hover:text-white"
                               >
                                 {c.title}
@@ -333,7 +332,7 @@ export default async function ProjectDetailPage({ params }) {
             </div>
             <Link
               href="/kontakt"
-              className="flex-shrink-0 inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-600 transition-colors shadow-brand-sm"
+              className="btn btn-lg btn-primary flex-shrink-0"
             >
               Zatražite ponudu
             </Link>

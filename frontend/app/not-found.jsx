@@ -15,10 +15,7 @@ export default function NotFound() {
             Stranica koju tražite ne postoji ili je premještena. Provjerite URL ili se vratite na naslovu.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center h-11 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-brand-sm"
-            >
+            <Link href="/" className="btn btn-primary">
               Naslovna strana
             </Link>
             <Link

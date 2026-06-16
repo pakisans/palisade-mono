@@ -12,12 +12,18 @@ const nextConfig = {
       // Production — same host, no port
       {
         protocol: 'https',
-        hostname: process.env.PAYLOAD_HOST || 'palisade.rs',
+        hostname: process.env.PAYLOAD_HOST || 'palisada.rs',
         pathname: '/**',
       },
       // Allow any configured custom domain
       ...(process.env.PAYLOAD_HOST && process.env.PAYLOAD_HOST !== 'localhost'
-        ? [{ protocol: 'https', hostname: process.env.PAYLOAD_HOST, pathname: '/**' }]
+        ? [
+            {
+              protocol: 'https',
+              hostname: process.env.PAYLOAD_HOST,
+              pathname: '/**',
+            },
+          ]
         : []),
     ],
     formats: ['image/avif', 'image/webp'],
@@ -38,8 +44,8 @@ const nextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
         ],
       },
-    ]
+    ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
