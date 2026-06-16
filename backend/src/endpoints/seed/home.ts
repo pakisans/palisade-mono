@@ -4,15 +4,17 @@ import { RequiredDataFromCollectionSlug } from 'payload'
 
 import {
   brandStoryBlock,
-  contentColumnsBlock,
+  clientLogosBlock,
   ctaBlock,
   faqBlock,
   heading,
   paragraph,
-  quoteBlock,
+  projectsPreviewBlock,
   richText,
-  spacerBlock,
+  servicesBlock,
   statsBlock,
+  testimonialsBlock,
+  whyUsBlock,
 } from './richText'
 
 type HomeArgs = {
@@ -31,73 +33,51 @@ export const homePageData: (args: HomeArgs) => RequiredDataFromCollectionSlug<'p
     type: 'highImpact',
     media: heroImage,
     links: [
-      {
-        link: {
-          type: 'custom',
-          appearance: 'default',
-          label: 'Zatražite ponudu',
-          url: '/kontakt',
-        },
-      },
-      {
-        link: {
-          type: 'custom',
-          appearance: 'outline',
-          label: 'Pogledajte kategorije',
-          url: '/kategorija/kapije',
-        },
-      },
+      { link: { type: 'custom', appearance: 'default', label: 'Zatražite ponudu', url: '/kontakt' } },
+      { link: { type: 'custom', appearance: 'outline', label: 'Pogledajte kategorije', url: '/kategorija/kapije' } },
     ],
+    eyebrow: 'Premium kapije i ograde',
     richText: richText(
       heading('Kapije i ograde po meri za Beograd i celu Srbiju', 'h1'),
       paragraph(
         'Vrhunski kvalitet, realne cene i profesionalna montaža. Projektujemo i izrađujemo kapije i ograde tačno po vašim merama — uz besplatno merenje i konsultaciju na terenu.',
       ),
     ),
+    stats: [
+      { value: '700+', label: 'klijenata' },
+      { value: '20+', label: 'godina iskustva' },
+      { value: '4.9', label: 'Google ocena' },
+      { value: '<24h', label: 'odgovor na upit' },
+    ],
+    trust: [
+      { text: 'Besplatno merenje' },
+      { text: 'Ugradnja po celoj Srbiji' },
+      { text: 'Garancija na rad i materijal' },
+    ],
   },
   layout: [
-    statsBlock('Zašto izabrati Palisade?', [
-      { value: '700+', label: 'Zadovoljnih kompanija' },
-      { value: '20+', label: 'Godina iskustva' },
-      { value: '98%', label: 'Zadovoljnih klijenata' },
-      { value: '4.9/5', label: 'Ocena na Google-u' },
-    ]),
-    contentColumnsBlock([
-      {
-        size: 'oneThird',
-        texts: [
-          heading('Izrada po meri', 'h3'),
-          paragraph(
-            'Svaki projekat je jedinstven. Projektujemo i izrađujemo kapije i ograde tačno prema vašim merama i zahtevima, od aluminijuma do modernih panelnih sistema.',
-          ),
-        ],
-      },
-      {
-        size: 'oneThird',
-        texts: [
-          heading('Profesionalna montaža', 'h3'),
-          paragraph(
-            'Tim iskusnih montera izvodi ugradnju brzo i precizno širom Srbije — Beograd, Novi Sad, Niš, Kragujevac. Puna garancija na rad i materijal.',
-          ),
-        ],
-      },
-      {
-        size: 'oneThird',
-        texts: [
-          heading('Besplatno merenje', 'h3'),
-          paragraph(
-            'Dolazimo na lice mesta, izmerimo prostor, damo stručnu preporuku i pošaljemo ponudu — sve bez naknade i bez ikakve obaveze sa vaše strane.',
-          ),
-        ],
-      },
-    ]),
+    // 1 — Logoi klijenata (logoe puni `pnpm seed:home`)
+    clientLogosBlock({ heading: 'Preko 700 firmi ogradila je PALISADA' }),
+
+    // 2 — Zašto baš Palisada
+    whyUsBlock({
+      eyebrow: 'Zašto baš Palisada',
+      heading: 'Sve na jednom mestu — od ideje do montaže',
+      items: [
+        { icon: 'wrench', title: 'Izrada po meri', text: 'Projektujemo i izrađujemo tačno po vašim merama — od aluminijuma do modernih panelnih sistema.' },
+        { icon: 'truck', title: 'Montaža širom Srbije', text: 'Iskusni monteri ugrađuju brzo i precizno — Beograd, Novi Sad, Niš, Kragujevac i šire.' },
+        { icon: 'ruler', title: 'Besplatno merenje', text: 'Dolazimo na teren, izmerimo prostor i pošaljemo ponudu isti dan — bez naknade i obaveze.' },
+        { icon: 'award', title: 'Garancija na rad', text: 'Puna garancija na materijal i ugradnju, uz antikorozivnu zaštitu i sve RAL boje.' },
+      ],
+    }),
+
+    // 3 — Ko smo mi (+ video)
     brandStoryBlock({
       eyebrow: 'Ko smo mi',
       heading: 'Jedna od najvećih kompanija za kapije i ograde u Srbiji',
       description: [
         'Palisade d.o.o. je osnovana sa jasnom misijom — da svakom domaćinstvu i poslovnom objektu u Srbiji obezbedi kapije i ograde koje spajaju bezbednost, trajnost i estetiku.',
-        'Verujemo da kvalitetna ograda nije samo fizička barijera, već i prvi utisak koji vaš prostor ostavlja na posetioce. Naši proizvodi su izrađeni od premium materijala sa antikorozivnom zaštitom i dostupni u svim RAL bojama.',
-        'Klijenti nam veruju zbog individualnog pristupa svakom projektu, sopstvene produkcije u Beogradu i profesionalnog tima koji stoji iza svake ugradnje.',
+        'Naši proizvodi su izrađeni od premium materijala sa antikorozivnom zaštitom i dostupni u svim RAL bojama. Iza svake ugradnje stoji profesionalan tim i sopstvena produkcija u Beogradu.',
       ],
       layout: 'image-right',
       stats: [
@@ -108,56 +88,58 @@ export const homePageData: (args: HomeArgs) => RequiredDataFromCollectionSlug<'p
       ],
       cta: { label: 'Saznajte više o nama', url: '/o-nama' },
     }),
-    quoteBlock({
-      text: 'Sarađujemo sa Palisade već više od 3 godine i uvek smo zadovoljni — od panelnih ograda do automatizovanih kapija. Profesionalnost, tačnost i kvalitet rada su na najvišem nivou.',
-      author: 'Marko Nikolić',
-      role: 'Logistički direktor, Frikom',
-      rating: '5',
+
+    // 4 — Naše usluge (iz kategorija)
+    servicesBlock({
+      eyebrow: 'Šta radimo',
+      heading: 'Naše usluge',
+      intro: 'Kompletna ponuda kapija, ograda, automatizacije i kontrole pristupa — po meri vašeg objekta.',
+      source: 'auto',
     }),
-    quoteBlock({
-      text: 'Ograda i ulazna kapija savršeno se uklapaju u arhitekturu kuće. Cena je bila fer, isporuka za 3 nedelje kako su obećali, a montaža obavljena za jedan dan. Preporučujem svima.',
-      author: 'Milica Petrović',
-      role: 'Vlasnica nekretnine, Dedinje, Beograd',
-      rating: '5',
+
+    // 5 — Realizovani projekti
+    projectsPreviewBlock({
+      eyebrow: 'Realizovano',
+      heading: 'Projekti na koje smo ponosni',
+      intro: 'Pogledajte deo realizovanih kapija i ograda širom Srbije — od porodičnih kuća do velikih kompleksa.',
+      ctaLabel: 'Svi projekti',
+      limit: 4,
     }),
-    faqBlock('Česta pitanja', [
-      {
-        question: 'Šta sve nudite od kapija i ograda?',
-        answer: [
-          'Izrađujemo pešačke kapije, dvokrilne kapije, klizne kapije i samonosive kapije. Od ograda nudimo 2D i 3D panelne ograde i aluminijumske ograde. Svi proizvodi su dostupni u različitim dimenzijama i RAL bojama.',
-        ],
-      },
-      {
-        question: 'Kolika je cena po tekućem metru?',
-        answer: [
-          'Cena zavisi od vrste proizvoda, materijala, dimenzija i lokacije montaže. Kontaktirajte nas za besplatnu procenu — dolazimo na merenje bez naknade i šaljemo ponudu isti dan.',
-        ],
-      },
-      {
-        question: 'Da li dolazite na merenje besplatno?',
-        answer: [
-          'Da, merenje i konsultacija su potpuno besplatni. Naš tim dolazi na lice mesta, izmeri prostor, da stručnu preporuku i sačini ponudu bez ikakve obaveze sa vaše strane.',
-        ],
-      },
-      {
-        question: 'Koliko traje izrada i montaža?',
-        answer: [
-          'Standardni rok isporuke je 7 do 30 radnih dana, u zavisnosti od složenosti projekta. Montaža se najčešće obavlja za jedan radni dan.',
-        ],
-      },
-      {
-        question: 'Da li pokrivate celu Srbiju?',
-        answer: [
-          'Da, naši monteri rade na celoj teritoriji Srbije. Redovno smo prisutni u Beogradu, Novom Sadu, Nišu i Kragujevcu, ali dolazimo i u ostale gradove po dogovoru.',
-        ],
-      },
+
+    // 6 — Statistika
+    statsBlock('Palisade u brojevima', [
+      { value: '700+', label: 'Zadovoljnih kompanija' },
+      { value: '20+', label: 'Godina iskustva' },
+      { value: '98%', label: 'Zadovoljnih klijenata' },
+      { value: '4.9/5', label: 'Ocena na Google-u' },
     ]),
-    spacerBlock('sm', true),
+
+    // 7 — Recenzije (avatare/logoe puni `pnpm seed:home`)
+    testimonialsBlock({
+      eyebrow: 'Klijenti o nama',
+      heading: 'Šta kažu naši klijenti',
+      intro: 'Preko 700 zadovoljnih klijenata širom Srbije — od porodičnih kuća do velikih industrijskih kompleksa.',
+      items: [
+        { text: 'Palisada nam je postavila panelnu ogradu oko celog magacinskog kompleksa na Zrenjaninskom putu. Sve je završeno u dogovorenom roku, a kvalitet materijala i ugradnje je izuzetan. Kapija sa automatikom radi besprekorno.', author: 'Marko Petrović', role: 'Direktor logistike' },
+        { text: 'Tražili smo ogradu i kapiju za porodičnu kuću na Dedinju. Palisada je došla na merenje, predložila dizajn koji se savršeno uklapa u fasadu i isporučila sve u roku od tri nedelje. Odlična komunikacija i fer cena.', author: 'Jelena Stanković', role: 'Vlasnica kuće, Beograd' },
+        { text: 'Kao firma, sarađujemo sa Palisadom na više projekata godišnje. Panelne ograde i ulazne kapije uvek stignu na vreme, kvalitet je konstantan. Posebno cenimo kompletnu uslugu – od merenja do montaže.', author: 'Dragan Jovanović', role: 'Direktor firme' },
+        { text: 'Angažovali smo Palisadu za ograđivanje školskog dvorišta u Novom Beogradu. Ceo proces je bio profesionalan – od ponude do montaže. Ograda je čvrsta, bezbedna i izgleda moderno.', author: 'Ana Nikolić', role: 'Direktorka škole, Novi Beograd' },
+      ],
+    }),
+
+    // 8 — FAQ
+    faqBlock('Česta pitanja', [
+      { question: 'Šta sve nudite od kapija i ograda?', answer: ['Izrađujemo jednokrilne, dvokrilne, klizne i samonosive kapije. Od ograda nudimo panelne i dekorativne ograde, automatizaciju i kontrolu pristupa. Svi proizvodi su dostupni u različitim dimenzijama i RAL bojama.'] },
+      { question: 'Kolika je cena po tekućem metru?', answer: ['Cena zavisi od vrste proizvoda, materijala, dimenzija i lokacije montaže. Kontaktirajte nas za besplatnu procenu — dolazimo na merenje bez naknade i šaljemo ponudu isti dan.'] },
+      { question: 'Da li dolazite na merenje besplatno?', answer: ['Da, merenje i konsultacija su potpuno besplatni. Naš tim dolazi na lice mesta, izmeri prostor, da stručnu preporuku i sačini ponudu bez ikakve obaveze.'] },
+      { question: 'Koliko traje izrada i montaža?', answer: ['Standardni rok isporuke je 7 do 30 radnih dana, u zavisnosti od složenosti projekta. Montaža se najčešće obavlja za jedan radni dan.'] },
+      { question: 'Da li pokrivate celu Srbiju?', answer: ['Da, naši monteri rade na celoj teritoriji Srbije. Redovno smo prisutni u Beogradu, Novom Sadu, Nišu i Kragujevcu, a dolazimo i u ostale gradove po dogovoru.'] },
+    ]),
+
+    // 9 — CTA
     ctaBlock({
       title: 'Zatražite besplatnu procenu danas',
-      body: [
-        'Popunite kontakt formu ili nas pozovite — odgovaramo u roku od 24 sata i šaljemo detaljan predračun prilagođen vašem projektu.',
-      ],
+      body: ['Popunite kontakt formu ili nas pozovite — odgovaramo u roku od 24 sata i šaljemo detaljan predračun prilagođen vašem projektu.'],
       links: [
         { label: 'Zatražite ponudu', url: '/kontakt' },
         { appearance: 'outline', label: 'Pozovite nas', url: 'tel:+381652227007' },

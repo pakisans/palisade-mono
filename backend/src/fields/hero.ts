@@ -39,6 +39,12 @@ export const hero: Field = {
       required: true,
     },
     {
+      name: 'eyebrow',
+      type: 'text',
+      localized: true,
+      admin: { description: 'Mala oznaka iznad naslova (npr. „Premium kapije i ograde").' },
+    },
+    {
       name: 'richText',
       type: 'richText',
       editor: lexicalEditor({
@@ -66,6 +72,30 @@ export const hero: Field = {
       },
       relationTo: 'media',
       required: true,
+    },
+    {
+      name: 'stats',
+      type: 'array',
+      label: 'Statistika (traka)',
+      maxRows: 4,
+      admin: { description: 'Brojevi u dnu hero-a (npr. 700+ / klijenata).' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'value', type: 'text', required: true, admin: { width: '40%' } },
+            { name: 'label', type: 'text', localized: true, required: true, admin: { width: '60%' } },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'trust',
+      type: 'array',
+      label: 'Trust stavke',
+      maxRows: 4,
+      admin: { description: 'Kratke garancije (npr. Besplatno merenje).' },
+      fields: [{ name: 'text', type: 'text', localized: true, required: true }],
     },
   ],
   label: false,

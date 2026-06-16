@@ -119,6 +119,85 @@ export const statsBlock = (headingText: string, items: Array<{ label: string; va
   items,
 }) as any
 
+export const missionBlock = ({
+  eyebrow,
+  heading,
+  statement,
+  values,
+}: {
+  eyebrow?: string
+  heading: string
+  statement: string
+  values: Array<{ icon?: string; title: string; text?: string }>
+}) =>
+  ({
+  blockType: 'mission',
+  eyebrow,
+  heading,
+  statement,
+  values: values.map((v) => ({ icon: v.icon ?? 'check', title: v.title, text: v.text })),
+}) as any
+
+export const whyUsBlock = ({
+  eyebrow,
+  heading,
+  items,
+}: {
+  eyebrow?: string
+  heading: string
+  items: Array<{ icon?: string; title: string; text?: string }>
+}) =>
+  ({ blockType: 'whyUs', eyebrow, heading, items: items.map((i) => ({ icon: i.icon ?? 'check', title: i.title, text: i.text })) }) as any
+
+export const servicesBlock = ({
+  eyebrow,
+  heading,
+  intro,
+  source = 'auto',
+  items = [],
+}: {
+  eyebrow?: string
+  heading: string
+  intro?: string
+  source?: 'auto' | 'manual'
+  items?: Array<{ image?: any; title: string; href?: string; text?: string }>
+}) => ({ blockType: 'services', eyebrow, heading, intro, source, items }) as any
+
+export const projectsPreviewBlock = ({
+  eyebrow,
+  heading,
+  intro,
+  ctaLabel = 'Svi projekti',
+  limit = 4,
+}: {
+  eyebrow?: string
+  heading: string
+  intro?: string
+  ctaLabel?: string
+  limit?: number
+}) => ({ blockType: 'projectsPreview', eyebrow, heading, intro, ctaLabel, limit }) as any
+
+export const testimonialsBlock = ({
+  eyebrow,
+  heading,
+  intro,
+  items,
+}: {
+  eyebrow?: string
+  heading: string
+  intro?: string
+  items: Array<{ text: string; author: string; role?: string; avatar?: any; rating?: string }>
+}) =>
+  ({ blockType: 'testimonials', eyebrow, heading, intro, items: items.map((i) => ({ ...i, rating: i.rating ?? '5' })) }) as any
+
+export const clientLogosBlock = ({
+  heading,
+  logos = [],
+}: {
+  heading?: string
+  logos?: Array<{ image: any; name?: string }>
+}) => ({ blockType: 'clientLogos', heading: heading ?? 'Preko 700 firmi ogradila je PALISADA', logos }) as any
+
 export const spacerBlock = (size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md', showDivider = false) =>
   ({
   blockType: 'spacer',
@@ -171,6 +250,7 @@ export const brandStoryBlock = ({
   description,
   layout = 'image-right',
   imageFit = 'cover',
+  image,
   stats,
   cta,
 }: {
@@ -179,6 +259,7 @@ export const brandStoryBlock = ({
   description: string[]
   layout?: 'image-right' | 'image-left'
   imageFit?: 'cover' | 'contain'
+  image?: any
   stats?: Array<{ value: string; label: string }>
   cta?: { label: string; url: string }
 }) =>
@@ -189,6 +270,7 @@ export const brandStoryBlock = ({
   eyebrow,
   heading: headingText,
   description: richText(...description.map((t) => paragraph(t))),
+  ...(image ? { image } : {}),
   stats: stats || [],
   cta: cta || { label: '', url: '' },
 }) as any

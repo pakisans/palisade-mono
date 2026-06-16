@@ -387,14 +387,23 @@ export const seed = async ({
       // "Proizvodi" renders a mega-menu (all top categories) in the header — code-driven.
       navItems: [
         { link: { type: 'custom', label: 'Naslovna', url: '/', newTab: false }, subItems: [] },
-        { link: { type: 'custom', label: 'Proizvodi', url: '/proizvodi', newTab: false }, subItems: [] },
+        {
+          link: { type: 'custom', label: 'Proizvodi', url: '/proizvodi', newTab: false },
+          subItems: [],
+        },
         { link: { type: 'custom', label: 'O nama', url: '/o-nama', newTab: false }, subItems: [] },
         { link: { type: 'custom', label: 'Saveti', url: '/saveti', newTab: false }, subItems: [] },
-        { link: { type: 'custom', label: 'Projekti', url: '/projekti', newTab: false }, subItems: [] },
-        { link: { type: 'custom', label: 'Kontakt', url: '/kontakt', newTab: false }, subItems: [] },
+        {
+          link: { type: 'custom', label: 'Projekti', url: '/projekti', newTab: false },
+          subItems: [],
+        },
+        {
+          link: { type: 'custom', label: 'Kontakt', url: '/kontakt', newTab: false },
+          subItems: [],
+        },
       ],
       promoBanner: {
-        enabled: true,
+        enabled: false,
         text: 'Besplatno merenje i konsultacija na terenu — bez obaveze!',
         link: { type: 'custom', label: 'Zatražite ponudu', url: '/kontakt', newTab: false },
       },
@@ -439,19 +448,33 @@ export const seed = async ({
           blockType: 'footerSocial',
           title: 'Pratite nas',
           profiles: [
-            { platform: 'facebook', url: 'https://facebook.com/palisade.rs' },
-            { platform: 'instagram', url: 'https://instagram.com/palisade.rs' },
-            { platform: 'youtube', url: 'https://youtube.com/@palisadedoo' },
-            { platform: 'linkedin', url: 'https://linkedin.com/company/palisade-doo' },
+            { platform: 'facebook', url: 'https://facebook.com/palisada.rs' },
+            { platform: 'instagram', url: 'https://instagram.com/palisada.rs' },
+            { platform: 'youtube', url: 'https://youtube.com/@palisadadoo' },
+            { platform: 'linkedin', url: 'https://linkedin.com/company/palisada-doo' },
           ],
         },
       ],
       bottomBar: {
-        copyright: `© ${new Date().getFullYear()} Palisade d.o.o. Sva prava zadržana.`,
+        copyright: `© ${new Date().getFullYear()} Palisada d.o.o. Sva prava zadržana.`,
         // Sadržaj ovih stranica puni `pnpm scrape:legal` (skida sa palisada.rs).
         legalLinks: [
-          { link: { type: 'custom', label: 'Politika privatnosti', url: '/politika-privatnosti', newTab: false } },
-          { link: { type: 'custom', label: 'Pravila o kolačićima', url: '/pravila-o-kolacicima', newTab: false } },
+          {
+            link: {
+              type: 'custom',
+              label: 'Politika privatnosti',
+              url: '/politika-privatnosti',
+              newTab: false,
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Pravila o kolačićima',
+              url: '/pravila-o-kolacicima',
+              newTab: false,
+            },
+          },
         ],
       },
     } as any,

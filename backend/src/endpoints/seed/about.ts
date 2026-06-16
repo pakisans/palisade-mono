@@ -8,6 +8,7 @@ import {
   ctaBlock,
   faqBlock,
   heading,
+  missionBlock,
   paragraph,
   quoteBlock,
   richText,
@@ -26,27 +27,23 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
   slug: 'o-nama',
   title: 'O nama',
   _status: 'published',
+  // Bez velikog hero-a — stranica počinje BrandStory blokom (samo tanka breadcrumb+H1 traka).
   hero: {
-    type: 'lowImpact',
+    type: 'none',
     media: heroImage,
     links: [],
-    richText: richText(
-      heading('Spoj vrhunskog kvaliteta i moderne estetike', 'h1'),
-      paragraph(
-        'Osiguravamo vaš prostor ogradama i kapijama koje traju generacijama. Upoznajte tim iza Palisade d.o.o.',
-      ),
-    ),
   },
   layout: [
     brandStoryBlock({
-      eyebrow: 'Naša misija',
-      heading: 'Bezbednost i estetika — bez kompromisa',
+      eyebrow: 'O nama',
+      heading: 'Spoj vrhunskog kvaliteta i moderne estetike',
       description: [
-        'Palisade d.o.o. je osnovana sa jasnom misijom — da svakom domaćinstvu i poslovnom objektu u Srbiji obezbedi kapije i ograde koje spajaju bezbednost, trajnost i estetiku.',
-        'Godinama gradimo poverenje sa klijentima, od individualnih domaćinstava do velikih kompanija poput LIDL-a, Coca-Cole, Idee i Frikoma. Svaki projekat tretiramo sa istim stepenom pažnje i profesionalnosti.',
-        'Sopstvena produkcija u Beogradu nam daje potpunu kontrolu kvaliteta — od odabira materijala do finalnog proizvoda koji stiže do vas.',
+        'Osiguravamo vaš prostor ogradama i kapijama koje traju generacijama. Palisade d.o.o. projektuje, izrađuje i montira kapije i ograde po meri — sa punom garancijom na rad i materijal.',
+        'Iza svakog projekta stoji sopstvena produkcija u Beogradu i tim koji svaki posao tretira sa istom pažnjom — od porodične kuće do velikog industrijskog kompleksa.',
       ],
       layout: 'image-right',
+      imageFit: 'contain',
+      image: heroImage,
       stats: [
         { value: '700+', label: 'Kompanija klijenata' },
         { value: '20+', label: 'Godina iskustva' },
@@ -54,6 +51,18 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
         { value: '4.9/5', label: 'Prosečna ocena' },
       ],
       cta: { label: 'Kontaktirajte nas', url: '/kontakt' },
+    }),
+    missionBlock({
+      eyebrow: 'Naša misija',
+      heading: 'Kvalitetna ograda je prvi utisak vašeg objekta',
+      statement:
+        'Palisada d.o.o. osnovana je sa jasnom misijom – pružiti svakom domu i poslovnom objektu u Srbiji kapije i ograde koje kombinuju sigurnost, trajnost i estetiku. Verujemo da kvalitetna ograda nije samo fizička barijera, već prvi utisak koji vaš objekat ostavlja na svakog posetioca.',
+      values: [
+        { icon: 'shield', title: 'Sigurnost', text: 'Robusni materijali i precizna ugradnja za maksimalnu zaštitu doma i poslovnog objekta.' },
+        { icon: 'clock', title: 'Trajnost', text: 'Toplo cinkovanje i plastifikacija — otpornost na koroziju i lep izgled decenijama.' },
+        { icon: 'sparkles', title: 'Estetika', text: 'Dizajn po meri koji se uklapa u arhitekturu i podiže vrednost vašeg objekta.' },
+        { icon: 'wrench', title: 'Kompletna usluga', text: 'Od besplatnog merenja i izrade do montaže i automatizacije — sve na jednom mestu.' },
+      ],
     }),
     statsBlock('Palisade u brojevima', [
       { value: '700+', label: 'Zadovoljnih kompanija' },

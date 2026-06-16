@@ -309,6 +309,12 @@ export interface Product {
         | BannerBlock
         | CallToActionBlock
         | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
         | MediaBlock
         | CarouselBlock
         | ThreeItemGridBlock
@@ -644,6 +650,10 @@ export interface Page {
   publishedOn?: string | null;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    /**
+     * Mala oznaka iznad naslova (npr. „Premium kapije i ograde").
+     */
+    eyebrow?: string | null;
     richText?: {
       root: {
         type: string;
@@ -700,6 +710,25 @@ export interface Page {
         }[]
       | null;
     media?: (number | null) | Media;
+    /**
+     * Brojevi u dnu hero-a (npr. 700+ / klijenata).
+     */
+    stats?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Kratke garancije (npr. Besplatno merenje).
+     */
+    trust?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
   };
   layout?:
     | (
@@ -708,6 +737,12 @@ export interface Page {
         | BannerBlock
         | CallToActionBlock
         | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
         | MediaBlock
         | CarouselBlock
         | ThreeItemGridBlock
@@ -764,6 +799,12 @@ export interface Category {
         | BannerBlock
         | CallToActionBlock
         | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
         | MediaBlock
         | CarouselBlock
         | ThreeItemGridBlock
@@ -876,6 +917,12 @@ export interface Brand {
         | BannerBlock
         | CallToActionBlock
         | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
         | MediaBlock
         | CarouselBlock
         | ThreeItemGridBlock
@@ -897,6 +944,129 @@ export interface Brand {
   };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MissionBlock".
+ */
+export interface MissionBlock {
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * Glavna izjava o misiji (jedan do dva pasusa).
+   */
+  statement?: string | null;
+  /**
+   * Stubovi / vrednosti (ikona + naslov + opis).
+   */
+  values?:
+    | {
+        icon?: ('shield' | 'sparkles' | 'clock' | 'wrench' | 'award' | 'users' | 'check') | null;
+        title: string;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mission';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WhyUsBlock".
+ */
+export interface WhyUsBlock {
+  eyebrow?: string | null;
+  heading?: string | null;
+  items?:
+    | {
+        icon?: ('check' | 'shield' | 'ruler' | 'truck' | 'wrench' | 'award' | 'clock' | 'sparkles' | 'users') | null;
+        title: string;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'whyUs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock".
+ */
+export interface ServicesBlock {
+  eyebrow?: string | null;
+  heading?: string | null;
+  intro?: string | null;
+  source?: ('auto' | 'manual') | null;
+  items?:
+    | {
+        image?: (number | null) | Media;
+        title: string;
+        href?: string | null;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'services';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProjectsPreviewBlock".
+ */
+export interface ProjectsPreviewBlock {
+  eyebrow?: string | null;
+  heading?: string | null;
+  intro?: string | null;
+  ctaLabel?: string | null;
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'projectsPreview';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  eyebrow?: string | null;
+  heading?: string | null;
+  intro?: string | null;
+  items?:
+    | {
+        text: string;
+        author: string;
+        role?: string | null;
+        /**
+         * Logo firme ili foto (opciono).
+         */
+        avatar?: (number | null) | Media;
+        rating?: ('5' | '4' | '3') | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ClientLogosBlock".
+ */
+export interface ClientLogosBlock {
+  heading?: string | null;
+  logos?:
+    | {
+        image: number | Media;
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'clientLogos';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1340,6 +1510,12 @@ export interface Post {
         | BannerBlock
         | CallToActionBlock
         | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
         | MediaBlock
         | CarouselBlock
         | ThreeItemGridBlock
@@ -1392,6 +1568,12 @@ export interface PostCategory {
         | BannerBlock
         | CallToActionBlock
         | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
         | MediaBlock
         | CarouselBlock
         | ThreeItemGridBlock
@@ -1824,6 +2006,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        eyebrow?: T;
         richText?: T;
         links?:
           | T
@@ -1841,6 +2024,19 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
         media?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+        trust?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
       };
   layout?:
     | T
@@ -1850,6 +2046,12 @@ export interface PagesSelect<T extends boolean = true> {
         banner?: T | BannerBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        mission?: T | MissionBlockSelect<T>;
+        whyUs?: T | WhyUsBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        projectsPreview?: T | ProjectsPreviewBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        clientLogos?: T | ClientLogosBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
@@ -1985,6 +2187,114 @@ export interface ContentBlockSelect<T extends boolean = true> {
               label?: T;
               appearance?: T;
             };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MissionBlock_select".
+ */
+export interface MissionBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  statement?: T;
+  values?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WhyUsBlock_select".
+ */
+export interface WhyUsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  items?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock_select".
+ */
+export interface ServicesBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  source?: T;
+  items?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        href?: T;
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProjectsPreviewBlock_select".
+ */
+export interface ProjectsPreviewBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  ctaLabel?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  items?:
+    | T
+    | {
+        text?: T;
+        author?: T;
+        role?: T;
+        avatar?: T;
+        rating?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ClientLogosBlock_select".
+ */
+export interface ClientLogosBlockSelect<T extends boolean = true> {
+  heading?: T;
+  logos?:
+    | T
+    | {
+        image?: T;
+        name?: T;
         id?: T;
       };
   id?: T;
@@ -2162,6 +2472,12 @@ export interface PostsSelect<T extends boolean = true> {
         banner?: T | BannerBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        mission?: T | MissionBlockSelect<T>;
+        whyUs?: T | WhyUsBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        projectsPreview?: T | ProjectsPreviewBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        clientLogos?: T | ClientLogosBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
@@ -2207,6 +2523,12 @@ export interface CategoriesSelect<T extends boolean = true> {
         banner?: T | BannerBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        mission?: T | MissionBlockSelect<T>;
+        whyUs?: T | WhyUsBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        projectsPreview?: T | ProjectsPreviewBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        clientLogos?: T | ClientLogosBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
@@ -2248,6 +2570,12 @@ export interface PostCategoriesSelect<T extends boolean = true> {
         banner?: T | BannerBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        mission?: T | MissionBlockSelect<T>;
+        whyUs?: T | WhyUsBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        projectsPreview?: T | ProjectsPreviewBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        clientLogos?: T | ClientLogosBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
@@ -2289,6 +2617,12 @@ export interface BrandsSelect<T extends boolean = true> {
         banner?: T | BannerBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        mission?: T | MissionBlockSelect<T>;
+        whyUs?: T | WhyUsBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        projectsPreview?: T | ProjectsPreviewBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        clientLogos?: T | ClientLogosBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
@@ -2609,6 +2943,12 @@ export interface ProductsSelect<T extends boolean = true> {
         banner?: T | BannerBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        mission?: T | MissionBlockSelect<T>;
+        whyUs?: T | WhyUsBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        projectsPreview?: T | ProjectsPreviewBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        clientLogos?: T | ClientLogosBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;

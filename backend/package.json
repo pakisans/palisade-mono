@@ -32,7 +32,13 @@
     "scrape:projekti-palisada": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-projekti-palisada.ts",
     "fix:categories": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-categories.ts",
     "import:variants": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-variants.ts",
-    "scrape:legal": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-legal.ts"
+    "scrape:legal": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-legal.ts",
+    "fix:content-links": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-content-links.ts",
+    "seed:reviews": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-reviews.ts",
+    "seed:clients": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-clients.ts",
+    "seed:mission": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-mission.ts",
+    "seed:about": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-about.ts",
+    "seed:home": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-home.ts"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.80.0",

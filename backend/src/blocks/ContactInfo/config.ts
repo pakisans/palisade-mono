@@ -15,14 +15,23 @@ export const ContactInfo: Block = {
       type: 'row',
       fields: [
         { name: 'phone', type: 'text', admin: { width: '50%', placeholder: '+381 65 222 7007' } },
-        { name: 'whatsapp', type: 'text', admin: { width: '50%', placeholder: 'https://wa.me/381652227007' } },
+        {
+          name: 'whatsapp',
+          type: 'text',
+          admin: { width: '50%', placeholder: 'https://wa.me/381652227007' },
+        },
       ],
     },
     {
       type: 'row',
       fields: [
-        { name: 'email', type: 'text', admin: { width: '50%', placeholder: 'office@palisade.rs' } },
-        { name: 'address', type: 'text', localized: true, admin: { width: '50%', placeholder: 'Zrenjaninski put 139E, Beograd' } },
+        { name: 'email', type: 'text', admin: { width: '50%', placeholder: 'office@palisada.rs' } },
+        {
+          name: 'address',
+          type: 'text',
+          localized: true,
+          admin: { width: '50%', placeholder: 'Zrenjaninski put 139E, Beograd' },
+        },
       ],
     },
     {

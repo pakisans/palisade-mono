@@ -120,6 +120,33 @@ const tHeading = (text: string, tag: 'h2' | 'h3'): any => ({ type: 'heading', ta
 const tRoot = (children: any[]): any => ({
   root: { type: 'root', children: children.length ? children : [tParagraph([tText('')])], direction: 'ltr', format: '', indent: 0, version: 1 },
 })
+const BOLD = 1, ITALIC = 2
+const tLink = (text: string, url: string): any => ({ type: 'link', fields: { linkType: 'custom', newTab: /^https?:/.test(url) && !/palisad/i.test(url), url }, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
+const tList = (items: any[][], ordered: boolean): any => ({ type: 'list', listType: ordered ? 'number' : 'bullet', start: 1, tag: ordered ? 'ol' : 'ul', children: items.map((c, i) => ({ type: 'listitem', value: i + 1, children: c.length ? c : [tText('')], direction: 'ltr', format: '', indent: 0, version: 1 })), direction: 'ltr', format: '', indent: 0, version: 1 })
+
+// Inline walker: preserves <strong>/<b> (bold), <em>/<i> (italic), <a> (links).
+function inlineNodes(el: Element): any[] {
+  const out: any[] = []
+  const walk = (node: any, fmt: number) => {
+    // Collapse whitespace runs but DO NOT trim — preserves the space between text and inline tags.
+    if (node.nodeType === 3) { const t = decode(node.textContent ?? '').replace(/\s+/g, ' '); if (t) out.push(tText(t, fmt)); return }
+    if (node.nodeType !== 1) return
+    const tag = node.tagName.toLowerCase()
+    if (tag === 'a') { const href = node.getAttribute('href') || '#'; const text = collapse(node.textContent ?? ''); if (text) out.push(tLink(decode(text), href)); return }
+    if (tag === 'br') { out.push({ type: 'linebreak', version: 1 }); return }
+    const nf = tag === 'strong' || tag === 'b' ? fmt | BOLD : tag === 'em' || tag === 'i' ? fmt | ITALIC : fmt
+    node.childNodes.forEach((c: any) => walk(c, nf))
+  }
+  el.childNodes.forEach((c: any) => walk(c, 0))
+  return out
+}
+
+function youtubeUrl(html: string): string {
+  const m = html.match(/<iframe[^>]+src=["']([^"']*(?:youtube\.com|youtu\.be|youtube-nocookie\.com)[^"']*)["']/i)
+  if (!m) return ''
+  const id = m[1].match(/(?:embed\/|youtu\.be\/|v=)([\w-]{6,})/)?.[1]
+  return id ? `https://www.youtube.com/watch?v=${id}` : ''
+}
 
 // Largest candidate from a srcset (full-res gallery images).
 function bestFromSrcset(srcset: string | null, fallback: string): string {
@@ -134,7 +161,7 @@ function bestFromSrcset(srcset: string | null, fallback: string): string {
 
 // ─── Parse project content → text nodes + ordered gallery images ────────────────
 
-type Parsed = { content: any[]; images: ImageRef[]; firstText: string }
+type Parsed = { content: any[]; images: ImageRef[]; firstText: string; videoUrl: string }
 
 function parseProject(htmlStr: string, title: string): Parsed {
   const doc = new JSDOM(`<body>${htmlStr}</body>`).window.document.body
@@ -154,20 +181,35 @@ function parseProject(htmlStr: string, title: string): Parsed {
     images.push({ url, alt: img.getAttribute('alt') || title })
   })
 
-  // Any meaningful text (projects are mostly images, but keep a short description).
-  doc.querySelectorAll('p, h2, h3').forEach((el) => {
-    const tag = el.tagName.toLowerCase()
-    const text = collapse(el.textContent ?? '')
-    if (!text) return
-    if (tag === 'h2') content.push(tHeading(text, 'h2'))
-    else if (tag === 'h3') content.push(tHeading(text, 'h3'))
-    else {
-      content.push(tParagraph([tText(text)]))
-      if (!firstText) firstText = text
-    }
-  })
+  const videoUrl = youtubeUrl(htmlStr)
 
-  return { content, images, firstText }
+  // Walk block-level nodes in order, preserving headings / bold / links / lists.
+  const handle = (el: Element) => {
+    const tag = el.tagName.toLowerCase()
+    const plain = collapse(el.textContent ?? '')
+    if (/^h[1-6]$/.test(tag)) {
+      if (!plain) return
+      content.push(tHeading(plain, tag === 'h1' || tag === 'h2' ? 'h2' : 'h3'))
+    } else if (tag === 'p') {
+      if (!plain) return
+      // Standalone fully-bold short line → section heading.
+      const strong = el.querySelector('strong, b')
+      if (strong && collapse(strong.textContent ?? '') === plain && plain.length < 90) {
+        content.push(tHeading(plain.replace(/:$/, ''), 'h2'))
+        return
+      }
+      content.push(tParagraph(inlineNodes(el)))
+      if (!firstText) firstText = plain
+    } else if (tag === 'ul' || tag === 'ol') {
+      const items = Array.from(el.children).filter((c) => c.tagName.toLowerCase() === 'li').map((li) => inlineNodes(li as Element)).filter((c) => c.length)
+      if (items.length) content.push(tList(items, tag === 'ol'))
+    } else if (['div', 'section', 'article', 'figure'].includes(tag)) {
+      Array.from(el.children).forEach(handle)
+    }
+  }
+  Array.from(doc.children).forEach(handle)
+
+  return { content, images, firstText, videoUrl }
 }
 
 // ─── Main ───────────────────────────────────────────────────────────────────
@@ -200,7 +242,7 @@ const run = async () => {
     for (const p of all) {
       const parsed = parseProject(p.content.rendered, decode(p.title.rendered))
       imgTotal += parsed.images.length
-      console.log(`  • ${p.slug}  [img:${parsed.images.length}${p.featured_media ? '+fm' : ''} txt:${parsed.content.length}]  ${decode(p.title.rendered).slice(0, 50)}`)
+      console.log(`  • ${p.slug}  [img:${parsed.images.length}${p.featured_media ? '+fm' : ''} txt:${parsed.content.length}${parsed.videoUrl ? ' +video' : ''}]  ${decode(p.title.rendered).slice(0, 50)}`)
     }
     console.log(`\n[DRY_RUN] ukupno galerijskih slika: ${imgTotal}. Ništa nije upisano.`)
     process.exit(0)
@@ -245,6 +287,7 @@ const run = async () => {
     const featuredId = fm ? await upload(fm) : null
 
     const layout: any[] = []
+    if (parsed.videoUrl) layout.push({ blockType: 'video', platform: 'youtube', url: parsed.videoUrl })
     for (const img of parsed.images) {
       const id = await upload(img)
       if (id != null) { layout.push({ blockType: 'mediaBlock', media: id, position: 'normal' }); imgCount++ }
@@ -272,7 +315,8 @@ const run = async () => {
       })
       created++
       const note = slug !== p.slug ? ` (slug→${slug})` : ''
-      console.log(`  ✓ ${p.slug}${note} — galerija:${layout.length}${featuredId ? '+fm' : ''}`)
+      const galN = layout.filter((b) => b.blockType === 'mediaBlock').length
+      console.log(`  ✓ ${p.slug}${note} — galerija:${galN}${featuredId ? '+fm' : ''}${parsed.videoUrl ? ' +video' : ''} txt:${parsed.content.length}`)
     } catch (err: any) {
       failed++
       console.warn(`  ✗ ${p.slug}: ${err?.message ?? err}`)
