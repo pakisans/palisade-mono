@@ -12,6 +12,11 @@ import { GeistMono } from 'geist/font/mono'
 import React from 'react'
 import './globals.css'
 
+// Ceo storefront (`(app)`) renderuje se dinamički — ne prerenderuj pri buildu.
+// Backend storefront se ne koristi (frontend je zaseban projekat), a ovo uklanja
+// SVAKU zavisnost builda od baze (checkout, [slug], shop, blog…) odjednom.
+export const dynamic = 'force-dynamic'
+
 /* const { SITE_NAME, TWITTER_CREATOR, TWITTER_SITE } = process.env
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
