@@ -9,6 +9,23 @@ const nextConfig = {
         port: '3001',
         pathname: '/**',
       },
+      // Tačan backend URL (host + port + protokol) izveden iz NEXT_PUBLIC_PAYLOAD_URL —
+      // pokriva i staging na :3001 i produkciju na https domenu, bez hardkodovanja.
+      ...(() => {
+        try {
+          const u = new URL(process.env.NEXT_PUBLIC_PAYLOAD_URL || '')
+          return [
+            {
+              protocol: u.protocol.replace(':', ''),
+              hostname: u.hostname,
+              ...(u.port ? { port: u.port } : {}),
+              pathname: '/**',
+            },
+          ]
+        } catch {
+          return []
+        }
+      })(),
       // Production — same host, no port
       {
         protocol: 'https',

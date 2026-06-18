@@ -1,5 +1,6 @@
-const PAYLOAD_URL =
-  process.env.NEXT_PUBLIC_PAYLOAD_URL || "http://localhost:3001";
+const PAYLOAD_URL = (
+  process.env.NEXT_PUBLIC_PAYLOAD_URL || "http://localhost:3001"
+).replace(/\/+$/, ""); // skini završnu '/' da ne nastane '//api/...'
 
 async function fetchAPI(
   path,
