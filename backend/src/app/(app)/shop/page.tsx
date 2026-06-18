@@ -4,6 +4,9 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 
+// Renderuj u runtime-u (zavisi od baze) — ne prerenderuj pri buildu.
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   description: 'Search for products in the store.',
   title: 'Shop',

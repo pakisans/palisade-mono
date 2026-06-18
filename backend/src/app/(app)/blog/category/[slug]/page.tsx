@@ -15,19 +15,24 @@ type Args = {
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const categories = await payload.find({
-    collection: 'post-categories',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+  // Build ne sme da zavisi od žive baze — fallback na prazno ako DB nije dostupan.
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const categories = await payload.find({
+      collection: 'post-categories',
+      draft: false,
+      limit: 1000,
+      overrideAccess: false,
+      pagination: false,
+      select: {
+        slug: true,
+      },
+    })
 
-  return categories.docs.map(({ slug }) => ({ slug }))
+    return categories.docs.map(({ slug }) => ({ slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {

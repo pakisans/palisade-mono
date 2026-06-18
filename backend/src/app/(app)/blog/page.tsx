@@ -6,6 +6,9 @@ import Link from 'next/link'
 
 import type { Media, Post, PostCategory } from '@/payload-types'
 
+// Renderuj u runtime-u (zavisi od baze) — ne prerenderuj pri buildu.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Latest posts and updates.',
