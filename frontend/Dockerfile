@@ -24,7 +24,7 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 ENV REVALIDATE_SECRET=$REVALIDATE_SECRET
 ENV NEXT_PUBLIC_PAYLOAD_URL=$NEXT_PUBLIC_PAYLOAD_URL
 
-RUN pnpm build --webpack
+RUN pnpm build
 
 FROM base AS runner
 WORKDIR /app
@@ -33,7 +33,7 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json /app/next.config.mjs /app/jsconfig.json ./
+COPY --from=builder /app/package.json /app/next.config.js /app/jsconfig.json ./
 
 EXPOSE 3000
 ENV PORT=3000
