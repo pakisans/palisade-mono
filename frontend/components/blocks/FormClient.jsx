@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import RichText from '@/components/ui/RichText'
 import { cn } from '@/lib/utils'
@@ -112,7 +112,17 @@ const widthCls = {
 
 // ─── Form ─────────────────────────────────────────────────────────────────────
 
-export default function FormClient({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp }) {
+// useSearchParams() forsira CSR bailout → mora u Suspense granicu da bi
+// se stranica statički prerenderovala (Next.js zahtev). Wrapper ispod to radi.
+export default function FormClient(props) {
+  return (
+    <Suspense fallback={null}>
+      <FormInner {...props} />
+    </Suspense>
+  )
+}
+
+function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp }) {
   const searchParams = useSearchParams()
   const prefill      = prefillProp || searchParams.get('proizvod') // pre-fill (prop or ?proizvod=)
 

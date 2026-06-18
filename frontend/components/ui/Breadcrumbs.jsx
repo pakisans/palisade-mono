@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SITE_URL } from '@/lib/constants'
 
 const ChevronRight = ({ dark }) => (
   <svg className={`w-3.5 h-3.5 flex-shrink-0 ${dark ? 'text-white/40' : 'text-gray-300'}`} fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
@@ -21,7 +22,7 @@ export default function Breadcrumbs({ items = [], className = '', variant = 'lig
       '@type': 'ListItem',
       position: i + 1,
       name: item.label,
-      ...(item.href ? { item: `${process.env.NEXT_PUBLIC_SITE_URL || ''}${item.href}` } : {}),
+      ...(item.href ? { item: `${SITE_URL}${item.href}` } : {}),
     })),
   }
 

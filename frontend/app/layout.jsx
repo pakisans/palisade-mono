@@ -3,7 +3,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { getHeader, getFooter, getCategories } from '@/lib/payload'
-import { SITE_NAME, SITE_URL } from '@/lib/constants'
+import { SITE_NAME, SITE_URL, INDEXABLE } from '@/lib/constants'
 
 const montserrat = Montserrat({
   subsets: ['latin', 'latin-ext'],
@@ -21,11 +21,20 @@ export const metadata = {
   },
   openGraph: { type: 'website', locale: 'sr_RS', siteName: SITE_NAME },
   twitter: { card: 'summary_large_image' },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
-  },
+  // Dok nismo na pravom domenu (INDEXABLE=false) → noindex,nofollow na CELOM sajtu.
+  // Nasleđuju ga sve podstranice jer nijedna ne override-uje `robots`.
+  robots: INDEXABLE
+    ? {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+      }
+    : {
+        index: false,
+        follow: false,
+        nocache: true,
+        googleBot: { index: false, follow: false, noimageindex: true },
+      },
   alternates: { canonical: '/', languages: { 'sr-RS': '/' } },
 }
 
