@@ -6,12 +6,8 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 import path from 'path'
-import { fileURLToPath } from 'url'
 
 import { adminOnly } from '@/access/adminOnly'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   admin: {
@@ -43,6 +39,9 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    staticDir: path.resolve(dirname, '../../public/media'),
+    // process.cwd() je stabilan i u dev-u (backend/) i u produkciji (/app) —
+    // `dirname` iz import.meta.url se u Next production buildu razreši unutar .next/
+    // pa pokazuje na pogrešan folder → 404 na slikama. Zato cwd.
+    staticDir: path.resolve(process.cwd(), 'public/media'),
   },
 }
