@@ -31,7 +31,7 @@ const BOLD = 1, ITALIC = 2
 const tText = (text: string, format = 0): any => ({ type: 'text', detail: 0, format, mode: 'normal', style: '', text, version: 1 })
 const tLink = (text: string, url: string): any => ({ type: 'link', fields: { linkType: 'custom', newTab: !url.startsWith('/') && !url.includes('palisad'), url }, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
 const tParagraph = (children: any[]): any => ({ type: 'paragraph', children: children.length ? children : [tText('')], direction: 'ltr', format: '', indent: 0, textFormat: 0, version: 1 })
-const tHeading = (text: string, tag: 'h2' | 'h3'): any => ({ type: 'heading', tag, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
+const tHeading = (text: string, tag: 'h1' | 'h2' | 'h3'): any => ({ type: 'heading', tag, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
 const tList = (items: any[][], ordered: boolean): any => ({ type: 'list', listType: ordered ? 'number' : 'bullet', start: 1, tag: ordered ? 'ol' : 'ul', children: items.map((c, i) => ({ type: 'listitem', value: i + 1, children: c.length ? c : [tText('')], direction: 'ltr', format: '', indent: 0, version: 1 })), direction: 'ltr', format: '', indent: 0, version: 1 })
 const tRoot = (children: any[]): any => ({ root: { type: 'root', children: children.length ? children : [tParagraph([tText('')])], direction: 'ltr', format: '', indent: 0, version: 1 } })
 
