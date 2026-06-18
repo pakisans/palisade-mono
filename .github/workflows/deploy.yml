@@ -133,37 +133,6 @@ jobs:
           echo "Postgres is ready."
           EOF
 
-      - name: Bootstrap backend migrations before build
-        shell: bash
-        run: |
-          ssh -i ~/.ssh/id_ed25519 \
-            -p ${{ secrets.SSH_PORT }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
-          set -e
-          cd /var/www/app
-
-          docker compose up -d postgres
-
-          until docker compose exec -T postgres pg_isready -U appuser -d appdb; do
-            sleep 2
-          done
-
-          docker run --rm --network host \
-            -v /var/www/app/backend:/app \
-            -w /app \
-            -e DATABASE_URL="postgresql://appuser:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/appdb" \
-            -e PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}" \
-            -e PREVIEW_SECRET="${{ secrets.PREVIEW_SECRET }}" \
-            -e PAYLOAD_PUBLIC_SERVER_URL="${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}" \
-            -e NEXT_PUBLIC_SERVER_URL="${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}" \
-            node:20-alpine sh -lc "
-              apk add --no-cache libc6-compat
-              corepack enable
-              pnpm install --frozen-lockfile
-              yes | pnpm payload migrate
-            "
-          EOF
-
       - name: Rebuild and restart backend
         shell: bash
         run: |

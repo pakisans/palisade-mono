@@ -30,7 +30,7 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
+  app1:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -46,13 +46,13 @@ services:
         STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
         STRIPE_WEBHOOKS_SIGNING_SECRET: ${STRIPE_WEBHOOKS_SIGNING_SECRET}
-    container_name: palisade_backend
+    container_name: app1
     restart: unless-stopped
     env_file: ./backend/.env
     environment:
       NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      FRONTEND_INTERNAL_URL: http://frontend:3000
+      FRONTEND_INTERNAL_URL: http://app2:3000
     ports:
       - '3001:3000'
     volumes:
@@ -63,7 +63,7 @@ services:
       postgres:
         condition: service_healthy
 
-  frontend:
+  app2:
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -76,13 +76,13 @@ services:
         REVALIDATE_SECRET: ${REVALIDATE_SECRET}
         NEXT_PUBLIC_PAYLOAD_URL: ${NEXT_PUBLIC_PAYLOAD_URL}
         PAYLOAD_HOST: ${PAYLOAD_HOST}
-    container_name: palisade_frontend
+    container_name: app2
     restart: unless-stopped
     env_file: ./frontend/.env
     networks:
       - app_network
     depends_on:
-      - backend
+      - app1
 
   nginx:
     image: nginx:alpine
@@ -96,7 +96,7 @@ services:
     networks:
       - app_network
     depends_on:
-      - frontend
+      - app2
 
 networks:
   app_network:
