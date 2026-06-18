@@ -82,6 +82,7 @@ jobs:
             echo "STRIPE_WEBHOOKS_SIGNING_SECRET=${{ secrets.STRIPE_WEBHOOKS_SIGNING_SECRET }}"
             echo "PAYLOAD_URL_BUILD=http://127.0.0.1:3001"
             echo "NEXT_PUBLIC_PAYLOAD_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
+            echo "PAYLOAD_HOST=${{ secrets.PAYLOAD_HOST }}"
           } | ssh -i ~/.ssh/id_ed25519 \
               -p ${{ secrets.SSH_PORT }} \
               ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \

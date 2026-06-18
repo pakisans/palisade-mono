@@ -15,11 +15,17 @@ const nextConfig = {
         hostname: process.env.PAYLOAD_HOST || 'palisada.rs',
         pathname: '/**',
       },
-      // Allow any configured custom domain
+      // Configured host (IP na staging-u ili domen) — dozvoli i http i https,
+      // jer staging ide preko http://<IP>, a produkcija preko https://<domen>.
       ...(process.env.PAYLOAD_HOST && process.env.PAYLOAD_HOST !== 'localhost'
         ? [
             {
               protocol: 'https',
+              hostname: process.env.PAYLOAD_HOST,
+              pathname: '/**',
+            },
+            {
+              protocol: 'http',
               hostname: process.env.PAYLOAD_HOST,
               pathname: '/**',
             },
