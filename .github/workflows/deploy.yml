@@ -49,7 +49,7 @@ jobs:
           if [ ! -d .git ]; then
             rm -rf ./* ./.??* 2>/dev/null || true
             GIT_SSH_COMMAND="ssh -i ~/.ssh/monorepo_deploy -o IdentitiesOnly=yes" \
-              git clone git@github.com:pakisans/basic-suplements-mono.git .
+              git clone git@github.com:pakisans/palisade-mono.git .
           else
             GIT_SSH_COMMAND="ssh -i ~/.ssh/monorepo_deploy -o IdentitiesOnly=yes" \
               git fetch origin
