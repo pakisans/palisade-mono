@@ -60,7 +60,7 @@ export default function Hero({ hero }) {
 
   return (
     <section
-      className="relative isolate flex h-[calc(100svh-var(--header-height))] min-h-[560px] flex-col overflow-hidden bg-gray-950 lg:h-[calc(100svh-var(--header-height)-3rem)]"
+      className="relative isolate flex min-h-[480px] flex-col overflow-hidden bg-gray-950 lg:h-[calc(100svh-var(--header-height)-3rem)] lg:min-h-[560px]"
       aria-label="Uvod"
     >
       {/* Background image */}
