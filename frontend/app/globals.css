@@ -74,18 +74,18 @@
 @layer components {
   /* Container */
   .container-site {
-    @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12;
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-2;
   }
   .container-narrow {
     @apply mx-auto w-full max-w-3xl px-5 sm:px-8;
   }
 
-  /* Section rhythm */
+  /* Section rhythm — lakši vertikalni razmak na mobilnom (manje skrola) */
   .section-y {
-    @apply py-20 md:py-28 lg:py-28;
+    @apply py-14 sm:py-20 md:py-28;
   }
   .section-y-sm {
-    @apply py-12 md:py-20;
+    @apply py-10 sm:py-12 md:py-20;
   }
 
   /* ── Buttons — single source of truth for the whole site ───────────────── */
@@ -95,16 +95,24 @@
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2
            disabled:opacity-60 disabled:pointer-events-none;
   }
-  .btn-lg { @apply h-12 px-8; }
-  .btn-sm { @apply h-9 px-4 text-[13px]; }
+  .btn-lg {
+    @apply h-12 px-8;
+  }
+  .btn-sm {
+    @apply h-9 px-4 text-[13px];
+  }
   .btn-primary {
     @apply bg-brand text-white shadow-brand-sm hover:bg-brand-600 hover:shadow-brand hover:-translate-y-0.5 active:translate-y-0;
   }
   .btn-outline {
     @apply border-2 border-gray-200 text-gray-800 hover:border-brand/50 hover:text-brand;
   }
-  .btn-ghost { @apply text-gray-700 hover:bg-gray-100 hover:text-gray-950; }
-  .btn-white { @apply bg-white text-brand-700 shadow-lg hover:bg-gray-50 hover:-translate-y-0.5; }
+  .btn-ghost {
+    @apply text-gray-700 hover:bg-gray-100 hover:text-gray-950;
+  }
+  .btn-white {
+    @apply bg-white text-brand-700 shadow-lg hover:bg-gray-50 hover:-translate-y-0.5;
+  }
 
   /* ── Cards ─────────────────────────────────────────────────────────────── */
   .card {
@@ -120,10 +128,14 @@
     @apply inline-flex items-center h-7 px-3 rounded-full bg-gray-100 text-gray-600
            text-[11px] font-bold uppercase tracking-wider;
   }
-  .chip-brand { @apply bg-brand/[0.1] text-brand; }
+  .chip-brand {
+    @apply bg-brand/[0.1] text-brand;
+  }
 
   /* ── Hover utilities ───────────────────────────────────────────────────── */
-  .hover-lift { @apply transition-transform duration-300 ease-spring hover:-translate-y-1; }
+  .hover-lift {
+    @apply transition-transform duration-300 ease-spring hover:-translate-y-1;
+  }
 
   /* ── Reduced motion (accessibility) ────────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {

@@ -157,13 +157,15 @@ export default function Hero({ hero }) {
       {stats.length > 0 && (
         <div className="relative border-t border-white/10 bg-white/[0.04] backdrop-blur-md">
           <div className="container-site">
-            <div className="grid grid-cols-2 divide-x divide-white/10 md:grid-cols-4">
+            {/* gap-px + grid bg = čiste hairline linije i za 2×2 (mobilni) i za 1×4 (desktop);
+                ćelije se rastežu na istu visinu po redu, pa neravne labele ne kvare poravnanje */}
+            <div className="grid grid-cols-2 gap-px bg-white/10 md:grid-cols-4">
               {stats.map((stat, i) => (
-                <div key={i} className="px-4 py-4 text-center md:px-8 md:py-5">
-                  <p className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+                <div key={i} className="flex flex-col justify-center px-3 py-3.5 text-center md:px-8 md:py-5">
+                  <p className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl md:text-4xl">
                     <CountUp value={stat.value} />
                   </p>
-                  <p className="mt-1 text-[11px] font-medium uppercase tracking-widest text-gray-400">
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-gray-300 sm:text-[11px] sm:tracking-widest">
                     {stat.label}
                   </p>
                 </div>

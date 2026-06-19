@@ -11,8 +11,16 @@ export default async function FormBlock({ block }) {
   if (!form) return null
 
   const mapAddress = block.mapAddress?.trim()
+  // Podržava: "lat, lng"  i  "lat, lng (Naziv)"  → TAČAN pin na koordinatama (+ opcioni natpis markera),
+  // bez geokodiranja koje promaši. Sve ostalo se tretira kao tekstualna adresa (geokodira se).
+  const coords = mapAddress?.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*(?:\((.+)\))?\s*$/)
+  const mapQuery = coords
+    ? coords[3]
+      ? `${coords[1]},${coords[2]}(${coords[3].trim()})`
+      : `${coords[1]},${coords[2]}`
+    : mapAddress
   const mapSrc = mapAddress
-    ? `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&z=15&output=embed`
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=16&output=embed`
     : null
 
   const formCard = (

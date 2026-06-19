@@ -68,8 +68,8 @@ export default function ContactInfoBlock({ block }) {
             </h2>
           </ScrollReveal>
         )}
-        {/* All items in a single row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        {/* 1 kolona na telefonima (kartice imaju ikonu + 2 reda teksta — tesno u 2 kol na ≤375px) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {cards.map((c, i) => (
             <ScrollReveal key={i} delay={i * 70}>
               <InfoCard {...c} />
