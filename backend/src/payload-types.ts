@@ -711,6 +711,10 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
     /**
+     * Standardno: jak tamni gradijent, slika u pozadini iza teksta. Full cover: slika ispunjava ceo hero i dominira, blaži preliv samo radi čitljivosti.
+     */
+    mediaStyle?: ('standard' | 'cover') | null;
+    /**
      * Brojevi u dnu hero-a (npr. 700+ / klijenata).
      */
     stats?:
@@ -2024,6 +2028,7 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
         media?: T;
+        mediaStyle?: T;
         stats?:
           | T
           | {

@@ -51,6 +51,7 @@ export default function Hero({ hero }) {
   if (!hero || hero.type === 'none') return null;
 
   const imgUrl = getMediaURL(hero?.media);
+  const coverStyle = hero?.mediaStyle === 'cover'; // full cover vs standardni tamni preliv
   const links = (hero?.links ?? []).map(resolveHeroLink).filter(Boolean);
   const hasContent = hero?.richText?.root?.children?.length > 0;
   const stats = hero?.stats ?? [];
@@ -77,9 +78,19 @@ export default function Hero({ hero }) {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
         )}
-        {/* Cinematic overlays — darken left (text) + bottom (stats), keep image visible right */}
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/80 to-gray-950/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-gray-950/30" />
+        {coverStyle ? (
+          // Full cover — slika dominira; samo blagi preliv s dna/levo radi čitljivosti teksta
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-950/85 via-gray-950/25 to-gray-950/35" />
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-950/55 via-transparent to-transparent" />
+          </>
+        ) : (
+          // Standardno — jak kinematski preliv (zatamni levo za tekst + dno za statistiku)
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/80 to-gray-950/25" />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-gray-950/30" />
+          </>
+        )}
       </div>
 
       {/* Main content */}

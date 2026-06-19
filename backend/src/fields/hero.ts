@@ -74,6 +74,21 @@ export const hero: Field = {
       required: true,
     },
     {
+      name: 'mediaStyle',
+      type: 'select',
+      defaultValue: 'standard',
+      label: 'Prikaz slike',
+      options: [
+        { label: 'Standardno (tamni preliv, fokus na tekst)', value: 'standard' },
+        { label: 'Full cover (slika preko celog, lakši preliv)', value: 'cover' },
+      ],
+      admin: {
+        description:
+          'Standardno: jak tamni gradijent, slika u pozadini iza teksta. Full cover: slika ispunjava ceo hero i dominira, blaži preliv samo radi čitljivosti.',
+        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+      },
+    },
+    {
       name: 'stats',
       type: 'array',
       label: 'Statistika (traka)',
