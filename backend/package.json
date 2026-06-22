@@ -31,6 +31,7 @@
     "scrape:saveti-palisada": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-saveti-palisada.ts",
     "scrape:projekti-palisada": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-projekti-palisada.ts",
     "fix:categories": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-categories.ts",
+    "fix:product-slugs": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-product-slugs.ts",
     "import:variants": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-variants.ts",
     "scrape:legal": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-legal.ts",
     "fix:content-links": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-content-links.ts",
