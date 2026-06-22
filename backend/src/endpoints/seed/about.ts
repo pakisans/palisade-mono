@@ -38,7 +38,7 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
       eyebrow: 'O nama',
       heading: 'Spoj vrhunskog kvaliteta i moderne estetike',
       description: [
-        'Osiguravamo vaš prostor ogradama i kapijama koje traju generacijama. Palisade d.o.o. projektuje, izrađuje i montira kapije i ograde po meri — sa punom garancijom na rad i materijal.',
+        'Osiguravamo vaš prostor ogradama i kapijama koje traju generacijama. Palisada d.o.o. projektuje, izrađuje i montira kapije i ograde po meri — sa punom garancijom na rad i materijal.',
         'Iza svakog projekta stoji sopstvena produkcija u Beogradu i tim koji svaki posao tretira sa istom pažnjom — od porodične kuće do velikog industrijskog kompleksa.',
       ],
       layout: 'image-right',
@@ -58,10 +58,26 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
       statement:
         'Palisada d.o.o. osnovana je sa jasnom misijom – pružiti svakom domu i poslovnom objektu u Srbiji kapije i ograde koje kombinuju sigurnost, trajnost i estetiku. Verujemo da kvalitetna ograda nije samo fizička barijera, već prvi utisak koji vaš objekat ostavlja na svakog posetioca.',
       values: [
-        { icon: 'shield', title: 'Sigurnost', text: 'Robusni materijali i precizna ugradnja za maksimalnu zaštitu doma i poslovnog objekta.' },
-        { icon: 'clock', title: 'Trajnost', text: 'Toplo cinkovanje i plastifikacija — otpornost na koroziju i lep izgled decenijama.' },
-        { icon: 'sparkles', title: 'Estetika', text: 'Dizajn po meri koji se uklapa u arhitekturu i podiže vrednost vašeg objekta.' },
-        { icon: 'wrench', title: 'Kompletna usluga', text: 'Od besplatnog merenja i izrade do montaže i automatizacije — sve na jednom mestu.' },
+        {
+          icon: 'shield',
+          title: 'Sigurnost',
+          text: 'Robusni materijali i precizna ugradnja za maksimalnu zaštitu doma i poslovnog objekta.',
+        },
+        {
+          icon: 'clock',
+          title: 'Trajnost',
+          text: 'Toplo cinkovanje i plastifikacija — otpornost na koroziju i lep izgled decenijama.',
+        },
+        {
+          icon: 'sparkles',
+          title: 'Estetika',
+          text: 'Dizajn po meri koji se uklapa u arhitekturu i podiže vrednost vašeg objekta.',
+        },
+        {
+          icon: 'wrench',
+          title: 'Kompletna usluga',
+          text: 'Od besplatnog merenja i izrade do montaže i automatizacije — sve na jednom mestu.',
+        },
       ],
     }),
     statsBlock('Palisade u brojevima', [
@@ -149,9 +165,9 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
     }),
   ],
   meta: {
-    title: 'O nama | Palisade d.o.o.',
+    title: 'O nama | Palisada d.o.o.',
     description:
-      'Saznajte više o Palisade d.o.o. — jednoj od najvećih i najpouzdanijih kompanija za kapije i ograde u Srbiji. Više od 20 godina iskustva, 700+ zadovoljnih klijenata.',
+      'Saznajte više o Palisada d.o.o. — jednoj od najvećih i najpouzdanijih kompanija za kapije i ograde u Srbiji. Više od 20 godina iskustva, 700+ zadovoljnih klijenata.',
     image: metaImage,
   },
 })

@@ -364,7 +364,7 @@ export const seed = async ({
   await payload.updateGlobal({
     slug: 'header',
     data: {
-      siteName: 'Palisade d.o.o.',
+      siteName: 'Palisada d.o.o.',
       topBar: [
         {
           link: {
@@ -429,7 +429,7 @@ export const seed = async ({
           blockType: 'footerBrand',
           tagline: 'Kad sigurnost zahteva rešenje',
           description:
-            'Palisade d.o.o. je jedna od najvećih kompanija za kapije i ograde u Srbiji. Projektujemo, izrađujemo i montiramo — sa punom garancijom na rad i materijal.',
+            'Palisada d.o.o. je jedna od najvećih kompanija za kapije i ograde u Srbiji. Projektujemo, izrađujemo i montiramo — sa punom garancijom na rad i materijal.',
         },
         // Sve kategorije (sa podkategorijama) prikazuju se u footeru DINAMIČKI
         // (Footer komponenta čita kategorije iz baze) — nema potrebe za ručnim kolonama.

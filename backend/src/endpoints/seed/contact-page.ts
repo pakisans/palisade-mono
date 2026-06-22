@@ -113,9 +113,9 @@ export const contactPageData: (args: ContactArgs) => RequiredDataFromCollectionS
     ]),
   ],
   meta: {
-    title: 'Kontakt | Zatražite ponudu — Palisade d.o.o.',
+    title: 'Kontakt | Zatražite ponudu — Palisada d.o.o.',
     description:
-      'Kontaktirajte Palisade d.o.o. za besplatno merenje i ponudu za kapije i ograde. Odgovaramo u roku od 24 sata. Pokrivamo celu Srbiju.',
+      'Kontaktirajte Palisada d.o.o. za besplatno merenje i ponudu za kapije i ograde. Odgovaramo u roku od 24 sata. Pokrivamo celu Srbiju.',
     image: metaImage,
   },
 })

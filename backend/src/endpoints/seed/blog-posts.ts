@@ -92,7 +92,7 @@ export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedA
       ]),
       quoteBlock({
         text: 'Panelne ograde su najisplativije rešenje za industrijsku upotrebu, a aluminijumske su naš favorit za rezidencijalne projekte. Obe opcije pružaju odličnu dugoročnu vrednost.',
-        author: 'Palisade d.o.o.',
+        author: 'Palisada d.o.o.',
         role: 'Tim za produkciju',
         rating: '5',
       }),
@@ -281,7 +281,7 @@ export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedA
       ]),
       quoteBlock({
         text: 'Antracit siva RAL 7016 je naš apsolutni bestseler — odgovara modernom, minimalistički i klasičnom stilu arhitekture podjednako. Uvek je siguran izbor.',
-        author: 'Palisade d.o.o.',
+        author: 'Palisada d.o.o.',
         role: 'Tim za produkciju i dizajn',
         rating: '5',
       }),
