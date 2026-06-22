@@ -1,6 +1,6 @@
-import Link from "next/link";
-import Image from "next/image";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import {
   getCategories,
   getProduct,
@@ -8,17 +8,17 @@ import {
   getProductVariants,
   getInquiryForm,
   getMediaURL,
-} from "@/lib/payload";
-import ProductInquiry from "@/components/products/ProductInquiry";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
-import { formatPrice } from "@/lib/utils";
-import { categoryPath } from "@/lib/routes";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import ProductGallery from "@/components/products/ProductGallery";
-import ProductCard from "@/components/products/ProductCard";
-import RichText from "@/components/ui/RichText";
-import ScrollReveal from "@/components/ui/ScrollReveal";
-import CategoryNavigator from "@/components/navigation/CategoryNavigator";
+} from '@/lib/payload';
+import ProductInquiry from '@/components/products/ProductInquiry';
+import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { formatPrice } from '@/lib/utils';
+import { categoryPath } from '@/lib/routes';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import ProductGallery from '@/components/products/ProductGallery';
+import ProductCard from '@/components/products/ProductCard';
+import RichText from '@/components/ui/RichText';
+import ScrollReveal from '@/components/ui/ScrollReveal';
+import CategoryNavigator from '@/components/navigation/CategoryNavigator';
 
 export const revalidate = 1800;
 
@@ -64,38 +64,42 @@ function ProductSchema({ product }) {
     .map((g) => getMediaURL(g?.image))
     .filter(Boolean);
 
-  const brand = typeof product.brand === "object" ? product.brand : null;
+  const brand = typeof product.brand === 'object' ? product.brand : null;
 
   const url = `${SITE_URL}/proizvodi/${product.slug}`;
   const hasPrice = product.price > 0;
   const schema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "@id": url,
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': url,
     url,
     name: product.title,
-    description: product.meta?.description || product.excerpt || "",
+    description: product.meta?.description || product.excerpt || '',
     ...(product.sku ? { sku: String(product.sku) } : {}),
     ...(images.length ? { image: images } : {}),
-    brand: { "@type": "Brand", name: brand ? brand.title : SITE_NAME },
+    brand: { '@type': 'Brand', name: brand ? brand.title : SITE_NAME },
     ...(product.categories?.length
       ? {
           category: product.categories
-            .map((c) => (typeof c === "object" ? c.title : ""))
+            .map((c) => (typeof c === 'object' ? c.title : ''))
             .filter(Boolean)
-            .join(" > "),
+            .join(' > '),
         }
       : {}),
     // Only emit Offer when a real price exists — avoids contradictory price:"0" + InStock.
     ...(hasPrice
       ? {
           offers: {
-            "@type": "Offer",
-            priceCurrency: "RSD",
-            price: String(product.salePrice > 0 && product.salePrice < product.price ? product.salePrice : product.price),
-            availability: "https://schema.org/InStock",
+            '@type': 'Offer',
+            priceCurrency: 'RSD',
+            price: String(
+              product.salePrice > 0 && product.salePrice < product.price
+                ? product.salePrice
+                : product.price,
+            ),
+            availability: 'https://schema.org/InStock',
             url,
-            seller: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+            seller: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
           },
         }
       : {}),
@@ -230,7 +234,7 @@ function Specifications({ specifications }) {
       <table className="w-full text-sm" aria-label="Specifikacije">
         <tbody>
           {specifications.map((spec, i) => (
-            <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
               <td className="px-4 py-3 font-semibold text-gray-700 w-2/5 border-r border-gray-100">
                 {spec.label}
               </td>
@@ -281,7 +285,7 @@ function ProductTabs({ description, specifications }) {
 
 function RelatedProducts({ products }) {
   if (!products?.length) return null;
-  const docs = products.filter((p) => typeof p === "object" && p.slug);
+  const docs = products.filter((p) => typeof p === 'object' && p.slug);
   if (!docs.length) return null;
 
   return (
@@ -329,22 +333,24 @@ export default async function ProductPage({ params }) {
 
   // Variable products: load variants + the inquiry form (shown after selection).
   const [variants, inquiryForm] = await Promise.all([
-    product.enableVariants ? getProductVariants(product.id).catch(() => []) : Promise.resolve([]),
+    product.enableVariants
+      ? getProductVariants(product.id).catch(() => [])
+      : Promise.resolve([]),
     getInquiryForm().catch(() => null),
   ]);
 
   // Resolve categories for breadcrumbs
   const categories = (product.categories ?? [])
-    .map((c) => (typeof c === "object" ? c : null))
+    .map((c) => (typeof c === 'object' ? c : null))
     .filter(Boolean);
 
   const primaryCat = categories[0];
   const parentCat =
-    typeof primaryCat?.parent === "object" ? primaryCat.parent : null;
+    typeof primaryCat?.parent === 'object' ? primaryCat.parent : null;
 
   const breadcrumbs = [
-    { label: "Naslovna", href: "/" },
-    { label: "Proizvodi", href: "/proizvodi" },
+    { label: 'Naslovna', href: '/' },
+    { label: 'Proizvodi', href: '/proizvodi' },
     ...(parentCat
       ? [{ label: parentCat.title, href: categoryPath(parentCat) }]
       : []),
@@ -354,9 +360,9 @@ export default async function ProductPage({ params }) {
     { label: product.title },
   ];
 
-  const brand = typeof product.brand === "object" ? product.brand : null;
+  const brand = typeof product.brand === 'object' ? product.brand : null;
   const relatedProducts = (product.relatedProducts ?? []).filter(
-    (p) => typeof p === "object",
+    (p) => typeof p === 'object',
   );
 
   return (
@@ -366,7 +372,7 @@ export default async function ProductPage({ params }) {
       <div className="container-site py-8 md:py-12">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} className="mb-8" />
-        <div className="mb-8 -mx-4 sm:mx-0">
+        {/* <div className="mb-8 -mx-4 sm:mx-0">
           <CategoryNavigator
             categories={categoriesData}
             activeSlug={primaryCat?.slug}
@@ -375,7 +381,7 @@ export default async function ProductPage({ params }) {
             compact
             contained={false}
           />
-        </div>
+        </div> */}
 
         {/* Main product layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-start">
@@ -423,14 +429,18 @@ export default async function ProductPage({ params }) {
             )}
 
             {/* Variants + price + inquiry form (form shows only after a variation is selected) */}
-            <ProductInquiry product={product} variants={variants} form={inquiryForm} />
+            <ProductInquiry
+              product={product}
+              variants={variants}
+              form={inquiryForm}
+            />
 
             {/* Trust strip */}
             <div className="grid grid-cols-3 gap-3 pt-2">
               {[
-                { icon: "📐", text: "Izrada po meri" },
-                { icon: "🔧", text: "Ugradnja u Srbiji" },
-                { icon: "✅", text: "Garancija na rad" },
+                { icon: '📐', text: 'Izrada po meri' },
+                { icon: '🔧', text: 'Ugradnja u Srbiji' },
+                { icon: '✅', text: 'Garancija na rad' },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -450,7 +460,7 @@ export default async function ProductPage({ params }) {
             {product.tags?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {product.tags.map((tag, i) => {
-                  const t = typeof tag === "object" ? tag : null;
+                  const t = typeof tag === 'object' ? tag : null;
                   if (!t) return null;
                   return (
                     <span

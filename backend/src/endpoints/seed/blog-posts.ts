@@ -108,7 +108,7 @@ export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedA
       }),
     ],
     meta: {
-      title: 'Aluminijumske vs. panelne ograde — koje su bolje? | Palisade',
+      title: 'Aluminijumske vs. panelne ograde — koje su bolje? | Palisada',
       description:
         'Detaljna analiza razlika između aluminijumskih i panelnih ograda. Pomažemo vam da izaberete pravo rešenje za vaš prostor i budžet.',
       image: images?.aluminijum || heroImage,
@@ -214,7 +214,7 @@ export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedA
       }),
     ],
     meta: {
-      title: 'Automatizovane pešačke kapije — vodič za kupovinu | Palisade',
+      title: 'Automatizovane pešačke kapije — vodič za kupovinu | Palisada',
       description:
         'Sve što trebate znati pre kupovine automatske pešačke kapije: tipovi motora, sistemi kontrole pristupa, cene i garancije.',
       image: images?.automatika || heroImage,
@@ -297,7 +297,7 @@ export const createBlogPostsSeed = ({ heroImage, images, categories }: BlogSeedA
       }),
     ],
     meta: {
-      title: 'RAL boje za kapije i ograde — vodič za izbor | Palisade',
+      title: 'RAL boje za kapije i ograde — vodič za izbor | Palisada',
       description:
         'Kompletni vodič kroz RAL sistem boja za kapije i ograde. Saznajte koje su najpopularnije nijanse i kako odabrati onu koja odgovara vašem objektu.',
       image: images?.ral || heroImage,

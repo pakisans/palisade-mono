@@ -29,7 +29,7 @@ export async function generateMetadata({ params }) {
   if (!project) return {};
   const cleanTitle =
     (project.meta?.title || project.title || '')
-      .replace(/\s*\|\s*Palisade.*$/i, '')
+      .replace(/\s*\|\s*Palisada.*$/i, '')
       .trim() || project.title;
   const description =
     project.meta?.description ||

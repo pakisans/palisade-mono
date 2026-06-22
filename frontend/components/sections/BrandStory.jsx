@@ -94,7 +94,8 @@ export default function BrandStory({ block }) {
   const imgUrl = getMediaURL(block.media || block.image);
   const videoUrl = youtubeEmbed(block.videoUrl);
   const stats = block.stats ?? [];
-  const ctaLink = block.cta?.url && block.cta?.label ? resolveLink(block.cta) : null;
+  const ctaLink =
+    block.cta?.url && block.cta?.label ? resolveLink(block.cta) : null;
   const isRight = layout === 'image-right';
 
   // ── FULL IMAGE / CONTAIN — immersive full-bleed image with text panel ─────────
@@ -110,7 +111,7 @@ export default function BrandStory({ block }) {
         >
           <Image
             src={imgUrl}
-            alt={block.heading || 'Palisade'}
+            alt={block.heading || 'Palisada'}
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 60vw"
@@ -170,7 +171,7 @@ export default function BrandStory({ block }) {
               {videoUrl ? (
                 <iframe
                   src={videoUrl}
-                  title={block.heading || 'Palisade video'}
+                  title={block.heading || 'Palisada video'}
                   className="absolute inset-0 h-full w-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -179,7 +180,7 @@ export default function BrandStory({ block }) {
               ) : imgUrl ? (
                 <Image
                   src={imgUrl}
-                  alt={block.heading || 'Palisade'}
+                  alt={block.heading || 'Palisada'}
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"

@@ -1,10 +1,15 @@
-import Link from "next/link";
-import { getProducts, getCategories, getPage, getMediaURL } from "@/lib/payload";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
-import ProductGrid from "@/components/products/ProductGrid";
-import Pagination from "@/components/ui/Pagination";
-import ScrollReveal from "@/components/ui/ScrollReveal";
-import CategoryNavigator from "@/components/navigation/CategoryNavigator";
+import Link from 'next/link';
+import {
+  getProducts,
+  getCategories,
+  getPage,
+  getMediaURL,
+} from '@/lib/payload';
+import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import ProductGrid from '@/components/products/ProductGrid';
+import Pagination from '@/components/ui/Pagination';
+import ScrollReveal from '@/components/ui/ScrollReveal';
+import CategoryNavigator from '@/components/navigation/CategoryNavigator';
 
 export const revalidate = 1800;
 
@@ -12,21 +17,21 @@ const PER_PAGE = 12;
 
 // SEO iz CMS-a (stranica "proizvodi"), uz fallback kad meta nije popunjen.
 export async function generateMetadata() {
-  const page = await getPage("proizvodi").catch(() => null);
+  const page = await getPage('proizvodi').catch(() => null);
   const title = page?.meta?.title || `Katalog kapija i ograda | ${SITE_NAME}`;
   const description =
     page?.meta?.description ||
-    "Kompletna ponuda: jednokrilne, dvokrilne, klizne i samonosive kapije, panelne i dekorativne ograde, automatizacija i kontrola pristupa. Sve dimenzije i RAL boje.";
+    'Kompletna ponuda: jednokrilne, dvokrilne, klizne i samonosive kapije, panelne i dekorativne ograde, automatizacija i kontrola pristupa. Sve dimenzije i RAL boje.';
   const imgUrl = getMediaURL(page?.meta?.image);
   return {
     title: { absolute: title },
     description,
-    alternates: { canonical: "/proizvodi/" },
+    alternates: { canonical: '/proizvodi/' },
     openGraph: {
       title,
       description,
       url: `${SITE_URL}/proizvodi/`,
-      type: "website",
+      type: 'website',
       ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
     },
   };
@@ -58,7 +63,7 @@ function SearchBar({ defaultValue }) {
         id="pretraga"
         name="pretraga"
         type="search"
-        defaultValue={defaultValue || ""}
+        defaultValue={defaultValue || ''}
         placeholder="Pretraži kapije i ograde..."
         className="w-full h-12 pl-11 pr-32 rounded-2xl border border-gray-200 bg-white text-sm text-gray-950 placeholder:text-gray-400 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
       />
@@ -106,7 +111,7 @@ function ResultsHeader({
               <span className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-gray-100 border border-gray-200 text-gray-700 text-[12px] font-semibold">
                 "{search}"
                 <Link
-                  href={activeSlug ? `/kategorija/${activeSlug}` : "/proizvodi"}
+                  href={activeSlug ? `/kategorija/${activeSlug}` : '/proizvodi'}
                   className="text-gray-400 hover:text-gray-700"
                   aria-label="Ukloni pretragu"
                 >
@@ -119,12 +124,12 @@ function ResultsHeader({
         <p className="text-sm text-gray-400">
           {total > 0 ? (
             <>
-              <span className="font-semibold text-gray-950">{total}</span>{" "}
-              {total === 1 ? "proizvod" : total < 5 ? "proizvoda" : "proizvoda"}
-              {totalPages > 1 ? ` · strana ${page}/${totalPages}` : ""}
+              <span className="font-semibold text-gray-950">{total}</span>{' '}
+              {total === 1 ? 'proizvod' : total < 5 ? 'proizvoda' : 'proizvoda'}
+              {totalPages > 1 ? ` · strana ${page}/${totalPages}` : ''}
             </>
           ) : (
-            "Nema pronađenih proizvoda"
+            'Nema pronađenih proizvoda'
           )}
         </p>
       </div>
@@ -154,16 +159,13 @@ function EmptyState({ search }) {
         </svg>
       </div>
       <h3 className="text-lg font-bold text-gray-950 mb-2">
-        {search ? `Nema rezultata za "${search}"` : "Nema pronađenih proizvoda"}
+        {search ? `Nema rezultata za "${search}"` : 'Nema pronađenih proizvoda'}
       </h3>
       <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
         Pokušajte s drugom pretragom ili pogledajte sve kategorije.
       </p>
       <div className="flex items-center justify-center gap-3">
-        <Link
-          href="/proizvodi"
-          className="btn btn-primary"
-        >
+        <Link href="/proizvodi" className="btn btn-primary">
           Sve kategorije
         </Link>
         <Link
@@ -181,7 +183,11 @@ function EmptyState({ search }) {
 
 // Deljeni listing — koristi ga i /proizvodi (current=1) i /proizvodi/page/[n].
 // Filteri (kategorija, pretraga) ostaju query parametri; stranica je u putanji.
-export async function ProizvodiList({ current = 1, activeSlug = null, search = null }) {
+export async function ProizvodiList({
+  current = 1,
+  activeSlug = null,
+  search = null,
+}) {
   const page = Math.max(1, current);
 
   const [productsData, categoriesData] = await Promise.all([
@@ -192,7 +198,7 @@ export async function ProizvodiList({ current = 1, activeSlug = null, search = n
   const totalPages = productsData?.totalPages ?? 1;
   const totalDocs = productsData?.totalDocs ?? 0;
   const docs = productsData?.docs ?? [];
-  const basePath = "/proizvodi";
+  const basePath = '/proizvodi';
 
   return (
     <>
@@ -264,10 +270,7 @@ export async function ProizvodiList({ current = 1, activeSlug = null, search = n
                 Radimo i po individualnoj narudžbini — pišite nam.
               </p>
             </div>
-            <Link
-              href="/kontakt"
-              className="btn btn-primary flex-shrink-0"
-            >
+            <Link href="/kontakt" className="btn btn-primary flex-shrink-0">
               Zatražite ponudu
             </Link>
           </ScrollReveal>

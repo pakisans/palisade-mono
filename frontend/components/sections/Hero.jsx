@@ -68,7 +68,7 @@ export default function Hero({ hero }) {
         {imgUrl ? (
           <Image
             src={imgUrl}
-            alt="Palisade — kapije i ograde"
+            alt="Palisada — kapije i ograde"
             fill
             priority
             quality={90}
@@ -100,7 +100,9 @@ export default function Hero({ hero }) {
             {eyebrow && (
               <div className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm animate-fade-in">
                 <span className="h-2 w-2 rounded-full bg-brand" />
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">{eyebrow}</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">
+                  {eyebrow}
+                </span>
               </div>
             )}
 
@@ -122,32 +124,32 @@ export default function Hero({ hero }) {
             )}
 
             {trust.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2.5 animate-fade-up opacity-0 [animation-delay:350ms]">
-              {trust.map((t, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-white/85"
-                >
-                  <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-brand">
-                    <svg
-                      className="h-2.5 w-2.5 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={3.5}
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2.5 animate-fade-up opacity-0 [animation-delay:350ms]">
+                {trust.map((t, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-white/85"
+                  >
+                    <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-brand">
+                      <svg
+                        className="h-2.5 w-2.5 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3.5}
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </span>
+                    {t}
                   </span>
-                  {t}
-                </span>
-              ))}
-            </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -161,7 +163,10 @@ export default function Hero({ hero }) {
                 ćelije se rastežu na istu visinu po redu, pa neravne labele ne kvare poravnanje */}
             <div className="grid grid-cols-2 gap-px bg-white/10 md:grid-cols-4">
               {stats.map((stat, i) => (
-                <div key={i} className="flex flex-col justify-center px-3 py-3.5 text-center md:px-8 md:py-5">
+                <div
+                  key={i}
+                  className="flex flex-col justify-center px-3 py-3.5 text-center md:px-8 md:py-5"
+                >
                   <p className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl md:text-4xl">
                     <CountUp value={stat.value} />
                   </p>

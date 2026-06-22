@@ -63,7 +63,10 @@ let lastReq = 0
 async function fetchJson(url: string): Promise<{ json: any; totalPages: number }> {
   const wait = DELAY_MS - (Date.now() - lastReq)
   if (wait > 0) await sleep(wait)
-  const res = await fetch(url, { signal: AbortSignal.timeout(30_000), headers: { 'User-Agent': UA, Accept: 'application/json' } })
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(30_000),
+    headers: { 'User-Agent': UA, Accept: 'application/json' },
+  })
   lastReq = Date.now()
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   const totalPages = Number(res.headers.get('x-wp-totalpages') ?? '1')
@@ -72,14 +75,21 @@ async function fetchJson(url: string): Promise<{ json: any; totalPages: number }
 
 async function downloadImage(url: string): Promise<File | null> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(30_000), headers: { 'User-Agent': UA } })
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(30_000),
+      headers: { 'User-Agent': UA },
+    })
     if (!res.ok) return null
     const data = await res.arrayBuffer()
     const clean = url.split('?')[0]
     const ext = (clean.split('.').pop() ?? 'jpg').toLowerCase()
     const mime: Record<string, string> = {
-      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
-      webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+      gif: 'image/gif',
+      svg: 'image/svg+xml',
     }
     return {
       name: clean.split('/').pop() || `img-${Date.now()}.${ext}`,
@@ -97,13 +107,21 @@ function makeUploader(payload: any) {
     if (SKIP_IMAGES || !image?.url) return null
     const filename = image.url.split('/').pop()?.split('?')[0]
     if (filename) {
-      const ex = await payload.find({ collection: MEDIA, where: { filename: { equals: filename } }, limit: 1 })
+      const ex = await payload.find({
+        collection: MEDIA,
+        where: { filename: { equals: filename } },
+        limit: 1,
+      })
       if (ex.docs[0]) return ex.docs[0].id
     }
     const file = await downloadImage(image.url)
     if (!file) return null
     try {
-      const m = await payload.create({ collection: MEDIA, data: { alt: image.alt || filename || 'Projekat' }, file })
+      const m = await payload.create({
+        collection: MEDIA,
+        data: { alt: image.alt || filename || 'Projekat' },
+        file,
+      })
       return m.id
     } catch (err: any) {
       console.warn(`      ⚠ upload nije uspeo (${filename}): ${err?.message ?? err}`)
@@ -114,27 +132,103 @@ function makeUploader(payload: any) {
 
 // ─── Lexical builders ───────────────────────────────────────────────────────
 
-const tText = (text: string, format = 0): any => ({ type: 'text', detail: 0, format, mode: 'normal', style: '', text, version: 1 })
-const tParagraph = (children: any[]): any => ({ type: 'paragraph', children, direction: 'ltr', format: '', indent: 0, textFormat: 0, textStyle: '', version: 1 })
-const tHeading = (text: string, tag: 'h2' | 'h3'): any => ({ type: 'heading', tag, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
-const tRoot = (children: any[]): any => ({
-  root: { type: 'root', children: children.length ? children : [tParagraph([tText('')])], direction: 'ltr', format: '', indent: 0, version: 1 },
+const tText = (text: string, format = 0): any => ({
+  type: 'text',
+  detail: 0,
+  format,
+  mode: 'normal',
+  style: '',
+  text,
+  version: 1,
 })
-const BOLD = 1, ITALIC = 2
-const tLink = (text: string, url: string): any => ({ type: 'link', fields: { linkType: 'custom', newTab: /^https?:/.test(url) && !/palisad/i.test(url), url }, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
-const tList = (items: any[][], ordered: boolean): any => ({ type: 'list', listType: ordered ? 'number' : 'bullet', start: 1, tag: ordered ? 'ol' : 'ul', children: items.map((c, i) => ({ type: 'listitem', value: i + 1, children: c.length ? c : [tText('')], direction: 'ltr', format: '', indent: 0, version: 1 })), direction: 'ltr', format: '', indent: 0, version: 1 })
+const tParagraph = (children: any[]): any => ({
+  type: 'paragraph',
+  children,
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  textFormat: 0,
+  textStyle: '',
+  version: 1,
+})
+const tHeading = (text: string, tag: 'h2' | 'h3'): any => ({
+  type: 'heading',
+  tag,
+  children: [tText(text)],
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  version: 1,
+})
+const tRoot = (children: any[]): any => ({
+  root: {
+    type: 'root',
+    children: children.length ? children : [tParagraph([tText('')])],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    version: 1,
+  },
+})
+const BOLD = 1,
+  ITALIC = 2
+const tLink = (text: string, url: string): any => ({
+  type: 'link',
+  fields: { linkType: 'custom', newTab: /^https?:/.test(url) && !/palisad/i.test(url), url },
+  children: [tText(text)],
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  version: 1,
+})
+const tList = (items: any[][], ordered: boolean): any => ({
+  type: 'list',
+  listType: ordered ? 'number' : 'bullet',
+  start: 1,
+  tag: ordered ? 'ol' : 'ul',
+  children: items.map((c, i) => ({
+    type: 'listitem',
+    value: i + 1,
+    children: c.length ? c : [tText('')],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    version: 1,
+  })),
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  version: 1,
+})
 
 // Inline walker: preserves <strong>/<b> (bold), <em>/<i> (italic), <a> (links).
 function inlineNodes(el: Element): any[] {
   const out: any[] = []
   const walk = (node: any, fmt: number) => {
     // Collapse whitespace runs but DO NOT trim — preserves the space between text and inline tags.
-    if (node.nodeType === 3) { const t = decode(node.textContent ?? '').replace(/\s+/g, ' '); if (t) out.push(tText(t, fmt)); return }
+    if (node.nodeType === 3) {
+      const t = decode(node.textContent ?? '').replace(/\s+/g, ' ')
+      if (t) out.push(tText(t, fmt))
+      return
+    }
     if (node.nodeType !== 1) return
     const tag = node.tagName.toLowerCase()
-    if (tag === 'a') { const href = node.getAttribute('href') || '#'; const text = collapse(node.textContent ?? ''); if (text) out.push(tLink(decode(text), href)); return }
-    if (tag === 'br') { out.push({ type: 'linebreak', version: 1 }); return }
-    const nf = tag === 'strong' || tag === 'b' ? fmt | BOLD : tag === 'em' || tag === 'i' ? fmt | ITALIC : fmt
+    if (tag === 'a') {
+      const href = node.getAttribute('href') || '#'
+      const text = collapse(node.textContent ?? '')
+      if (text) out.push(tLink(decode(text), href))
+      return
+    }
+    if (tag === 'br') {
+      out.push({ type: 'linebreak', version: 1 })
+      return
+    }
+    const nf =
+      tag === 'strong' || tag === 'b'
+        ? fmt | BOLD
+        : tag === 'em' || tag === 'i'
+          ? fmt | ITALIC
+          : fmt
     node.childNodes.forEach((c: any) => walk(c, nf))
   }
   el.childNodes.forEach((c: any) => walk(c, 0))
@@ -142,7 +236,9 @@ function inlineNodes(el: Element): any[] {
 }
 
 function youtubeUrl(html: string): string {
-  const m = html.match(/<iframe[^>]+src=["']([^"']*(?:youtube\.com|youtu\.be|youtube-nocookie\.com)[^"']*)["']/i)
+  const m = html.match(
+    /<iframe[^>]+src=["']([^"']*(?:youtube\.com|youtu\.be|youtube-nocookie\.com)[^"']*)["']/i,
+  )
   if (!m) return ''
   const id = m[1].match(/(?:embed\/|youtu\.be\/|v=)([\w-]{6,})/)?.[1]
   return id ? `https://www.youtube.com/watch?v=${id}` : ''
@@ -201,7 +297,10 @@ function parseProject(htmlStr: string, title: string): Parsed {
       content.push(tParagraph(inlineNodes(el)))
       if (!firstText) firstText = plain
     } else if (tag === 'ul' || tag === 'ol') {
-      const items = Array.from(el.children).filter((c) => c.tagName.toLowerCase() === 'li').map((li) => inlineNodes(li as Element)).filter((c) => c.length)
+      const items = Array.from(el.children)
+        .filter((c) => c.tagName.toLowerCase() === 'li')
+        .map((li) => inlineNodes(li as Element))
+        .filter((c) => c.length)
       if (items.length) content.push(tList(items, tag === 'ol'))
     } else if (['div', 'section', 'article', 'figure'].includes(tag)) {
       Array.from(el.children).forEach(handle)
@@ -218,9 +317,16 @@ const run = async () => {
   const payload = await getPayload({ config })
   const upload = makeUploader(payload)
 
-  const cat = await payload.find({ collection: POST_CATEGORIES, where: { slug: { equals: PROJECTS_SLUG } }, limit: 1 })
+  const cat = await payload.find({
+    collection: POST_CATEGORIES,
+    where: { slug: { equals: PROJECTS_SLUG } },
+    limit: 1,
+  })
   const catId = cat.docs[0]?.id
-  if (!catId) { console.error(`Post-kategorija "${PROJECTS_SLUG}" ne postoji.`); process.exit(1) }
+  if (!catId) {
+    console.error(`Post-kategorija "${PROJECTS_SLUG}" ne postoji.`)
+    process.exit(1)
+  }
 
   // Fetch all source projects (paginated, per_page=100).
   const fields = 'id,slug,title,excerpt,content,date,featured_media'
@@ -228,21 +334,27 @@ const run = async () => {
   let page = 1
   let totalPages = 1
   do {
-    const { json, totalPages: tp } = await fetchJson(`${SITE}/wp-json/wp/v2/posts?categories=${SOURCE_CAT}&per_page=100&page=${page}&orderby=date&order=desc&_fields=${fields}`)
+    const { json, totalPages: tp } = await fetchJson(
+      `${SITE}/wp-json/wp/v2/posts?categories=${SOURCE_CAT}&per_page=100&page=${page}&orderby=date&order=desc&_fields=${fields}`,
+    )
     totalPages = tp
     all = all.concat(json)
     page++
   } while (page <= totalPages)
   if (ONLY) all = all.filter((p) => ONLY.has(p.slug))
   if (LIMIT) all = all.slice(0, LIMIT)
-  console.log(`Izvor: ${all.length} projekata (kategorija ${SOURCE_CAT}, ${totalPages} strana).${ONLY ? ' [ONLY — bez brisanja]' : ''}`)
+  console.log(
+    `Izvor: ${all.length} projekata (kategorija ${SOURCE_CAT}, ${totalPages} strana).${ONLY ? ' [ONLY — bez brisanja]' : ''}`,
+  )
 
   if (DRY_RUN) {
     let imgTotal = 0
     for (const p of all) {
       const parsed = parseProject(p.content.rendered, decode(p.title.rendered))
       imgTotal += parsed.images.length
-      console.log(`  • ${p.slug}  [img:${parsed.images.length}${p.featured_media ? '+fm' : ''} txt:${parsed.content.length}${parsed.videoUrl ? ' +video' : ''}]  ${decode(p.title.rendered).slice(0, 50)}`)
+      console.log(
+        `  • ${p.slug}  [img:${parsed.images.length}${p.featured_media ? '+fm' : ''} txt:${parsed.content.length}${parsed.videoUrl ? ' +video' : ''}]  ${decode(p.title.rendered).slice(0, 50)}`,
+      )
     }
     console.log(`\n[DRY_RUN] ukupno galerijskih slika: ${imgTotal}. Ništa nije upisano.`)
     process.exit(0)
@@ -250,7 +362,12 @@ const run = async () => {
 
   // Replace all: delete existing projects (skipped in ONLY/incremental mode).
   if (!ONLY) {
-    const existing = await payload.find({ collection: POSTS, where: { 'categories.slug': { equals: PROJECTS_SLUG } }, limit: 500, depth: 0 })
+    const existing = await payload.find({
+      collection: POSTS,
+      where: { 'categories.slug': { equals: PROJECTS_SLUG } },
+      limit: 500,
+      depth: 0,
+    })
     console.log(`Brišem postojećih projekata: ${existing.docs.length}`)
     for (const doc of existing.docs) await payload.delete({ collection: POSTS, id: doc.id })
   }
@@ -258,16 +375,25 @@ const run = async () => {
   const mediaUrl = async (id: number): Promise<ImageRef | null> => {
     if (!id) return null
     try {
-      const { json } = await fetchJson(`${SITE}/wp-json/wp/v2/media/${id}?_fields=source_url,alt_text`)
+      const { json } = await fetchJson(
+        `${SITE}/wp-json/wp/v2/media/${id}?_fields=source_url,alt_text`,
+      )
       return json?.source_url ? { url: json.source_url, alt: json.alt_text || 'Projekat' } : null
-    } catch { return null }
+    } catch {
+      return null
+    }
   }
 
   const uniqueSlug = async (base: string): Promise<string> => {
     let s = base
     let n = 0
     while (true) {
-      const f = await payload.find({ collection: POSTS, where: { slug: { equals: s } }, limit: 1, depth: 0 })
+      const f = await payload.find({
+        collection: POSTS,
+        where: { slug: { equals: s } },
+        limit: 1,
+        depth: 0,
+      })
       if (!f.docs[0]) return s
       n++
       s = n === 1 ? `${base}-projekat` : `${base}-projekat-${n}`
@@ -287,10 +413,14 @@ const run = async () => {
     const featuredId = fm ? await upload(fm) : null
 
     const layout: any[] = []
-    if (parsed.videoUrl) layout.push({ blockType: 'video', platform: 'youtube', url: parsed.videoUrl })
+    if (parsed.videoUrl)
+      layout.push({ blockType: 'video', platform: 'youtube', url: parsed.videoUrl })
     for (const img of parsed.images) {
       const id = await upload(img)
-      if (id != null) { layout.push({ blockType: 'mediaBlock', media: id, position: 'normal' }); imgCount++ }
+      if (id != null) {
+        layout.push({ blockType: 'mediaBlock', media: id, position: 'normal' })
+        imgCount++
+      }
     }
 
     try {
@@ -307,7 +437,7 @@ const run = async () => {
           content: tRoot(parsed.content),
           ...(layout.length ? { layout } : {}),
           meta: {
-            title: `${title} | Palisade`,
+            title: `${title} | Palisada`,
             description: excerpt.slice(0, 160),
             ...(featuredId != null ? { image: featuredId } : {}),
           },
@@ -316,14 +446,18 @@ const run = async () => {
       created++
       const note = slug !== p.slug ? ` (slug→${slug})` : ''
       const galN = layout.filter((b) => b.blockType === 'mediaBlock').length
-      console.log(`  ✓ ${p.slug}${note} — galerija:${galN}${featuredId ? '+fm' : ''}${parsed.videoUrl ? ' +video' : ''} txt:${parsed.content.length}`)
+      console.log(
+        `  ✓ ${p.slug}${note} — galerija:${galN}${featuredId ? '+fm' : ''}${parsed.videoUrl ? ' +video' : ''} txt:${parsed.content.length}`,
+      )
     } catch (err: any) {
       failed++
       console.warn(`  ✗ ${p.slug}: ${err?.message ?? err}`)
     }
   }
 
-  console.log(`\nGotovo. Projekata: ${created}/${all.length}${failed ? ` (neuspešno: ${failed})` : ''}, ukupno slika u galerijama: ${imgCount}`)
+  console.log(
+    `\nGotovo. Projekata: ${created}/${all.length}${failed ? ` (neuspešno: ${failed})` : ''}, ukupno slika u galerijama: ${imgCount}`,
+  )
   process.exit(0)
 }
 

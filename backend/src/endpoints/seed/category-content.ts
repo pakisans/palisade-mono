@@ -110,7 +110,7 @@ type CatContent = {
 export const CATEGORY_CONTENT: Record<string, CatContent> = {
   // ═══ PARENT: KAPIJE ═══
   kapije: {
-    seoTitle: 'Kapije po meri — pešačke, dvokrilne, klizne i samonosive | Palisade',
+    seoTitle: 'Kapije po meri — pešačke, dvokrilne, klizne i samonosive | Palisada',
     seoDescription:
       'Izrada i montaža svih vrsta kapija u Beogradu i Srbiji: pešačke, dvokrilne, klizne i samonosive. Sve dimenzije, sve RAL boje, sa automatizacijom. Besplatno merenje.',
     intro:

@@ -127,7 +127,7 @@ export const aboutPageData: (args: AboutArgs) => RequiredDataFromCollectionSlug<
       role: 'Direktorka škole, Novi Beograd',
       rating: '5',
     }),
-    faqBlock('Najčešća pitanja o saradnji sa Palisade', [
+    faqBlock('Najčešća pitanja o saradnji sa Palisada', [
       {
         question: 'Da li radite samo u Beogradu?',
         answer: [

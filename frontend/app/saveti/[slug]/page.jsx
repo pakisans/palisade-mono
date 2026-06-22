@@ -1,19 +1,19 @@
-import Link from "next/link";
-import Image from "next/image";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import {
   getAdvicePost,
   getAdvicePosts,
   getAdjacentAdvicePosts,
   getMediaURL,
-} from "@/lib/payload";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import RichText from "@/components/ui/RichText";
-import BlockRenderer from "@/components/blocks/BlockRenderer";
-import AdviceCardClassic from "@/components/advice/AdviceCardClassic";
-import ScrollReveal from "@/components/ui/ScrollReveal";
+} from '@/lib/payload';
+import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { formatDate } from '@/lib/utils';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import RichText from '@/components/ui/RichText';
+import BlockRenderer from '@/components/blocks/BlockRenderer';
+import AdviceCardClassic from '@/components/advice/AdviceCardClassic';
+import ScrollReveal from '@/components/ui/ScrollReveal';
 
 export const revalidate = 3600;
 
@@ -28,7 +28,10 @@ export async function generateMetadata({ params }) {
   if (!post) return {};
 
   // Strip any pre-baked "| Palisade" suffix so we don't double the brand.
-  const cleanTitle = (post.meta?.title || post.title || "").replace(/\s*\|\s*Palisade.*$/i, "").trim() || post.title;
+  const cleanTitle =
+    (post.meta?.title || post.title || '')
+      .replace(/\s*\|\s*Palisada.*$/i, '')
+      .trim() || post.title;
   const title = `${cleanTitle} | ${SITE_NAME}`;
   const description =
     post.meta?.description ||
@@ -45,7 +48,7 @@ export async function generateMetadata({ params }) {
       title,
       description,
       url: `${SITE_URL}/saveti/${slug}/`,
-      type: "article",
+      type: 'article',
       ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
     },
   };
@@ -62,25 +65,25 @@ export default async function AdviceDetailPage({ params }) {
     next: null,
   }));
   const adjacent = [
-    prev && { label: "Prethodni savet", post: prev, isPrev: true },
-    next && { label: "Sledeći savet", post: next, isPrev: false },
+    prev && { label: 'Prethodni savet', post: prev, isPrev: true },
+    next && { label: 'Sledeći savet', post: next, isPrev: false },
   ].filter(Boolean);
 
   const breadcrumbs = [
-    { label: "Naslovna", href: "/" },
-    { label: "Saveti", href: "/saveti" },
+    { label: 'Naslovna', href: '/' },
+    { label: 'Saveti', href: '/saveti' },
     { label: post.title },
   ];
 
   const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
+    '@context': 'https://schema.org',
+    '@type': 'Article',
     headline: post.title,
-    description: post.excerpt || "",
+    description: post.excerpt || '',
     url: `${SITE_URL}/saveti/${slug}`,
     ...(imgUrl ? { image: imgUrl } : {}),
     ...(post.publishedOn ? { datePublished: post.publishedOn } : {}),
-    publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
   };
 
   return (
@@ -183,7 +186,7 @@ export default async function AdviceDetailPage({ params }) {
               {adjacent.map(({ label, post: item, isPrev }, i) => (
                 <ScrollReveal key={item.id} delay={i * 80}>
                   <p
-                    className={`mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 ${isPrev ? "" : "sm:justify-end"}`}
+                    className={`mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 ${isPrev ? '' : 'sm:justify-end'}`}
                   >
                     {isPrev && <span aria-hidden="true">←</span>}
                     {label}

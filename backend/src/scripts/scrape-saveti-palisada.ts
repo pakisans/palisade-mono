@@ -58,7 +58,10 @@ let lastReq = 0
 async function fetchJson(url: string): Promise<any> {
   const wait = DELAY_MS - (Date.now() - lastReq)
   if (wait > 0) await sleep(wait)
-  const res = await fetch(url, { signal: AbortSignal.timeout(30_000), headers: { 'User-Agent': UA, Accept: 'application/json' } })
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(30_000),
+    headers: { 'User-Agent': UA, Accept: 'application/json' },
+  })
   lastReq = Date.now()
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   return res.json()
@@ -66,14 +69,21 @@ async function fetchJson(url: string): Promise<any> {
 
 async function downloadImage(url: string): Promise<File | null> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(30_000), headers: { 'User-Agent': UA } })
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(30_000),
+      headers: { 'User-Agent': UA },
+    })
     if (!res.ok) return null
     const data = await res.arrayBuffer()
     const clean = url.split('?')[0]
     const ext = (clean.split('.').pop() ?? 'jpg').toLowerCase()
     const mime: Record<string, string> = {
-      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
-      webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+      gif: 'image/gif',
+      svg: 'image/svg+xml',
     }
     return {
       name: clean.split('/').pop() || `img-${Date.now()}.${ext}`,
@@ -91,13 +101,21 @@ function makeUploader(payload: any) {
     if (SKIP_IMAGES || !image?.url) return null
     const filename = image.url.split('/').pop()?.split('?')[0]
     if (filename) {
-      const ex = await payload.find({ collection: MEDIA, where: { filename: { equals: filename } }, limit: 1 })
+      const ex = await payload.find({
+        collection: MEDIA,
+        where: { filename: { equals: filename } },
+        limit: 1,
+      })
       if (ex.docs[0]) return ex.docs[0].id
     }
     const file = await downloadImage(image.url)
     if (!file) return null
     try {
-      const m = await payload.create({ collection: MEDIA, data: { alt: image.alt || filename || 'Saveti' }, file })
+      const m = await payload.create({
+        collection: MEDIA,
+        data: { alt: image.alt || filename || 'Saveti' },
+        file,
+      })
       return m.id
     } catch (err: any) {
       console.warn(`    ⚠ upload nije uspeo (${filename}): ${err?.message ?? err}`)
@@ -108,20 +126,71 @@ function makeUploader(payload: any) {
 
 // ─── Lexical builders (copied from scrape-saveti.ts) ────────────────────────────
 
-const tText = (text: string, format = 0): any => ({ type: 'text', detail: 0, format, mode: 'normal', style: '', text, version: 1 })
-const tLink = (text: string, url: string, newTab: boolean): any => ({
-  type: 'link', fields: { linkType: 'custom', newTab, url }, children: [tText(text)],
-  direction: 'ltr', format: '', indent: 0, version: 1,
+const tText = (text: string, format = 0): any => ({
+  type: 'text',
+  detail: 0,
+  format,
+  mode: 'normal',
+  style: '',
+  text,
+  version: 1,
 })
-const tParagraph = (children: any[]): any => ({ type: 'paragraph', children, direction: 'ltr', format: '', indent: 0, textFormat: 0, textStyle: '', version: 1 })
-const tHeading = (text: string, tag: 'h2' | 'h3'): any => ({ type: 'heading', tag, children: [tText(text)], direction: 'ltr', format: '', indent: 0, version: 1 })
+const tLink = (text: string, url: string, newTab: boolean): any => ({
+  type: 'link',
+  fields: { linkType: 'custom', newTab, url },
+  children: [tText(text)],
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  version: 1,
+})
+const tParagraph = (children: any[]): any => ({
+  type: 'paragraph',
+  children,
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  textFormat: 0,
+  textStyle: '',
+  version: 1,
+})
+const tHeading = (text: string, tag: 'h2' | 'h3'): any => ({
+  type: 'heading',
+  tag,
+  children: [tText(text)],
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  version: 1,
+})
 const tList = (items: any[][], ordered: boolean): any => ({
-  type: 'list', listType: ordered ? 'number' : 'bullet', start: 1, tag: ordered ? 'ol' : 'ul',
-  children: items.map((inlines, i) => ({ type: 'listitem', value: i + 1, children: inlines.length ? inlines : [tText('')], direction: 'ltr', format: '', indent: 0, version: 1 })),
-  direction: 'ltr', format: '', indent: 0, version: 1,
+  type: 'list',
+  listType: ordered ? 'number' : 'bullet',
+  start: 1,
+  tag: ordered ? 'ol' : 'ul',
+  children: items.map((inlines, i) => ({
+    type: 'listitem',
+    value: i + 1,
+    children: inlines.length ? inlines : [tText('')],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    version: 1,
+  })),
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  version: 1,
 })
 const tRoot = (children: any[]): any => ({
-  root: { type: 'root', children: children.length ? children : [tParagraph([tText('')])], direction: 'ltr', format: '', indent: 0, version: 1 },
+  root: {
+    type: 'root',
+    children: children.length ? children : [tParagraph([tText('')])],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    version: 1,
+  },
 })
 
 // ─── Content parsing (WP content.rendered → lexical + image blocks) ─────────────
@@ -148,7 +217,12 @@ function inlineNodes(el: Element): any[] {
       return
     }
     if (tag === 'br') return
-    const nextFmt = tag === 'strong' || tag === 'b' ? fmt | FORMAT_BOLD : tag === 'em' || tag === 'i' ? fmt | FORMAT_ITALIC : fmt
+    const nextFmt =
+      tag === 'strong' || tag === 'b'
+        ? fmt | FORMAT_BOLD
+        : tag === 'em' || tag === 'i'
+          ? fmt | FORMAT_ITALIC
+          : fmt
     e.childNodes.forEach((c) => walk(c, nextFmt))
   }
   el.childNodes.forEach((c) => walk(c, 0))
@@ -167,28 +241,41 @@ function parseContent(htmlStr: string, title: string): Parsed {
 
   const pushImg = (img: Element) => {
     const src = img.getAttribute('src') || ''
-    if (src && /^https?:/.test(src)) images.push({ url: src, alt: img.getAttribute('alt') || title })
+    if (src && /^https?:/.test(src))
+      images.push({ url: src, alt: img.getAttribute('alt') || title })
   }
 
   const handle = (el: Element) => {
     const tag = el.tagName.toLowerCase()
     if (tag === 'h1') {
-      if (!h1seen) { h1seen = true; return } // first h1 == post title (skip)
+      if (!h1seen) {
+        h1seen = true
+        return
+      } // first h1 == post title (skip)
       content.push(tHeading(collapse(el.textContent ?? ''), 'h2'))
     } else if (tag === 'h2') {
-      const t = collapse(el.textContent ?? ''); if (t) content.push(tHeading(t, 'h2'))
+      const t = collapse(el.textContent ?? '')
+      if (t) content.push(tHeading(t, 'h2'))
     } else if (tag === 'h3' || tag === 'h4') {
-      const t = collapse(el.textContent ?? ''); if (t) content.push(tHeading(t, 'h3'))
+      const t = collapse(el.textContent ?? '')
+      if (t) content.push(tHeading(t, 'h3'))
     } else if (tag === 'p') {
-      const imgs = el.querySelectorAll('img'); if (imgs.length) imgs.forEach(pushImg)
+      const imgs = el.querySelectorAll('img')
+      if (imgs.length) imgs.forEach(pushImg)
       const nodes = inlineNodes(el)
       const plain = collapse(el.textContent ?? '')
-      if (plain) { content.push(tParagraph(nodes)); if (!firstText) firstText = plain }
+      if (plain) {
+        content.push(tParagraph(nodes))
+        if (!firstText) firstText = plain
+      }
     } else if (tag === 'ul' || tag === 'ol') {
-      const items = Array.from(el.children).filter((c) => c.tagName.toLowerCase() === 'li').map((li) => inlineNodes(li))
+      const items = Array.from(el.children)
+        .filter((c) => c.tagName.toLowerCase() === 'li')
+        .map((li) => inlineNodes(li))
       if (items.length) content.push(tList(items, tag === 'ol'))
     } else if (tag === 'blockquote') {
-      const t = collapse(el.textContent ?? ''); if (t) content.push(tParagraph([tText(t, FORMAT_ITALIC)]))
+      const t = collapse(el.textContent ?? '')
+      if (t) content.push(tParagraph([tText(t, FORMAT_ITALIC)]))
     } else if (tag === 'figure') {
       el.querySelectorAll('img').forEach(pushImg)
     } else if (tag === 'img') {
@@ -210,13 +297,22 @@ const run = async () => {
   const upload = makeUploader(payload)
 
   // Resolve saveti category.
-  const cat = await payload.find({ collection: POST_CATEGORIES, where: { slug: { equals: ADVICE_SLUG } }, limit: 1 })
+  const cat = await payload.find({
+    collection: POST_CATEGORIES,
+    where: { slug: { equals: ADVICE_SLUG } },
+    limit: 1,
+  })
   const catId = cat.docs[0]?.id
-  if (!catId) { console.error(`Post-kategorija "${ADVICE_SLUG}" ne postoji.`); process.exit(1) }
+  if (!catId) {
+    console.error(`Post-kategorija "${ADVICE_SLUG}" ne postoji.`)
+    process.exit(1)
+  }
 
   // Fetch all source posts.
   const fields = 'id,slug,title,excerpt,content,date,featured_media'
-  const posts: any[] = await fetchJson(`${SITE}/wp-json/wp/v2/posts?categories=${SOURCE_CAT}&per_page=100&orderby=date&order=asc&_fields=${fields}`)
+  const posts: any[] = await fetchJson(
+    `${SITE}/wp-json/wp/v2/posts?categories=${SOURCE_CAT}&per_page=100&orderby=date&order=asc&_fields=${fields}`,
+  )
   console.log(`Izvor: ${posts.length} postova (kategorija ${SOURCE_CAT}).`)
 
   if (DRY_RUN) {
@@ -225,14 +321,21 @@ const run = async () => {
       const h = parsed.content.filter((n) => n.type === 'heading').length
       const li = parsed.content.filter((n) => n.type === 'list').length
       const pr = parsed.content.filter((n) => n.type === 'paragraph').length
-      console.log(`  • ${p.slug}  [p:${pr} h:${h} ul:${li} img:${parsed.images.length}${p.featured_media ? '+1fm' : ''}]  ${decode(p.title.rendered).slice(0, 60)}`)
+      console.log(
+        `  • ${p.slug}  [p:${pr} h:${h} ul:${li} img:${parsed.images.length}${p.featured_media ? '+1fm' : ''}]  ${decode(p.title.rendered).slice(0, 60)}`,
+      )
     }
     console.log('\n[DRY_RUN] ništa nije obrisano/upisano.')
     process.exit(0)
   }
 
   // Replace all: delete existing saveti posts.
-  const existing = await payload.find({ collection: POSTS, where: { 'categories.slug': { equals: ADVICE_SLUG } }, limit: 200, depth: 0 })
+  const existing = await payload.find({
+    collection: POSTS,
+    where: { 'categories.slug': { equals: ADVICE_SLUG } },
+    limit: 200,
+    depth: 0,
+  })
   console.log(`Brišem postojećih saveta: ${existing.docs.length}`)
   for (const doc of existing.docs) {
     await payload.delete({ collection: POSTS, id: doc.id })
@@ -244,7 +347,9 @@ const run = async () => {
     try {
       const m = await fetchJson(`${SITE}/wp-json/wp/v2/media/${id}?_fields=source_url,alt_text`)
       return m?.source_url ? { url: m.source_url, alt: m.alt_text || 'Saveti' } : null
-    } catch { return null }
+    } catch {
+      return null
+    }
   }
 
   // Slugs are unique across the whole `posts` collection — if a savet slug
@@ -254,7 +359,12 @@ const run = async () => {
     let n = 0
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const f = await payload.find({ collection: POSTS, where: { slug: { equals: s } }, limit: 1, depth: 0 })
+      const f = await payload.find({
+        collection: POSTS,
+        where: { slug: { equals: s } },
+        limit: 1,
+        depth: 0,
+      })
       if (!f.docs[0]) return s
       n++
       s = n === 1 ? `${base}-savet` : `${base}-savet-${n}`
@@ -296,7 +406,7 @@ const run = async () => {
           content: tRoot(parsed.content),
           ...(layout.length ? { layout } : {}),
           meta: {
-            title: `${title} | Palisade`,
+            title: `${title} | Palisada`,
             description: excerpt.slice(0, 160),
             ...(featuredId != null ? { image: featuredId } : {}),
           },
@@ -304,14 +414,18 @@ const run = async () => {
       })
       created++
       const note = slug !== p.slug ? ` (slug→${slug})` : ''
-      console.log(`  ✓ ${p.slug}${note} (${parsed.content.length} blokova, img:${parsed.images.length}${featuredId ? '+fm' : ''})`)
+      console.log(
+        `  ✓ ${p.slug}${note} (${parsed.content.length} blokova, img:${parsed.images.length}${featuredId ? '+fm' : ''})`,
+      )
     } catch (err: any) {
       failed++
       console.warn(`  ✗ ${p.slug}: ${err?.message ?? err}`)
     }
   }
 
-  console.log(`\nGotovo. Kreirano saveta: ${created}/${posts.length}${failed ? ` (neuspešno: ${failed})` : ''}`)
+  console.log(
+    `\nGotovo. Kreirano saveta: ${created}/${posts.length}${failed ? ` (neuspešno: ${failed})` : ''}`,
+  )
   process.exit(0)
 }
 
