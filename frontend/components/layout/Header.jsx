@@ -17,6 +17,30 @@ const SearchIcon = ({ className }) => (
   </svg>
 )
 
+// Mobilna „box" ikonica — zaobljeni kvadrat sa brand borderom (hamburger / X).
+const MenuBoxIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <rect x="1" y="1" width="26" height="26" rx="7" stroke="#8FC640" strokeWidth="2" />
+    <path d="M8 9H20" stroke="#54585B" strokeWidth="2.4" strokeLinecap="round" />
+    <path d="M8 14H20" stroke="#8FC640" strokeWidth="2.4" strokeLinecap="round" />
+    <path d="M8 19H20" stroke="#54585B" strokeWidth="2.4" strokeLinecap="round" />
+  </svg>
+)
+const CloseBoxIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <rect x="1" y="1" width="26" height="26" rx="7" stroke="#8FC640" strokeWidth="2" />
+    <path d="M10 10L18 18" stroke="#54585B" strokeWidth="2.4" strokeLinecap="round" />
+    <path d="M18 10L10 18" stroke="#54585B" strokeWidth="2.4" strokeLinecap="round" />
+  </svg>
+)
+const SearchBoxIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <rect x="1" y="1" width="26" height="26" rx="7" stroke="#8FC640" strokeWidth="2" />
+    <circle cx="12.5" cy="12.5" r="4" stroke="#54585B" strokeWidth="2.2" />
+    <path d="M16 16L20 20" stroke="#54585B" strokeWidth="2.4" strokeLinecap="round" />
+  </svg>
+)
+
 // ─── Category grouping (top categories + their children) ───────────────────────
 
 const PARENT_ORDER = ['kapije', 'ograde', 'automatizacija-kapija', 'kontrola-pristupa', 'oprema-i-dodaci', 'visoka-sigurnost']
@@ -761,26 +785,30 @@ export default function Header({ data, categories }) {
               )}
             </div>
 
-            {/* Mobile actions: search + toggle */}
-            <div className="lg:hidden flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-700 hover:text-gray-950 hover:bg-gray-100 transition-colors"
-              aria-label="Pretraga"
-            >
-              <SearchIcon className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setMobileOpen(v => !v)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-700 hover:text-gray-950 hover:bg-gray-100 transition-colors"
-              aria-label={mobileOpen ? 'Zatvori meni' : 'Otvori meni'}
-              aria-expanded={mobileOpen}
-              aria-controls="mobile-nav-drawer"
-            >
-              {mobileOpen ? <CloseIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
-            </button>
+            {/* Mobile actions: search + meni (box stil + labela) */}
+            <div className="lg:hidden flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="flex flex-col items-center gap-1 px-1.5 py-1 rounded-lg active:bg-gray-100 transition-colors"
+                aria-label="Pretraga"
+              >
+                <SearchBoxIcon />
+                <span className="text-[11px] font-medium leading-none text-[#54585B]">Traži</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileOpen((v) => !v)}
+                className="flex flex-col items-center gap-1 px-1.5 py-1 rounded-lg active:bg-gray-100 transition-colors"
+                aria-label={mobileOpen ? 'Zatvori meni' : 'Otvori meni'}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-nav-drawer"
+              >
+                {mobileOpen ? <CloseBoxIcon /> : <MenuBoxIcon />}
+                <span className="text-[11px] font-medium leading-none text-[#54585B]">
+                  {mobileOpen ? 'Zatvori' : 'Meni'}
+                </span>
+              </button>
             </div>
           </div>
         </div>

@@ -470,10 +470,9 @@ export default async function CategoryPage({ params }) {
   }
   const slug = segments[segments.length - 1];
 
-  const [category, allCategories, productsData] = await Promise.all([
+  const [category, allCategories] = await Promise.all([
     getCategory(slug),
     getCategories(),
-    getProducts({ category: slug, page, limit: PER_PAGE }),
   ]);
 
   if (!category) notFound();
@@ -510,6 +509,15 @@ export default async function CategoryPage({ params }) {
           (typeof c.parent === 'object' ? c.parent?.id : null) === parent?.id,
       )
     : [];
+
+  // Proizvodi: PARENT prikazuje proizvode iz cele grane (parent + sve podkategorije),
+  // jer su proizvodi obično dodeljeni deci; CHILD prikazuje samo svoju kategoriju.
+  const branchSlugs = isParent ? [category.slug, ...children.map((c) => c.slug)] : null;
+  const productsData = await getProducts(
+    branchSlugs
+      ? { categories: branchSlugs, page, limit: PER_PAGE }
+      : { category: slug, page, limit: PER_PAGE },
+  );
 
   // Breadcrumbs
   const breadcrumbs = [

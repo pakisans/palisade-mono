@@ -53,6 +53,7 @@ export async function getProducts({
   page = 1,
   limit = 12,
   category,
+  categories,
   search,
   sort = "-createdAt",
 } = {}) {
@@ -63,7 +64,9 @@ export async function getProducts({
     sort,
     "where[_status][equals]": "published",
   });
-  if (category) params.set("where[categories.slug][equals]", category);
+  // `categories` (niz slug-ova) → svi proizvodi iz grane (parent + deca); inače jedan `category`.
+  if (categories?.length) params.set("where[categories.slug][in]", categories.join(","));
+  else if (category) params.set("where[categories.slug][equals]", category);
   if (search) params.set("where[or][0][title][like]", search);
   return fetchAPI(`products?${params}`, {
     revalidate: 1800,
