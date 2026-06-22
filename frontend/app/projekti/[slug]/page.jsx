@@ -27,21 +27,24 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const project = await getProject(slug).catch(() => null);
   if (!project) return {};
-  const cleanTitle = (project.meta?.title || project.title || '').replace(/\s*\|\s*Palisade.*$/i, '').trim() || project.title;
+  const cleanTitle =
+    (project.meta?.title || project.title || '')
+      .replace(/\s*\|\s*Palisade.*$/i, '')
+      .trim() || project.title;
   const description =
     project.meta?.description ||
     project.excerpt ||
-    `Realizovan projekat — ${project.title}. Palisade d.o.o.`;
+    `Realizovan projekat — ${project.title}. Palisada d.o.o.`;
   const imgUrl =
     getMediaURL(project.meta?.image) || getMediaURL(project.featuredImage);
   return {
     title: { absolute: `${cleanTitle} | ${SITE_NAME}` },
     description,
-    alternates: { canonical: `/projekti/${slug}` },
+    alternates: { canonical: `/projekti/${slug}/` },
     openGraph: {
       title: cleanTitle,
       description,
-      url: `${SITE_URL}/projekti/${slug}`,
+      url: `${SITE_URL}/projekti/${slug}/`,
       type: 'article',
       ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
     },

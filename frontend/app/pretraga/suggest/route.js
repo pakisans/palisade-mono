@@ -3,8 +3,9 @@ import { searchContent, getMediaURL } from '@/lib/payload'
 import { postPath, postType } from '@/lib/routes'
 
 // Interni endpoint za live pretragu iz headera.
-// Klijent (SearchOverlay) gađa /api/search?q= (isti origin → bez CORS-a),
-// a server kombinuje proizvode + postove i vraća lagan, gotov JSON.
+// NAMERNO van `/api/` — na produkciji nginx šalje `/api/*` na Payload backend,
+// pa frontend ruta mora biti pod putanjom koju nginx prosleđuje frontendu (`/` → app2).
+// Klijent (SearchOverlay) gađa /pretraga/suggest?q= (isti origin → bez CORS-a).
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
@@ -26,7 +27,7 @@ export async function GET(request) {
       title: p.title,
       href: postPath(p),
       image: getMediaURL(p.featuredImage) || getMediaURL(p.meta?.image),
-      type: postType(p), // 'savet' | 'projekat'
+      type: postType(p),
     })),
   })
 }

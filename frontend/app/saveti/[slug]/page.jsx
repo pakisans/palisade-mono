@@ -40,11 +40,11 @@ export async function generateMetadata({ params }) {
   return {
     title: { absolute: title },
     description,
-    alternates: { canonical: `/saveti/${slug}` },
+    alternates: { canonical: `/saveti/${slug}/` },
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}/saveti/${slug}`,
+      url: `${SITE_URL}/saveti/${slug}/`,
       type: "article",
       ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
     },

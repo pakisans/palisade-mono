@@ -18,20 +18,18 @@ const ChevronRight = () => (
  * keepParams: existing params to preserve (e.g. { kategorija: 'kapije', pretraga: 'eurofence' })
  * pageParam: name of the page query param (default 'stranica')
  */
-function buildUrl(basePath, pageNum, keepParams, pageParam) {
+function buildUrl(basePath, pageNum, keepParams) {
   const params = new URLSearchParams()
 
   Object.entries(keepParams).forEach(([key, val]) => {
     if (val != null && val !== '') params.set(key, String(val))
   })
 
-  // Page 1 = clean URL without page param
-  if (pageNum > 1) {
-    params.set(pageParam, String(pageNum))
-  }
-
   const qs = params.toString()
-  return `${basePath}${qs ? `?${qs}` : ''}`
+  // WordPress-stil: stranica N → /base/page/N/; stranica 1 → /base/ (trailingSlash:true).
+  const base = basePath.replace(/\/+$/, '')
+  const path = pageNum > 1 ? `${base}/page/${pageNum}/` : `${base}/`
+  return `${path}${qs ? `?${qs}` : ''}`
 }
 
 function buildPageNumbers(current, total) {
@@ -57,13 +55,12 @@ export default function Pagination({
   basePath,
   current,
   total,
-  pageParam  = 'stranica',
   keepParams = {},
 }) {
   if (!total || total <= 1) return null
 
   const pages = buildPageNumbers(current, total)
-  const url   = (n) => buildUrl(basePath, n, keepParams, pageParam)
+  const url   = (n) => buildUrl(basePath, n, keepParams)
 
   const prevDisabled = current <= 1
   const nextDisabled = current >= total

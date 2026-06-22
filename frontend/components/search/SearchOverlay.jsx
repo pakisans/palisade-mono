@@ -101,7 +101,7 @@ export default function SearchOverlay({ open, onClose }) {
     const ctrl = new AbortController()
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`, { signal: ctrl.signal })
+        const res = await fetch(`/pretraga/suggest/?q=${encodeURIComponent(term)}`, { signal: ctrl.signal })
         const json = await res.json()
         setData({ products: json.products ?? [], posts: json.posts ?? [] })
         setActive(0)
@@ -132,7 +132,7 @@ export default function SearchOverlay({ open, onClose }) {
 
   const showAll = () => {
     const term = q.trim()
-    if (term.length >= 2) go(`/pretraga?q=${encodeURIComponent(term)}`)
+    if (term.length >= 2) go(`/pretraga/?q=${encodeURIComponent(term)}`)
   }
 
   const onKeyDown = (e) => {

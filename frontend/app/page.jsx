@@ -1,21 +1,23 @@
-import { getPage, getCategories, getProjects } from '@/lib/payload'
-import { SITE_NAME, SITE_URL } from '@/lib/constants'
-import { extractText } from '@/components/ui/RichText'
+import { getPage, getCategories, getProjects } from '@/lib/payload';
+import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { extractText } from '@/components/ui/RichText';
 
-import Hero from '@/components/sections/Hero'
-import HomeSections from '@/components/sections/HomeSections'
+import Hero from '@/components/sections/Hero';
+import HomeSections from '@/components/sections/HomeSections';
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata() {
-  const page = await getPage('home').catch(() => null)
-  const meta = page?.meta
+  const page = await getPage('home').catch(() => null);
+  const meta = page?.meta;
 
   return {
     title: meta?.title || `Kapije i ograde po meri Beograd | ${SITE_NAME}`,
-    description: meta?.description || 'Palisade d.o.o. — izrada i montaža kapija i ograda u Beogradu i celoj Srbiji.',
+    description:
+      meta?.description ||
+      'Palisada d.o.o. — izrada i montaža kapija i ograda u Beogradu i celoj Srbiji.',
     alternates: { canonical: '/' },
     openGraph: {
       title: meta?.title || `Kapije i ograde | ${SITE_NAME}`,
@@ -23,7 +25,7 @@ export async function generateMetadata() {
       url: SITE_URL,
       images: meta?.image ? [{ url: meta.image?.url || '' }] : [],
     },
-  }
+  };
 }
 
 // ─── Structured data ──────────────────────────────────────────────────────────
@@ -41,17 +43,20 @@ function WebsiteSchema() {
           inLanguage: 'sr-RS',
           potentialAction: {
             '@type': 'SearchAction',
-            target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/proizvodi?pretraga={search_term_string}` },
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: `${SITE_URL}/proizvodi?pretraga={search_term_string}`,
+            },
             'query-input': 'required name=search_term_string',
           },
         }),
       }}
     />
-  )
+  );
 }
 
 function FAQSchema({ faqBlock }) {
-  if (!faqBlock?.items?.length) return null
+  if (!faqBlock?.items?.length) return null;
   return (
     <script
       type="application/ld+json"
@@ -64,13 +69,16 @@ function FAQSchema({ faqBlock }) {
             name: item.question,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: typeof item.answer === 'string' ? item.answer : extractText(item.answer),
+              text:
+                typeof item.answer === 'string'
+                  ? item.answer
+                  : extractText(item.answer),
             },
           })),
         }),
       }}
     />
-  )
+  );
 }
 
 // ─── Page — Hero + CMS layout blocks rendered in order ──────────────────────────
@@ -80,10 +88,10 @@ export default async function HomePage() {
     getPage('home').catch(() => null),
     getCategories().catch(() => null),
     getProjects({ limit: 8 }).catch(() => null),
-  ])
+  ]);
 
-  const layout = page?.layout ?? []
-  const faqBlock = layout.find((b) => b?.blockType === 'faq')
+  const layout = page?.layout ?? [];
+  const faqBlock = layout.find((b) => b?.blockType === 'faq');
 
   return (
     <>
@@ -91,7 +99,11 @@ export default async function HomePage() {
       <FAQSchema faqBlock={faqBlock} />
 
       <Hero hero={page?.hero} />
-      <HomeSections blocks={layout} categories={categoriesData} projects={projectsData} />
+      <HomeSections
+        blocks={layout}
+        categories={categoriesData}
+        projects={projectsData}
+      />
     </>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-import Image from "next/image";
-import Link from "next/link";
-import { notFound, permanentRedirect } from "next/navigation";
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound, permanentRedirect } from 'next/navigation';
 import {
   getCategory,
   getCategories,
   getProducts,
   getMediaURL,
-} from "@/lib/payload";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
-import { CATEGORY_BASE, categoryPath } from "@/lib/routes";
-import ProductGrid from "@/components/products/ProductGrid";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import Pagination from "@/components/ui/Pagination";
-import ScrollReveal from "@/components/ui/ScrollReveal";
-import CategoryNavigator from "@/components/navigation/CategoryNavigator";
-import BlockRenderer from "@/components/blocks/BlockRenderer";
+} from '@/lib/payload';
+import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { CATEGORY_BASE, categoryPath } from '@/lib/routes';
+import ProductGrid from '@/components/products/ProductGrid';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import Pagination from '@/components/ui/Pagination';
+import ScrollReveal from '@/components/ui/ScrollReveal';
+import CategoryNavigator from '@/components/navigation/CategoryNavigator';
+import BlockRenderer from '@/components/blocks/BlockRenderer';
 
 export const revalidate = 3600;
 
@@ -28,7 +28,7 @@ export async function generateStaticParams() {
   const byId = Object.fromEntries(docs.map((c) => [c.id, c]));
   return docs.map((c) => {
     const parentSlug =
-      typeof c.parent === "object" ? c.parent?.slug : byId[c.parent]?.slug;
+      typeof c.parent === 'object' ? c.parent?.slug : byId[c.parent]?.slug;
     return { slug: parentSlug ? [parentSlug, c.slug] : [c.slug] };
   });
 }
@@ -37,16 +37,24 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug: segs } = await params;
-  const slug = Array.isArray(segs) ? segs[segs.length - 1] : segs;
+  let segments = Array.isArray(segs) ? segs : [segs];
+  // odbaci trailing /page/N da bismo dobili pravi slug kategorije
+  let pageN = 1;
+  if (segments.length >= 2 && segments[segments.length - 2] === "page") {
+    const n = parseInt(segments[segments.length - 1], 10);
+    if (Number.isFinite(n)) { pageN = Math.max(1, n); segments = segments.slice(0, -2); }
+  }
+  const slug = segments[segments.length - 1];
   const category = await getCategory(slug).catch(() => null);
   if (!category) return {};
   const title = category.meta?.title || `${category.title} | ${SITE_NAME}`;
   const description =
     category.meta?.description ||
     category.description ||
-    `Pogledajte sve ${category.title.toLowerCase()} — Palisade d.o.o.`;
+    `Pogledajte sve ${category.title.toLowerCase()} — Palisada d.o.o.`;
   const imgUrl = getMediaURL(category.image);
-  const canonical = categoryPath(category);
+  const base = categoryPath(category).replace(/\/+$/, "");
+  const canonical = pageN > 1 ? `${base}/page/${pageN}/` : `${base}/`;
   return {
     title: { absolute: title },
     description,
@@ -64,16 +72,16 @@ export async function generateMetadata({ params }) {
 
 function CategorySchema({ category, products }) {
   const schema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
     name: category.title,
-    description: category.description || "",
+    description: category.description || '',
     url: `${SITE_URL}${categoryPath(category)}`,
     ...(getMediaURL(category.image)
       ? { image: getMediaURL(category.image) }
       : {}),
     hasPart: (products?.docs ?? []).map((p) => ({
-      "@type": "Product",
+      '@type': 'Product',
       name: p.title,
       url: `${SITE_URL}/proizvodi/${p.slug}`,
     })),
@@ -88,7 +96,11 @@ function CategorySchema({ category, products }) {
 
 // ─── Hero (shared) ────────────────────────────────────────────────────────────
 
-const HERO_TRUST = ["Izrada po meri", "Profesionalna montaža", "Garancija na rad"];
+const HERO_TRUST = [
+  'Izrada po meri',
+  'Profesionalna montaža',
+  'Garancija na rad',
+];
 
 function CategoryHero({ category, breadcrumbs, parent }) {
   const imgUrl = getMediaURL(category.image);
@@ -104,8 +116,8 @@ function CategoryHero({ category, breadcrumbs, parent }) {
         className="absolute inset-0 -z-10 opacity-[0.4]"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(143,198,64,0.12) 1px, transparent 0)",
-          backgroundSize: "32px 32px",
+            'radial-gradient(circle at 1px 1px, rgba(143,198,64,0.12) 1px, transparent 0)',
+          backgroundSize: '32px 32px',
         }}
         aria-hidden="true"
       />
@@ -113,7 +125,9 @@ function CategoryHero({ category, breadcrumbs, parent }) {
       <div className="container-site py-14 md:py-20">
         <Breadcrumbs items={breadcrumbs} className="mb-8" />
         <div
-          className={imgUrl ? "grid lg:grid-cols-2 gap-12 lg:gap-16 items-center" : ""}
+          className={
+            imgUrl ? 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center' : ''
+          }
         >
           <div className="max-w-2xl">
             {parent && (
@@ -149,7 +163,11 @@ function CategoryHero({ category, breadcrumbs, parent }) {
                       strokeWidth={3}
                       aria-hidden="true"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   </span>
                   {t}
@@ -168,7 +186,10 @@ function CategoryHero({ category, breadcrumbs, parent }) {
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              <div className="absolute top-0 left-0 w-12 h-12" aria-hidden="true">
+              <div
+                className="absolute top-0 left-0 w-12 h-12"
+                aria-hidden="true"
+              >
                 <div className="absolute top-0 left-0 w-full h-1 bg-brand" />
                 <div className="absolute top-0 left-0 w-1 h-full bg-brand" />
               </div>
@@ -207,7 +228,7 @@ function SubcategoryShowcase({ subcategories, parentSlug }) {
         </ScrollReveal>
 
         <div
-          className={`grid gap-5 ${subcategories.length <= 2 ? "grid-cols-1 sm:grid-cols-2" : subcategories.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"}`}
+          className={`grid gap-5 ${subcategories.length <= 2 ? 'grid-cols-1 sm:grid-cols-2' : subcategories.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}
         >
           {subcategories.map((sub, i) => {
             const imgUrl = getMediaURL(sub.image);
@@ -306,11 +327,11 @@ function SiblingNav({ siblings, currentSlug, parentSlug }) {
               <Link
                 key={sib.id}
                 href={`${CATEGORY_BASE}/${parentSlug}/${sib.slug}`}
-                aria-current={isActive ? "page" : undefined}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex-shrink-0 inline-flex items-center h-8 px-3.5 rounded-full text-[12px] font-semibold border transition-all duration-150 whitespace-nowrap ${
                   isActive
-                    ? "bg-brand text-white border-brand shadow-brand-sm"
-                    : "bg-white text-gray-700 border-gray-200 hover:border-brand/40 hover:text-brand"
+                    ? 'bg-brand text-white border-brand shadow-brand-sm'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-brand/40 hover:text-brand'
                 }`}
               >
                 {sib.title}
@@ -341,12 +362,12 @@ function ProductsSection({ products, category, page, totalPages }) {
             </h2>
             {totalDocs > 0 && (
               <p className="text-sm text-gray-400 mt-1">
-                {totalDocs}{" "}
+                {totalDocs}{' '}
                 {totalDocs === 1
-                  ? "proizvod"
+                  ? 'proizvod'
                   : totalDocs < 5
-                    ? "proizvoda"
-                    : "proizvoda"}{" "}
+                    ? 'proizvoda'
+                    : 'proizvoda'}{' '}
                 u ovoj kategoriji
               </p>
             )}
@@ -383,10 +404,7 @@ function ProductsSection({ products, category, page, totalPages }) {
             <p className="text-sm text-gray-500 mb-5">
               Kontaktirajte nas — radimo po individualnoj narudžbini.
             </p>
-            <Link
-              href="/kontakt"
-              className="btn btn-primary"
-            >
+            <Link href="/kontakt" className="btn btn-primary">
               Zatražite ponudu
             </Link>
           </div>
@@ -437,12 +455,20 @@ function CategoryCTA({ categoryTitle }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function CategoryPage({ params, searchParams }) {
+export default async function CategoryPage({ params }) {
   const { slug: segs } = await params;
-  const segments = Array.isArray(segs) ? segs : [segs];
+  let segments = Array.isArray(segs) ? segs : [segs];
+
+  // WordPress-stil paginacija: trailing ".../page/N" → izvuci stranicu, ostatak je kategorija.
+  let page = 1;
+  if (segments.length >= 2 && segments[segments.length - 2] === 'page') {
+    const n = parseInt(segments[segments.length - 1], 10);
+    if (Number.isFinite(n)) {
+      page = Math.max(1, n);
+      segments = segments.slice(0, -2);
+    }
+  }
   const slug = segments[segments.length - 1];
-  const sp = await searchParams;
-  const page = Math.max(1, parseInt(sp?.stranica || "1"));
 
   const [category, allCategories, productsData] = await Promise.all([
     getCategory(slug),
@@ -452,18 +478,18 @@ export default async function CategoryPage({ params, searchParams }) {
 
   if (!category) notFound();
 
-  // Canonical (nested, singular) — redirect any non-canonical path (e.g. flat child
-  // /kategorija/<child>) so we serve exactly the palisada.rs URL. Skip when paginating.
+  // Kanonska (ugnježdena, jednina) putanja + paginacija; redirect ako kategorijski deo
+  // putanje nije kanonski (npr. flat child /kategorija/<child>), čuvajući stranu.
   const canonical = categoryPath(category);
-  if (!sp?.stranica && `${CATEGORY_BASE}/${segments.join("/")}` !== canonical) {
-    permanentRedirect(canonical);
+  if (`${CATEGORY_BASE}/${segments.join('/')}` !== canonical) {
+    permanentRedirect(page > 1 ? `${canonical}/page/${page}/` : `${canonical}/`);
   }
 
   const allDocs = allCategories?.docs ?? [];
 
   // Resolve parent
   const parent =
-    typeof category.parent === "object" && category.parent?.id
+    typeof category.parent === 'object' && category.parent?.id
       ? allDocs.find((c) => c.id === category.parent.id) || category.parent
       : null;
 
@@ -473,7 +499,7 @@ export default async function CategoryPage({ params, searchParams }) {
   const children = isParent
     ? allDocs.filter(
         (c) =>
-          (typeof c.parent === "object" ? c.parent?.id : null) === category.id,
+          (typeof c.parent === 'object' ? c.parent?.id : null) === category.id,
       )
     : [];
 
@@ -481,17 +507,15 @@ export default async function CategoryPage({ params, searchParams }) {
   const siblings = !isParent
     ? allDocs.filter(
         (c) =>
-          (typeof c.parent === "object" ? c.parent?.id : null) === parent?.id,
+          (typeof c.parent === 'object' ? c.parent?.id : null) === parent?.id,
       )
     : [];
 
   // Breadcrumbs
   const breadcrumbs = [
-    { label: "Naslovna", href: "/" },
-    { label: "Kategorije", href: "/proizvodi" },
-    ...(parent
-      ? [{ label: parent.title, href: categoryPath(parent) }]
-      : []),
+    { label: 'Naslovna', href: '/' },
+    { label: 'Kategorije', href: '/proizvodi' },
+    ...(parent ? [{ label: parent.title, href: categoryPath(parent) }] : []),
     { label: category.title },
   ];
 
@@ -513,12 +537,15 @@ export default async function CategoryPage({ params, searchParams }) {
       {isParent ? (
         <>
           {children.length > 0 && (
-            <SubcategoryShowcase subcategories={children} parentSlug={category.slug} />
+            <SubcategoryShowcase
+              subcategories={children}
+              parentSlug={category.slug}
+            />
           )}
           {(productsData?.totalDocs ?? 0) > 0 && (
             <div
               className={
-                children.length > 0 ? "bg-gray-50 border-t border-gray-100" : ""
+                children.length > 0 ? 'bg-gray-50 border-t border-gray-100' : ''
               }
             >
               <ProductsSection

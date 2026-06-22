@@ -14,7 +14,7 @@ export async function generateMetadata({ searchParams }) {
     title: q ? `Pretraga: ${q}` : 'Pretraga',
     description: 'Pretraga proizvoda, saveta i projekata.',
     robots: { index: false, follow: false }, // search stranice se ne indeksiraju
-    alternates: { canonical: '/pretraga' },
+    alternates: { canonical: '/pretraga/' },
   }
 }
 
@@ -52,7 +52,7 @@ export default async function SearchPage({ searchParams }) {
       <div className="mb-8 max-w-2xl">
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-950 tracking-tight">Pretraga</h1>
 
-        <form method="GET" action="/pretraga" role="search" className="relative mt-5">
+        <form method="GET" action="/pretraga/" role="search" className="relative mt-5">
           <label htmlFor="q" className="sr-only">Pretraži</label>
           <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 4a6 6 0 100 12A6 6 0 008 4zM18 18l-4-4" />

@@ -43,11 +43,11 @@ export async function generateMetadata({ params }) {
     // absolute → bypass the layout's "%s | Palisade" template (CMS title already has the suffix)
     title: { absolute: title },
     description,
-    alternates: { canonical: `/${slug}` },
+    alternates: { canonical: `/${slug}/` },
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}/${slug}`,
+      url: `${SITE_URL}/${slug}/`,
       ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
     },
   };

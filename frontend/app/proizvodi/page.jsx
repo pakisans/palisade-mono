@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getProducts, getCategories } from "@/lib/payload";
-import { SITE_NAME } from "@/lib/constants";
+import { getProducts, getCategories, getPage, getMediaURL } from "@/lib/payload";
+import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import ProductGrid from "@/components/products/ProductGrid";
 import Pagination from "@/components/ui/Pagination";
 import ScrollReveal from "@/components/ui/ScrollReveal";
@@ -10,12 +10,27 @@ export const revalidate = 1800;
 
 const PER_PAGE = 12;
 
-export const metadata = {
-  title: `Katalog kapija i ograda | ${SITE_NAME}`,
-  description:
-    "Kompletna ponuda: jednokrilne, dvokrilne, klizne i samonosive kapije, panelne i dekorativne ograde, automatizacija i kontrola pristupa. Sve dimenzije i RAL boje.",
-  alternates: { canonical: "/proizvodi" },
-};
+// SEO iz CMS-a (stranica "proizvodi"), uz fallback kad meta nije popunjen.
+export async function generateMetadata() {
+  const page = await getPage("proizvodi").catch(() => null);
+  const title = page?.meta?.title || `Katalog kapija i ograda | ${SITE_NAME}`;
+  const description =
+    page?.meta?.description ||
+    "Kompletna ponuda: jednokrilne, dvokrilne, klizne i samonosive kapije, panelne i dekorativne ograde, automatizacija i kontrola pristupa. Sve dimenzije i RAL boje.";
+  const imgUrl = getMediaURL(page?.meta?.image);
+  return {
+    title: { absolute: title },
+    description,
+    alternates: { canonical: "/proizvodi/" },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/proizvodi/`,
+      type: "website",
+      ...(imgUrl ? { images: [{ url: imgUrl }] } : {}),
+    },
+  };
+}
 
 // ─── Search bar ───────────────────────────────────────────────────────────────
 
@@ -164,11 +179,10 @@ function EmptyState({ search }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function ProductsPage({ searchParams }) {
-  const sp = await searchParams;
-  const page = Math.max(1, parseInt(sp?.stranica || "1"));
-  const activeSlug = sp?.kategorija || null;
-  const search = sp?.pretraga || null;
+// Deljeni listing — koristi ga i /proizvodi (current=1) i /proizvodi/page/[n].
+// Filteri (kategorija, pretraga) ostaju query parametri; stranica je u putanji.
+export async function ProizvodiList({ current = 1, activeSlug = null, search = null }) {
+  const page = Math.max(1, current);
 
   const [productsData, categoriesData] = await Promise.all([
     getProducts({ page, limit: PER_PAGE, category: activeSlug, search }),
@@ -260,5 +274,16 @@ export default async function ProductsPage({ searchParams }) {
         </div>
       </div>
     </>
+  );
+}
+
+export default async function ProductsPage({ searchParams }) {
+  const sp = await searchParams;
+  return (
+    <ProizvodiList
+      current={1}
+      activeSlug={sp?.kategorija || null}
+      search={sp?.pretraga || null}
+    />
   );
 }

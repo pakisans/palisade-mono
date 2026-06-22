@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  trailingSlash: true,
   images: {
     remotePatterns: [
       // Local dev — Payload backend on :3001
@@ -13,7 +14,7 @@ const nextConfig = {
       // pokriva i staging na :3001 i produkciju na https domenu, bez hardkodovanja.
       ...(() => {
         try {
-          const u = new URL(process.env.NEXT_PUBLIC_PAYLOAD_URL || '')
+          const u = new URL(process.env.NEXT_PUBLIC_PAYLOAD_URL || '');
           return [
             {
               protocol: u.protocol.replace(':', ''),
@@ -21,9 +22,9 @@ const nextConfig = {
               ...(u.port ? { port: u.port } : {}),
               pathname: '/**',
             },
-          ]
+          ];
         } catch {
-          return []
+          return [];
         }
       })(),
       // Production — same host, no port

@@ -101,5 +101,9 @@ export default async function sitemap() {
     ...categoryRoutes,
     ...projectRoutes,
     ...adviceRoutes,
-  ];
+  ].map((r) => ({
+    ...r,
+    // trailingSlash:true → svaki URL u sitemap-u sa završnom kosom crtom (izbegava 308 pri craw-u)
+    url: r.url.endsWith('/') ? r.url : `${r.url}/`,
+  }));
 }

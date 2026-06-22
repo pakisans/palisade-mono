@@ -9,5 +9,5 @@ export const dynamic = "force-dynamic";
 export default async function LegacyCategoryRedirect({ params }) {
   const { slug } = await params;
   const category = await getCategory(slug).catch(() => null);
-  permanentRedirect(category ? categoryPath(category) : `${CATEGORY_BASE}/${slug}`);
+  permanentRedirect(`${(category ? categoryPath(category) : `${CATEGORY_BASE}/${slug}`).replace(/\/+$/, '')}/`);
 }
