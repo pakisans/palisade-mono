@@ -9,6 +9,13 @@ import { cn, resolveLink } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
 import { getMediaURL } from '@/lib/payload'
 import { CATEGORY_BASE } from '@/lib/routes'
+import SearchOverlay from '@/components/search/SearchOverlay'
+
+const SearchIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8 4a6 6 0 100 12A6 6 0 008 4zM18 18l-4-4" />
+  </svg>
+)
 
 // ─── Category grouping (top categories + their children) ───────────────────────
 
@@ -668,6 +675,22 @@ export default function Header({ data, categories }) {
   const scrolled  = useScrolled(12)
   const pathname  = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  // Globalni prečac: Cmd/Ctrl+K i "/" otvaraju pretragu (kad korisnik ne kuca u polje).
+  useEffect(() => {
+    const onKey = (e) => {
+      const k = e.key?.toLowerCase()
+      const tag = (e.target?.tagName || '').toLowerCase()
+      const typing = tag === 'input' || tag === 'textarea' || e.target?.isContentEditable
+      if ((k === 'k' && (e.metaKey || e.ctrlKey)) || (k === '/' && !typing)) {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // CTA link: prefer promoBanner link, fallback to last topBar item that isn't tel/mailto
   const ctaLink = (() => {
@@ -686,7 +709,7 @@ export default function Header({ data, categories }) {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
-  useEffect(() => { setMobileOpen(false) }, [pathname])
+  useEffect(() => { setMobileOpen(false); setSearchOpen(false) }, [pathname])
 
   return (
     <header role="banner" className="sticky top-0 z-30">
@@ -705,6 +728,18 @@ export default function Header({ data, categories }) {
 
             {/* Desktop actions */}
             <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
+              {/* Search */}
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="flex items-center gap-2 h-9 pl-2.5 pr-3 rounded-lg text-sm text-gray-400 border border-gray-200 hover:border-brand/40 hover:text-gray-600 transition-colors"
+                aria-label="Pretraga"
+              >
+                <SearchIcon className="w-4 h-4" />
+                <span className="hidden xl:inline">Pretraga</span>
+                <span className="hidden xl:inline ml-1 rounded border border-gray-200 px-1 text-[10px] font-semibold text-gray-400">⌘K</span>
+              </button>
+
               {/* Phone link */}
               {(data?.topBar ?? []).filter(item => resolveLink(item?.link).href.startsWith('tel:')).slice(0, 1).map((item, i) => {
                 const { href, label } = resolveLink(item?.link)
@@ -726,17 +761,27 @@ export default function Header({ data, categories }) {
               )}
             </div>
 
-            {/* Mobile toggle */}
+            {/* Mobile actions: search + toggle */}
+            <div className="lg:hidden flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-700 hover:text-gray-950 hover:bg-gray-100 transition-colors"
+              aria-label="Pretraga"
+            >
+              <SearchIcon className="w-5 h-5" />
+            </button>
             <button
               type="button"
               onClick={() => setMobileOpen(v => !v)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-gray-700 hover:text-gray-950 hover:bg-gray-100 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-700 hover:text-gray-950 hover:bg-gray-100 transition-colors"
               aria-label={mobileOpen ? 'Zatvori meni' : 'Otvori meni'}
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav-drawer"
             >
               {mobileOpen ? <CloseIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
             </button>
+            </div>
           </div>
         </div>
       </div>
@@ -745,6 +790,8 @@ export default function Header({ data, categories }) {
       <CategoryBar categories={categories} />
 
       <MobileDrawer isOpen={mobileOpen} onClose={() => setMobileOpen(false)} data={data} ctaLink={ctaLink} categories={categories} />
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   )
 }

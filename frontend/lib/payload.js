@@ -302,6 +302,32 @@ export async function submitForm(formId, data) {
   });
 }
 
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+// Jedinstvena pretraga nad proizvodima i postovima (saveti + gotovi-projekti).
+// Vraća sirove docs; rutu posta rešava postPath() iz lib/routes.js.
+export async function searchContent(query, { limit = 6 } = {}) {
+  const q = (query ?? "").trim();
+  if (q.length < 2) return { products: [], posts: [] };
+  const enc = encodeURIComponent(q);
+
+  const [productsRes, postsRes] = await Promise.all([
+    fetchAPI(
+      `products?where[_status][equals]=published&where[or][0][title][like]=${enc}&where[or][1][slug][like]=${enc}&depth=1&limit=${limit}&sort=-createdAt`,
+      { revalidate: 120, tags: ["products", "search"] },
+    ),
+    fetchAPI(
+      `posts?where[_status][equals]=published&where[or][0][title][like]=${enc}&where[or][1][excerpt][like]=${enc}&depth=1&limit=${limit}&sort=-createdAt`,
+      { revalidate: 120, tags: ["posts", "search"] },
+    ),
+  ]);
+
+  return {
+    products: productsRes?.docs ?? [],
+    posts: postsRes?.docs ?? [],
+  };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getMediaURL(media) {

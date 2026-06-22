@@ -21,6 +21,23 @@ export function categoryPath(category, byId = null) {
   return parentSlug ? `${CATEGORY_BASE}/${parentSlug}/${slug}` : `${CATEGORY_BASE}/${slug}`
 }
 
+// Ruta posta zavisi od kategorije: gotovi-projekti → /projekti, ostalo (saveti) → /saveti.
+export function postPath(post) {
+  if (!post?.slug) return '/saveti'
+  const cats = (post.categories ?? [])
+    .map((c) => (typeof c === 'object' ? c?.slug : null))
+    .filter(Boolean)
+  return cats.includes('gotovi-projekti') ? `/projekti/${post.slug}` : `/saveti/${post.slug}`
+}
+
+// Tip posta za grupisanje/badge u pretrazi.
+export function postType(post) {
+  const cats = (post?.categories ?? [])
+    .map((c) => (typeof c === 'object' ? c?.slug : null))
+    .filter(Boolean)
+  return cats.includes('gotovi-projekti') ? 'projekat' : 'savet'
+}
+
 export const routes = {
   home:        '/',
   products:    '/proizvodi',
