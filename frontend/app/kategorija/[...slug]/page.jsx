@@ -128,7 +128,7 @@ function extractIntro(blocks) {
   return { tagline, paragraphs };
 }
 
-function CategoryHero({ category, breadcrumbs, parent, intro }) {
+function CategoryHero({ category, breadcrumbs, parent }) {
   const imgUrl = getMediaURL(category.image);
 
   return (
@@ -222,41 +222,53 @@ function CategoryHero({ category, breadcrumbs, parent, intro }) {
             </div>
           )}
         </div>
+      </div>
+    </section>
+  );
+}
 
-        {/* Uvod (palisada-intro) — uklopljen u Hero kao editorijalni pojas */}
-        {intro?.paragraphs?.length > 0 && (
-          <div className="mt-8 border-t border-gray-200/70 pt-7 md:mt-10 md:pt-8">
-            <div className="grid gap-x-10 gap-y-5 lg:grid-cols-12">
-              <div className="lg:col-span-4">
-                <div className="flex items-center gap-3">
-                  <span className="h-px w-6 bg-brand" aria-hidden="true" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
-                    O kategoriji
-                  </span>
-                </div>
-                {intro.tagline && (
-                  <p className="mt-4 max-w-xs text-xl font-extrabold leading-snug tracking-tight text-gray-950 md:text-2xl">
-                    {intro.tagline}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-3 lg:col-span-7 lg:col-start-6">
-                {intro.paragraphs.map((p, i) => (
-                  <p
-                    key={i}
-                    className={
-                      i === 0
-                        ? 'text-lg leading-relaxed text-gray-700'
-                        : 'text-base leading-relaxed text-gray-500'
-                    }
-                  >
-                    {p}
-                  </p>
-                ))}
-              </div>
+// ─── Uvod (palisada-intro) — editorijalna sekcija ISPOD proizvoda ───────────────
+
+function CategoryIntro({ intro }) {
+  if (!intro?.paragraphs?.length) return null;
+  return (
+    <section
+      className="section-y-sm bg-white border-t border-gray-100"
+      aria-labelledby="category-intro-heading"
+    >
+      <div className="container-site">
+        <div className="grid gap-x-10 gap-y-5 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-6 bg-brand" aria-hidden="true" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
+                O kategoriji
+              </span>
             </div>
+            {intro.tagline && (
+              <p
+                id="category-intro-heading"
+                className="mt-4 max-w-xs text-2xl font-extrabold leading-snug tracking-tight text-gray-950 md:text-3xl"
+              >
+                {intro.tagline}
+              </p>
+            )}
           </div>
-        )}
+          <div className="space-y-3 lg:col-span-7 lg:col-start-6">
+            {intro.paragraphs.map((p, i) => (
+              <p
+                key={i}
+                className={
+                  i === 0
+                    ? 'text-lg leading-relaxed text-gray-700'
+                    : 'text-base leading-relaxed text-gray-500'
+                }
+              >
+                {p}
+              </p>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -542,7 +554,7 @@ export default async function CategoryPage({ params }) {
     { label: category.title },
   ];
 
-  // Uvodni blok (palisada-intro) ide IZNAD proizvoda; ostali content blokovi ostaju ispod.
+  // Uvodni blok (palisada-intro) ide ISPOD proizvoda; ostali content blokovi ostaju ispod.
   const contentBlocks = Array.isArray(category.content) ? category.content : [];
   const introBlocks = contentBlocks.filter(
     (b) => b?.blockName === 'palisada-intro',
@@ -556,12 +568,11 @@ export default async function CategoryPage({ params }) {
     <>
       <CategorySchema category={category} products={productsData} />
 
-      {/* Hero (uvod iz palisada-intro je uklopljen unutar Hero-a) */}
+      {/* Hero */}
       <CategoryHero
         category={category}
         breadcrumbs={breadcrumbs}
         parent={parent}
-        intro={intro}
       />
 
       {/* PARENT: visual subcategory showcase + any products */}
@@ -598,7 +609,10 @@ export default async function CategoryPage({ params }) {
         />
       )}
 
-      {/* Ostali landing blokovi (prednosti / galerija / FAQ) — ispod proizvoda */}
+      {/* Uvod (palisada-intro) — ISPOD proizvoda */}
+      <CategoryIntro intro={intro} />
+
+      {/* Ostali landing blokovi (prednosti / galerija / FAQ) */}
       {restBlocks.length > 0 && <BlockRenderer blocks={restBlocks} />}
 
       <CategoryCTA categoryTitle={category.title} />
