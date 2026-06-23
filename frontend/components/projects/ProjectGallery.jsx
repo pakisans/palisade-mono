@@ -27,7 +27,9 @@ const ExpandIcon = () => (
 
 // ─── Fullscreen lightbox ────────────────────────────────────────────────────
 
-function Lightbox({ items, index, onClose, onPrev, onNext }) {
+function Lightbox({ items, index, onClose, onPrev, onNext, onSelect }) {
+  const thumbRefs = useRef([])
+
   // Keyboard navigation + body scroll lock.
   useEffect(() => {
     const onKey = (e) => {
@@ -44,68 +46,94 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
     }
   }, [onClose, onPrev, onNext])
 
+  // Aktivni thumbnail uvek centriran u traci.
+  useEffect(() => {
+    const el = thumbRefs.current[index]
+    if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [index])
+
   const img = items[index]
   if (!img) return null
 
+  const many = items.length > 1
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/95 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[100] flex flex-col bg-black/95 backdrop-blur-md animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="Pregled slike"
-      onClick={onClose}
     >
-      {/* Close */}
-      <button
-        type="button"
+      {/* Top bar: brojač + zatvori */}
+      <div className="flex items-center justify-between px-4 py-4 md:px-6">
+        <span className="text-sm font-medium tabular-nums text-white/60">
+          {many ? `${index + 1} / ${items.length}` : ''}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Zatvori"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+        >
+          <CloseIcon />
+        </button>
+      </div>
+
+      {/* Glavna slika — klik na prazan prostor zatvara */}
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center px-4 md:px-16"
         onClick={onClose}
-        aria-label="Zatvori"
-        className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
       >
-        <CloseIcon />
-      </button>
-
-      {/* Counter */}
-      {items.length > 1 && (
-        <div className="absolute left-1/2 top-5 z-10 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
-          {index + 1} / {items.length}
-        </div>
-      )}
-
-      {/* Image */}
-      <div className="relative flex h-full w-full items-center justify-center p-4 md:p-12" onClick={(e) => e.stopPropagation()}>
-        <Image
+        <img
           key={index}
           src={img.url}
           alt={img.alt}
-          width={img.width}
-          height={img.height}
-          className="max-h-[88vh] w-auto max-w-[92vw] rounded-lg object-contain shadow-2xl"
-          sizes="92vw"
-          priority
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-full max-w-full select-none rounded-lg object-contain shadow-2xl"
         />
+        {many && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onPrev() }}
+              aria-label="Prethodna slika"
+              className="absolute left-2 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:left-5"
+            >
+              <ChevLeft className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onNext() }}
+              aria-label="Sledeća slika"
+              className="absolute right-2 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:right-5"
+            >
+              <ChevRight className="h-6 w-6" />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Prev / Next */}
-      {items.length > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onPrev() }}
-            aria-label="Prethodna slika"
-            className="absolute left-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:left-6"
-          >
-            <ChevLeft className="h-6 w-6" />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onNext() }}
-            aria-label="Sledeća slika"
-            className="absolute right-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:right-6"
-          >
-            <ChevRight className="h-6 w-6" />
-          </button>
-        </>
+      {/* Traka thumbnaila */}
+      {many && (
+        <div className="flex justify-start gap-2 overflow-x-auto px-4 py-4 scrollbar-hide md:justify-center md:px-6">
+          {items.map((t, i) => (
+            <button
+              key={i}
+              type="button"
+              ref={(el) => { thumbRefs.current[i] = el }}
+              onClick={() => onSelect(i)}
+              aria-label={`Slika ${i + 1}`}
+              aria-current={i === index ? 'true' : undefined}
+              className={`relative h-14 w-20 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-200 md:h-16 md:w-24 ${
+                i === index
+                  ? 'opacity-100 ring-2 ring-brand'
+                  : 'opacity-45 ring-1 ring-white/15 hover:opacity-90'
+              }`}
+            >
+              <img src={t.url} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
       )}
     </div>
   )
@@ -146,7 +174,7 @@ export default function ProjectGallery({ images = [], title = '' }) {
   if (items.length === 0) return null
 
   const lb = lightbox !== null && (
-    <Lightbox items={items} index={lightbox} onClose={close} onPrev={prev} onNext={next} />
+    <Lightbox items={items} index={lightbox} onClose={close} onPrev={prev} onNext={next} onSelect={setLightbox} />
   )
 
   // Single image.

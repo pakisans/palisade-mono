@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import ScrollReveal from '@/components/ui/ScrollReveal'
 
-// ─── Fullscreen lightbox ────────────────────────────────────────────────────────
+// ─── Fullscreen lightbox (velika slika + traka thumbnaila) ───────────────────────
 
-function Lightbox({ images, index, onClose, onPrev, onNext }) {
+function Lightbox({ images, index, onClose, onPrev, onNext, onSelect }) {
+  const thumbRefs = useRef([])
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose()
@@ -22,30 +24,100 @@ function Lightbox({ images, index, onClose, onPrev, onNext }) {
     }
   }, [onClose, onPrev, onNext])
 
+  // Aktivni thumbnail uvek centriran u traci
+  useEffect(() => {
+    const el = thumbRefs.current[index]
+    if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [index])
+
   const img = images[index]
   if (!img) return null
 
+  const many = images.length > 1
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/95 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" onClick={onClose}>
-      <button onClick={onClose} aria-label="Zatvori" className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20">
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-      </button>
-      {images.length > 1 && (
-        <span className="absolute top-6 left-1/2 -translate-x-1/2 text-sm font-medium text-white/70">{index + 1} / {images.length}</span>
-      )}
-      <div className="relative flex h-full w-full items-center justify-center p-4 md:p-12" onClick={(e) => e.stopPropagation()}>
-        <img src={img.url} alt={img.alt || ''} className="max-h-full max-w-full rounded-lg object-contain" />
-        {images.length > 1 && (
+    <div
+      className="fixed inset-0 z-[100] flex flex-col bg-black/95 backdrop-blur-md animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-4 py-4 md:px-6">
+        <span className="text-sm font-medium tabular-nums text-white/60">
+          {many ? `${index + 1} / ${images.length}` : ''}
+        </span>
+        <button
+          onClick={onClose}
+          aria-label="Zatvori"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Glavna slika — klik na prazan prostor zatvara */}
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center px-4 md:px-16"
+        onClick={onClose}
+      >
+        <img
+          src={img.url}
+          alt={img.alt || ''}
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-full max-w-full select-none rounded-lg object-contain shadow-2xl"
+        />
+        {many && (
           <>
-            <button onClick={(e) => { e.stopPropagation(); onPrev() }} aria-label="Prethodna" className="absolute left-3 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 md:left-6">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            <button
+              onClick={(e) => { e.stopPropagation(); onPrev() }}
+              aria-label="Prethodna"
+              className="absolute left-2 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 md:left-5"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onNext() }} aria-label="Sledeća" className="absolute right-3 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 md:right-6">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            <button
+              onClick={(e) => { e.stopPropagation(); onNext() }}
+              aria-label="Sledeća"
+              className="absolute right-2 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 md:right-5"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </>
         )}
       </div>
+
+      {/* Caption */}
+      {img.caption && (
+        <p className="px-6 pt-3 text-center text-sm text-white/60">{img.caption}</p>
+      )}
+
+      {/* Traka thumbnaila */}
+      {many && (
+        <div className="flex justify-start gap-2 overflow-x-auto px-4 py-4 scrollbar-hide md:justify-center md:px-6">
+          {images.map((t, i) => (
+            <button
+              key={i}
+              ref={(el) => { thumbRefs.current[i] = el }}
+              onClick={() => onSelect(i)}
+              aria-label={`Slika ${i + 1}`}
+              aria-current={i === index ? 'true' : undefined}
+              className={`relative h-14 w-20 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-200 md:h-16 md:w-24 ${
+                i === index
+                  ? 'opacity-100 ring-2 ring-brand'
+                  : 'opacity-45 ring-1 ring-white/15 hover:opacity-90'
+              }`}
+            >
+              <img src={t.url} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -69,7 +141,7 @@ export default function MediaGallery({ images = [] }) {
       <div className="container-site">
         <div className={`grid grid-cols-1 gap-5 ${cols}`}>
           {images.map((img, i) => (
-            <ScrollReveal key={i} delay={i * 80}>
+            <ScrollReveal key={i}>
               <figure className="group relative">
                 <button
                   type="button"
@@ -96,7 +168,9 @@ export default function MediaGallery({ images = [] }) {
           ))}
         </div>
       </div>
-      {lb !== null && <Lightbox images={images} index={lb} onClose={close} onPrev={prev} onNext={next} />}
+      {lb !== null && (
+        <Lightbox images={images} index={lb} onClose={close} onPrev={prev} onNext={next} onSelect={setLb} />
+      )}
     </section>
   )
 }
