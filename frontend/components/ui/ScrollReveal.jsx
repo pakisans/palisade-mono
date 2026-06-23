@@ -1,17 +1,8 @@
-'use client'
-
-import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { cn } from '@/lib/utils'
 
-export default function ScrollReveal({ children, delay = 0, className, fade = false, threshold = 0 }) {
-  const ref = useScrollReveal({ threshold })
-  return (
-    <div
-      ref={ref}
-      className={cn(fade ? 'reveal-fade' : 'reveal', className)}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-    >
-      {children}
-    </div>
-  )
+// JS scroll-animacije uklonjene: sadržaj se renderuje odmah vidljiv (bez opacity:0 /
+// IntersectionObserver-a), da ga crawler i korisnici bez JS-a sigurno vide. Zadržano kao
+// običan wrapper da ne diramo ~28 poziva — propovi delay/fade/threshold se ignorišu.
+export default function ScrollReveal({ children, className }) {
+  return <div className={cn(className)}>{children}</div>
 }
