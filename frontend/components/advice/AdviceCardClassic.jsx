@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getMediaURL } from "@/lib/payload";
+import ImageFallback from "@/components/ui/ImageFallback";
 
 export default function AdviceCardClassic({ post, priority = false }) {
   const imgUrl =
@@ -25,11 +26,7 @@ export default function AdviceCardClassic({ post, priority = false }) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-            <span className="text-5xl font-extrabold text-gray-300">
-              {post.title?.charAt(0)}
-            </span>
-          </div>
+          <ImageFallback />
         )}
       </Link>
 

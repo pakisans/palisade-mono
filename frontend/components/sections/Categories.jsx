@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { getMediaURL } from '@/lib/payload'
+import ImageFallback from '@/components/ui/ImageFallback'
 import { categoryPath } from '@/lib/routes'
 import ScrollReveal from '@/components/ui/ScrollReveal'
 
@@ -26,8 +27,7 @@ function CategoryCard({ category, large = false }) {
           sizes={large ? '(max-width: 768px) 100vw, 60vw' : '(max-width: 768px) 100vw, 40vw'}
         />
       ) : (
-        /* Fallback: branded gradient */
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
+        <ImageFallback dark />
       )}
 
       {/* Hover overlay */}

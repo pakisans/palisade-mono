@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { getMediaURL } from '@/lib/payload'
+import ImageFallback from '@/components/ui/ImageFallback'
 
 const ChevLeft  = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={1.75}><path strokeLinecap="round" strokeLinejoin="round" d="M12.5 5L7.5 10l5 5" /></svg>
 const ChevRight = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={1.75}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 5L12.5 10l-5 5" /></svg>
@@ -22,8 +23,8 @@ export default function ProductGallery({ gallery = [], title = '' }) {
 
   if (!images.length) {
     return (
-      <div className="aspect-square rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-        <span className="text-6xl font-extrabold text-gray-200">{title.charAt(0)}</span>
+      <div className="relative aspect-square overflow-hidden rounded-2xl">
+        <ImageFallback />
       </div>
     )
   }

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { getMediaURL } from '@/lib/payload'
+import ImageFallback from '@/components/ui/ImageFallback'
 
 /**
  * Editorial project card. `size`:
@@ -49,9 +50,7 @@ export default function ProjectCard({ project, size = 'default', priority = fals
             sizes={isFeature ? '(max-width: 640px) 100vw, 66vw' : '(max-width: 640px) 100vw, 33vw'}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950 flex items-center justify-center">
-            <span className="text-5xl font-extrabold text-white/10">{project.title.charAt(0)}</span>
-          </div>
+          <ImageFallback dark />
         )}
 
         {/* Gradient overlay — always present, deepens on hover */}

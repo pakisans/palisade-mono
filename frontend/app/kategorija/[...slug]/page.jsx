@@ -14,6 +14,7 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Pagination from '@/components/ui/Pagination';
 import ScrollReveal from '@/components/ui/ScrollReveal';
 import BlockRenderer from '@/components/blocks/BlockRenderer';
+import ImageFallback from '@/components/ui/ImageFallback';
 
 export const revalidate = 3600;
 
@@ -323,11 +324,7 @@ function SubcategoryShowcase({ subcategories, parentSlug }) {
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                        <span className="text-4xl font-extrabold text-gray-200">
-                          {sub.title.charAt(0)}
-                        </span>
-                      </div>
+                      <ImageFallback />
                     )}
                     {/* Bottom brand line */}
                     <div
