@@ -13,7 +13,6 @@ import ProductGrid from '@/components/products/ProductGrid';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Pagination from '@/components/ui/Pagination';
 import ScrollReveal from '@/components/ui/ScrollReveal';
-import CategoryNavigator from '@/components/navigation/CategoryNavigator';
 import BlockRenderer from '@/components/blocks/BlockRenderer';
 
 export const revalidate = 3600;
@@ -40,9 +39,12 @@ export async function generateMetadata({ params }) {
   let segments = Array.isArray(segs) ? segs : [segs];
   // odbaci trailing /page/N da bismo dobili pravi slug kategorije
   let pageN = 1;
-  if (segments.length >= 2 && segments[segments.length - 2] === "page") {
+  if (segments.length >= 2 && segments[segments.length - 2] === 'page') {
     const n = parseInt(segments[segments.length - 1], 10);
-    if (Number.isFinite(n)) { pageN = Math.max(1, n); segments = segments.slice(0, -2); }
+    if (Number.isFinite(n)) {
+      pageN = Math.max(1, n);
+      segments = segments.slice(0, -2);
+    }
   }
   const slug = segments[segments.length - 1];
   const category = await getCategory(slug).catch(() => null);
@@ -53,7 +55,7 @@ export async function generateMetadata({ params }) {
     category.description ||
     `Pogledajte sve ${category.title.toLowerCase()} — Palisada d.o.o.`;
   const imgUrl = getMediaURL(category.image);
-  const base = categoryPath(category).replace(/\/+$/, "");
+  const base = categoryPath(category).replace(/\/+$/, '');
   const canonical = pageN > 1 ? `${base}/page/${pageN}/` : `${base}/`;
   return {
     title: { absolute: title },
@@ -102,7 +104,31 @@ const HERO_TRUST = [
   'Garancija na rad',
 ];
 
-function CategoryHero({ category, breadcrumbs, parent }) {
+// Izvuci tagline + pasuse iz "palisada-intro" Content bloka (lexical richText),
+// da bismo ih uklopili u Hero umesto generičnog content bloka.
+function extractIntro(blocks) {
+  const nodes = blocks?.[0]?.columns?.[0]?.richText?.root?.children ?? [];
+  let tagline = '';
+  const paragraphs = [];
+  for (const n of nodes) {
+    const text = (n?.children ?? [])
+      .map((c) => c?.text || '')
+      .join('')
+      .trim();
+    if (!text) continue;
+    if (n.type === 'heading' && !tagline) {
+      // "Naslov kategorije – vrednosna fraza" → uzmi frazu posle crtice
+      const parts = text.split(/\s[–—-]\s/);
+      const phrase = parts.length > 1 ? parts.slice(1).join(' – ') : text;
+      tagline = phrase.charAt(0).toUpperCase() + phrase.slice(1);
+    } else if (n.type === 'paragraph') {
+      paragraphs.push(text);
+    }
+  }
+  return { tagline, paragraphs };
+}
+
+function CategoryHero({ category, breadcrumbs, parent, intro }) {
   const imgUrl = getMediaURL(category.image);
 
   return (
@@ -122,8 +148,8 @@ function CategoryHero({ category, breadcrumbs, parent }) {
         aria-hidden="true"
       />
 
-      <div className="container-site py-14 md:py-20">
-        <Breadcrumbs items={breadcrumbs} className="mb-8" />
+      <div className="container-site py-9 md:py-12">
+        <Breadcrumbs items={breadcrumbs} className="mb-6" />
         <div
           className={
             imgUrl ? 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center' : ''
@@ -196,6 +222,41 @@ function CategoryHero({ category, breadcrumbs, parent }) {
             </div>
           )}
         </div>
+
+        {/* Uvod (palisada-intro) — uklopljen u Hero kao editorijalni pojas */}
+        {intro?.paragraphs?.length > 0 && (
+          <div className="mt-8 border-t border-gray-200/70 pt-7 md:mt-10 md:pt-8">
+            <div className="grid gap-x-10 gap-y-5 lg:grid-cols-12">
+              <div className="lg:col-span-4">
+                <div className="flex items-center gap-3">
+                  <span className="h-px w-6 bg-brand" aria-hidden="true" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
+                    O kategoriji
+                  </span>
+                </div>
+                {intro.tagline && (
+                  <p className="mt-4 max-w-xs text-xl font-extrabold leading-snug tracking-tight text-gray-950 md:text-2xl">
+                    {intro.tagline}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-3 lg:col-span-7 lg:col-start-6">
+                {intro.paragraphs.map((p, i) => (
+                  <p
+                    key={i}
+                    className={
+                      i === 0
+                        ? 'text-lg leading-relaxed text-gray-700'
+                        : 'text-base leading-relaxed text-gray-500'
+                    }
+                  >
+                    {p}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -299,48 +360,6 @@ function SubcategoryShowcase({ subcategories, parentSlug }) {
         </div>
       </div>
     </section>
-  );
-}
-
-// ─── Sibling nav (for CHILD categories) ───────────────────────────────────────
-
-function SiblingNav({ siblings, currentSlug, parentSlug }) {
-  if (!siblings?.length) return null;
-  return (
-    <div className="sticky top-[var(--header-height)] z-20 bg-white border-b border-gray-100 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)]">
-      <div className="container-site">
-        <nav
-          aria-label="Podkategorije"
-          className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-3 -mx-1 px-1"
-        >
-          {parentSlug && (
-            <Link
-              href={`${CATEGORY_BASE}/${parentSlug}`}
-              className="flex-shrink-0 inline-flex items-center h-8 px-3 rounded-full text-[12px] font-semibold border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-950 transition-colors"
-            >
-              ← Sve
-            </Link>
-          )}
-          {siblings.map((sib) => {
-            const isActive = sib.slug === currentSlug;
-            return (
-              <Link
-                key={sib.id}
-                href={`${CATEGORY_BASE}/${parentSlug}/${sib.slug}`}
-                aria-current={isActive ? 'page' : undefined}
-                className={`flex-shrink-0 inline-flex items-center h-8 px-3.5 rounded-full text-[12px] font-semibold border transition-all duration-150 whitespace-nowrap ${
-                  isActive
-                    ? 'bg-brand text-white border-brand shadow-brand-sm'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-brand/40 hover:text-brand'
-                }`}
-              >
-                {sib.title}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-    </div>
   );
 }
 
@@ -481,7 +500,9 @@ export default async function CategoryPage({ params }) {
   // putanje nije kanonski (npr. flat child /kategorija/<child>), čuvajući stranu.
   const canonical = categoryPath(category);
   if (`${CATEGORY_BASE}/${segments.join('/')}` !== canonical) {
-    permanentRedirect(page > 1 ? `${canonical}/page/${page}/` : `${canonical}/`);
+    permanentRedirect(
+      page > 1 ? `${canonical}/page/${page}/` : `${canonical}/`,
+    );
   }
 
   const allDocs = allCategories?.docs ?? [];
@@ -502,17 +523,11 @@ export default async function CategoryPage({ params }) {
       )
     : [];
 
-  // Siblings (same parent, if child)
-  const siblings = !isParent
-    ? allDocs.filter(
-        (c) =>
-          (typeof c.parent === 'object' ? c.parent?.id : null) === parent?.id,
-      )
-    : [];
-
   // Proizvodi: PARENT prikazuje proizvode iz cele grane (parent + sve podkategorije),
   // jer su proizvodi obično dodeljeni deci; CHILD prikazuje samo svoju kategoriju.
-  const branchSlugs = isParent ? [category.slug, ...children.map((c) => c.slug)] : null;
+  const branchSlugs = isParent
+    ? [category.slug, ...children.map((c) => c.slug)]
+    : null;
   const productsData = await getProducts(
     branchSlugs
       ? { categories: branchSlugs, page, limit: PER_PAGE }
@@ -527,19 +542,27 @@ export default async function CategoryPage({ params }) {
     { label: category.title },
   ];
 
+  // Uvodni blok (palisada-intro) ide IZNAD proizvoda; ostali content blokovi ostaju ispod.
+  const contentBlocks = Array.isArray(category.content) ? category.content : [];
+  const introBlocks = contentBlocks.filter(
+    (b) => b?.blockName === 'palisada-intro',
+  );
+  const restBlocks = contentBlocks.filter(
+    (b) => b?.blockName !== 'palisada-intro',
+  );
+  const intro = extractIntro(introBlocks);
+
   return (
     <>
       <CategorySchema category={category} products={productsData} />
 
-      {/* Hero */}
+      {/* Hero (uvod iz palisada-intro je uklopljen unutar Hero-a) */}
       <CategoryHero
         category={category}
         breadcrumbs={breadcrumbs}
         parent={parent}
+        intro={intro}
       />
-
-      {/* Constant contextual navigation (sticky) — handles sibling/subcategory nav */}
-      <CategoryNavigator categories={allCategories} activeSlug={slug} />
 
       {/* PARENT: visual subcategory showcase + any products */}
       {isParent ? (
@@ -575,11 +598,8 @@ export default async function CategoryPage({ params }) {
         />
       )}
 
-      {/* Landing content scraped from the source site — below products
-          (intro / advantages / gallery / FAQ) */}
-      {Array.isArray(category.content) && category.content.length > 0 && (
-        <BlockRenderer blocks={category.content} />
-      )}
+      {/* Ostali landing blokovi (prednosti / galerija / FAQ) — ispod proizvoda */}
+      {restBlocks.length > 0 && <BlockRenderer blocks={restBlocks} />}
 
       <CategoryCTA categoryTitle={category.title} />
     </>
