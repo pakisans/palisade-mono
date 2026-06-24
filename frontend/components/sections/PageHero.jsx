@@ -5,15 +5,18 @@ import { resolveHeroLink } from '@/lib/utils';
 import RichText from '@/components/ui/RichText';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
-function HeroCTA({ link }) {
+function HeroCTA({ link, dark }) {
   if (!link) return null;
   const isOutline = link.appearance === 'outline';
+  const outlineCls = dark
+    ? 'border-white/30 text-white hover:border-white/60'
+    : 'border-gray-200 text-gray-800 hover:border-brand/50 hover:text-brand';
   return (
     <Link
       href={link.href}
       className={
         isOutline
-          ? 'inline-flex items-center gap-2 h-12 px-7 rounded-xl border-2 border-gray-200 text-gray-800 text-sm font-semibold hover:border-brand/50 hover:text-brand transition-all'
+          ? `inline-flex items-center gap-2 h-12 px-7 rounded-xl border-2 text-sm font-semibold transition-all ${outlineCls}`
           : 'inline-flex items-center gap-2 h-12 px-7 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand-600 transition-all shadow-brand-sm hover:shadow-brand'
       }
     >
@@ -43,6 +46,7 @@ function HeroCTA({ link }) {
 export default function PageHero({ hero, title, breadcrumbs, compact }) {
   const type = hero?.type;
   const imgUrl = getMediaURL(hero?.media);
+  const coverStyle = hero?.mediaStyle === 'cover'; // full cover vs mala slika desno
   const links = (hero?.links ?? []).map(resolveHeroLink).filter(Boolean);
   const hasRich = hero?.richText?.root?.children?.some(
     (n) => n.children?.some((c) => c.text) || n.type === 'heading',
@@ -68,6 +72,57 @@ export default function PageHero({ hero, title, breadcrumbs, compact }) {
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-950 tracking-tight">
             {title}
           </h1>
+        </div>
+      </section>
+    );
+  }
+
+  // ── Full cover — slika preko celog hero-a, beli tekst (kao Brand Story / home hero) ──
+  if (coverStyle && imgUrl) {
+    return (
+      <section className="relative isolate flex min-h-[340px] flex-col justify-end overflow-hidden border-b border-gray-100 bg-gray-950 md:min-h-[460px]">
+        <Image
+          src={imgUrl}
+          alt={title || ''}
+          fill
+          priority
+          className="-z-10 object-cover object-center"
+          sizes="100vw"
+        />
+        {/* Preliv radi čitljivosti teksta */}
+        <div
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-950/90 via-gray-950/40 to-gray-950/30"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-gray-950/60 via-transparent to-transparent"
+          aria-hidden="true"
+        />
+
+        <div className="container-site py-12 md:py-16">
+          {breadcrumbs && (
+            <Breadcrumbs items={breadcrumbs} variant="dark" className="mb-6" />
+          )}
+          <div className="max-w-2xl">
+            {hasRich ? (
+              <RichText
+                content={hero.richText}
+                className="[&_h1]:text-4xl [&_h1]:md:text-5xl [&_h1]:lg:text-6xl [&_h1]:font-extrabold [&_h1]:text-white [&_h1]:tracking-tight [&_h1]:leading-[1.05] [&_h1]:mb-0 [&_p]:text-lg [&_p]:text-white/80 [&_p]:leading-relaxed [&_p]:mt-4 [&_p]:max-w-xl"
+              />
+            ) : (
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.05]">
+                {title}
+              </h1>
+            )}
+
+            {links.length > 0 && (
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                {links.map((link, i) => (
+                  <HeroCTA key={i} link={link} dark />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     );
