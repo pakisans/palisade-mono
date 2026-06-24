@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
+import { revalidateSettings } from '@/hooks/revalidateShop'
 
 /**
  * Globalna podešavanja sajta — jedan izvor istine za identitet sajta i SEO osnove.
@@ -16,6 +17,9 @@ export const Settings: GlobalConfig = {
   },
   admin: {
     group: 'Podešavanja',
+  },
+  hooks: {
+    afterChange: [revalidateSettings],
   },
   fields: [
     {

@@ -125,3 +125,17 @@ export const revalidateFooter: GlobalAfterChangeHook = async ({ doc, req }) => {
 
   return doc
 }
+
+// Settings (naziv sajta, URL, default opis/OG) utiče na meta SVIH stranica,
+// pa pored taga 'settings' revalidiramo i ceo layout (sve podstranice).
+export const revalidateSettings: GlobalAfterChangeHook = async ({ doc, req }) => {
+  if (req.context.disableRevalidate) return doc
+
+  await revalidateFrontend({
+    logger: req.payload.logger,
+    tags: ['settings'],
+    layoutPaths: ['/'],
+  })
+
+  return doc
+}

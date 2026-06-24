@@ -1,6 +1,7 @@
 type RevalidateFrontendArgs = {
   paths?: string[]
   tags?: string[]
+  layoutPaths?: string[]
   logger?: {
     info?: (message: string) => void
     warn?: (message: string) => void
@@ -21,7 +22,7 @@ function getFrontendServerURL() {
   ).replace(/\/+$/, '')
 }
 
-export async function revalidateFrontend({ paths = [], tags = [], logger }: RevalidateFrontendArgs) {
+export async function revalidateFrontend({ paths = [], tags = [], layoutPaths = [], logger }: RevalidateFrontendArgs) {
   const frontendURL = getFrontendServerURL()
 
   if (!frontendURL) {
@@ -31,8 +32,13 @@ export async function revalidateFrontend({ paths = [], tags = [], logger }: Reva
 
   const normalizedPaths = unique(paths)
   const normalizedTags = unique(tags)
+  const normalizedLayoutPaths = unique(layoutPaths)
 
-  if (normalizedPaths.length === 0 && normalizedTags.length === 0) {
+  if (
+    normalizedPaths.length === 0 &&
+    normalizedTags.length === 0 &&
+    normalizedLayoutPaths.length === 0
+  ) {
     return
   }
 
@@ -53,6 +59,7 @@ export async function revalidateFrontend({ paths = [], tags = [], logger }: Reva
       body: JSON.stringify({
         paths: normalizedPaths,
         tags: normalizedTags,
+        layoutPaths: normalizedLayoutPaths,
       }),
     })
 

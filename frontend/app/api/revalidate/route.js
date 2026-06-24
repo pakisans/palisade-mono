@@ -29,9 +29,20 @@ export async function POST(request) {
 
   const tags = Array.isArray(body?.tags) ? body.tags.filter(Boolean) : []
   const paths = Array.isArray(body?.paths) ? body.paths.filter(Boolean) : []
+  // layoutPaths → revalidira ceo podstablo (sve stranice pod tom putanjom)
+  const layoutPaths = Array.isArray(body?.layoutPaths)
+    ? body.layoutPaths.filter(Boolean)
+    : []
 
   for (const tag of tags) revalidateTag(tag)
   for (const path of paths) revalidatePath(path)
+  for (const path of layoutPaths) revalidatePath(path, 'layout')
 
-  return NextResponse.json({ revalidated: true, tags, paths, now: Date.now() })
+  return NextResponse.json({
+    revalidated: true,
+    tags,
+    paths,
+    layoutPaths,
+    now: Date.now(),
+  })
 }
