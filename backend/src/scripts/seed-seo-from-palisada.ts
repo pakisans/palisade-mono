@@ -23,7 +23,6 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 const SITE = (process.env.PALISADA_URL || 'https://palisada.rs').replace(/\/+$/, '')
-const BRAND = process.env.SEO_BRAND || 'Palisade d.o.o.'
 const DRY_RUN = process.env.DRY_RUN !== 'false'
 const ONLY = (process.env.ONLY || 'categories,products,pages,posts')
   .split(',')
@@ -82,12 +81,6 @@ function usableDesc(d: string | null): string | null {
   return t
 }
 
-function withBrand(t: string): string {
-  if (!t) return t
-  if (new RegExp(`\\|\\s*${BRAND.replace(/[.]/g, '\\.')}\\s*$`, 'i').test(t)) return t
-  return `${t} | ${BRAND}`
-}
-
 async function fetchSeo(url: string): Promise<{ title: string | null; desc: string | null } | null> {
   try {
     const res = await fetch(url, { headers: UA, redirect: 'follow' })
@@ -96,7 +89,8 @@ async function fetchSeo(url: string): Promise<{ title: string | null; desc: stri
     const ogTitle = metaContent(html, 'og:title', 'property')
     const tagTitle = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '').trim()
     const rawTitle = ogTitle || decodeEntities(tagTitle)
-    const title = rawTitle ? withBrand(cleanTitle(rawTitle)) : null
+    // Čuvamo ČIST naslov (bez brenda); brend dodaje frontend iz Settings globala.
+    const title = rawTitle ? cleanTitle(rawTitle) : null
     const rawDesc =
       metaContent(html, 'description', 'name') ||
       metaContent(html, 'og:description', 'property') ||
@@ -138,6 +132,7 @@ async function processCollection(
   collection: string,
   urlFor: (doc: any) => string | null,
   stat: Stat,
+  field: 'meta' | 'seo' = 'meta',
 ) {
   const docs = (await payload.find({ collection, limit: 0, depth: 0 })).docs as any[]
   for (const doc of docs) {
@@ -152,10 +147,10 @@ async function processCollection(
       stat.skipped++
       continue
     }
-    const newMeta: any = { ...(doc.meta || {}), title: seo.title }
+    const newMeta: any = { ...(doc[field] || {}), title: seo.title }
     if (seo.desc) newMeta.description = seo.desc
 
-    console.log(`  ✓ ${collection}/${doc.slug}`)
+    console.log(`  ✓ ${collection}/${doc.slug}  [${field}]`)
     console.log(`      title: ${seo.title}`)
     if (seo.desc) console.log(`      desc : ${seo.desc.slice(0, 110)}${seo.desc.length > 110 ? '…' : ''}`)
 
@@ -164,7 +159,11 @@ async function processCollection(
         collection,
         id: doc.id,
         locale: 'sr',
-        data: { meta: newMeta },
+        // Čuvamo published status — da update na drafts-kolekcijama ne otpubliuje doc.
+        data: {
+          ...(doc._status === 'published' ? { _status: 'published' } : {}),
+          [field]: newMeta,
+        },
         overrideAccess: true,
       })
     }
@@ -179,7 +178,7 @@ async function main() {
   if (ONLY.includes('categories')) {
     console.log('\n=== KATEGORIJE ===')
     const catUrl = await storeMap('products/categories')
-    await processCollection(payload, 'categories', (d) => catUrl.get(d.slug) || null, stat)
+    await processCollection(payload, 'categories', (d) => catUrl.get(d.slug) || null, stat, 'seo')
   }
 
   if (ONLY.includes('products')) {

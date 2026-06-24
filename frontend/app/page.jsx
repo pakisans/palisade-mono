@@ -13,14 +13,15 @@ export async function generateMetadata() {
   const page = await getPage('home').catch(() => null);
   const meta = page?.meta;
 
+  // Naslov namerno izostavljen → koristi se `title.default` iz root layout-a
+  // (`<defaultTitle> | <siteName>` iz Settings globala). Home meta.title sa palisade
+  // je samo njihov naziv sajta, pa ga ne koristimo.
   return {
-    title: meta?.title || `Kapije i ograde po meri Beograd | ${SITE_NAME}`,
     description:
       meta?.description ||
       'Palisada d.o.o. — izrada i montaža kapija i ograda u Beogradu i celoj Srbiji.',
     alternates: { canonical: '/' },
     openGraph: {
-      title: meta?.title || `Kapije i ograde | ${SITE_NAME}`,
       description: meta?.description || '',
       url: SITE_URL,
       images: meta?.image ? [{ url: meta.image?.url || '' }] : [],

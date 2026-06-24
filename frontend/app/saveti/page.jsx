@@ -1,12 +1,13 @@
 import { getPage, getMediaURL } from '@/lib/payload'
 import { SITE_URL } from '@/lib/constants'
+import { metaTitle } from '@/lib/seo'
 import SavetiList from './SavetiList'
 
 export const revalidate = 3600
 
 export async function generateMetadata() {
   const page = await getPage('saveti').catch(() => null)
-  const title = page?.meta?.title || 'Saveti - Kapije i ograde po meri Beograd | Palisada d.o.o.'
+  const title = await metaTitle(page?.meta?.title, 'Saveti')
   const description =
     page?.meta?.description ||
     'Saveti Palisada kapije i ograde: korisni tekstovi o izboru materijala, automatizaciji, RAL bojama i održavanju ograda i kapija.'

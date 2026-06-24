@@ -144,11 +144,13 @@ export interface Config {
     header: Header;
     footer: Footer;
     clients: Client;
+    settings: Setting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     clients: ClientsSelect<false> | ClientsSelect<true>;
+    settings: SettingsSelect<false> | SettingsSelect<true>;
   };
   locale: 'sr' | 'en';
   widgets: {
@@ -3562,6 +3564,26 @@ export interface Client {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  /**
+   * Koristi se kao sufiks u svim meta naslovima: „<naslov stranice> | <naziv sajta>".
+   */
+  siteName: string;
+  /**
+   * Bazni URL (bez završne kose crte). Koristi se za kanonske URL-ove, OG i sitemap.
+   */
+  siteUrl: string;
+  defaultTitle?: string | null;
+  defaultDescription?: string | null;
+  defaultOgImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -3781,6 +3803,20 @@ export interface ClientsSelect<T extends boolean = true> {
         name?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  siteUrl?: T;
+  defaultTitle?: T;
+  defaultDescription?: T;
+  defaultOgImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

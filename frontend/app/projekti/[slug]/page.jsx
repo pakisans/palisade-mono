@@ -8,6 +8,7 @@ import {
   getMediaURL,
 } from '@/lib/payload';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { metaTitle } from '@/lib/seo';
 import { formatDate } from '@/lib/utils';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import RichText from '@/components/ui/RichText';
@@ -27,22 +28,19 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const project = await getProject(slug).catch(() => null);
   if (!project) return {};
-  const cleanTitle =
-    (project.meta?.title || project.title || '')
-      .replace(/\s*\|\s*Palisada.*$/i, '')
-      .trim() || project.title;
+  const title = await metaTitle(project.meta?.title, project.title);
   const description =
     project.meta?.description ||
     project.excerpt ||
-    `Realizovan projekat — ${project.title}. Palisada d.o.o.`;
+    `Realizovan projekat — ${project.title}.`;
   const imgUrl =
     getMediaURL(project.meta?.image) || getMediaURL(project.featuredImage);
   return {
-    title: { absolute: `${cleanTitle} | ${SITE_NAME}` },
+    title: { absolute: title },
     description,
     alternates: { canonical: `/projekti/${slug}/` },
     openGraph: {
-      title: cleanTitle,
+      title,
       description,
       url: `${SITE_URL}/projekti/${slug}/`,
       type: 'article',

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPage, getAllPageSlugs, getMediaURL } from "@/lib/payload";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { SITE_URL } from "@/lib/constants";
+import { metaTitle } from "@/lib/seo";
 import PageHero from "@/components/sections/PageHero";
 import BlockRenderer from "@/components/blocks/BlockRenderer";
 
@@ -35,12 +36,11 @@ export async function generateMetadata({ params }) {
   const page = await getPage(slug).catch(() => null);
   if (!page) return {};
 
-  const title = page.meta?.title || `${page.title} | ${SITE_NAME}`;
+  const title = await metaTitle(page.meta?.title, page.title);
   const description = page.meta?.description || "";
   const imgUrl = getMediaURL(page.meta?.image);
 
   return {
-    // absolute → bypass the layout's "%s | Palisade" template (CMS title already has the suffix)
     title: { absolute: title },
     description,
     alternates: { canonical: `/${slug}/` },

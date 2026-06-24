@@ -13,9 +13,9 @@ export async function generateMetadata({ params }) {
   const { n } = await params
   const current = pageNum(n)
   const page = await getPage('projekti').catch(() => null)
-  const base = page?.meta?.title || page?.title || 'Projekti | Palisada d.o.o.'
+  const base = page?.meta?.title || page?.title || 'Projekti'
   return {
-    title: { absolute: `${base} — strana ${current}` },
+    title: `${base} — strana ${current}`,
     alternates: { canonical: `/projekti/page/${current}/` },
   }
 }

@@ -47,6 +47,13 @@ export async function getFooter() {
   });
 }
 
+export async function getSettings() {
+  return fetchAPI("globals/settings?depth=1", {
+    revalidate: 86400,
+    tags: ["settings"],
+  });
+}
+
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 export async function getProducts({

@@ -35,6 +35,7 @@
     "seed:category-intros": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-category-intros.ts",
     "seed:category-images": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-category-images.ts",
     "seo:palisada": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-seo-from-palisada.ts",
+    "seo:clean-brand": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/clean-title-brand.ts",
     "import:variants": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-variants.ts",
     "scrape:legal": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-legal.ts",
     "fix:content-links": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/fix-content-links.ts",

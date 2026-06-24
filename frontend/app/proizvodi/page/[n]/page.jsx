@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { SITE_NAME } from '@/lib/constants'
 import { ProizvodiList } from '../../page'
 
 export const revalidate = 1800
@@ -13,7 +12,7 @@ export async function generateMetadata({ params }) {
   const { n } = await params
   const current = pageNum(n)
   return {
-    title: `Katalog kapija i ograda — strana ${current} | ${SITE_NAME}`,
+    title: `Katalog kapija i ograda — strana ${current}`,
     alternates: { canonical: `/proizvodi/page/${current}/` },
   }
 }

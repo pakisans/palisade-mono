@@ -7,8 +7,9 @@ import {
   getProducts,
   getMediaURL,
 } from '@/lib/payload';
-import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { SITE_URL } from '@/lib/constants';
 import { CATEGORY_BASE, categoryPath } from '@/lib/routes';
+import { metaTitle } from '@/lib/seo';
 import ProductGrid from '@/components/products/ProductGrid';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Pagination from '@/components/ui/Pagination';
@@ -50,12 +51,16 @@ export async function generateMetadata({ params }) {
   const slug = segments[segments.length - 1];
   const category = await getCategory(slug).catch(() => null);
   if (!category) return {};
-  const title = category.meta?.title || `${category.title} | ${SITE_NAME}`;
+  const title = await metaTitle(
+    category.seo?.title || category.meta?.title,
+    category.title,
+  );
   const description =
+    category.seo?.description ||
     category.meta?.description ||
     category.description ||
-    `Pogledajte sve ${category.title.toLowerCase()} — Palisada d.o.o.`;
-  const imgUrl = getMediaURL(category.image);
+    `Pogledajte sve ${category.title.toLowerCase()}.`;
+  const imgUrl = getMediaURL(category.seo?.image) || getMediaURL(category.image);
   const base = categoryPath(category).replace(/\/+$/, '');
   const canonical = pageN > 1 ? `${base}/page/${pageN}/` : `${base}/`;
   return {

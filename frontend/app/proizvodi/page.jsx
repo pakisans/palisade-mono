@@ -5,7 +5,8 @@ import {
   getPage,
   getMediaURL,
 } from '@/lib/payload';
-import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { SITE_URL } from '@/lib/constants';
+import { metaTitle } from '@/lib/seo';
 import ProductGrid from '@/components/products/ProductGrid';
 import Pagination from '@/components/ui/Pagination';
 import ScrollReveal from '@/components/ui/ScrollReveal';
@@ -18,7 +19,7 @@ const PER_PAGE = 12;
 // SEO iz CMS-a (stranica "proizvodi"), uz fallback kad meta nije popunjen.
 export async function generateMetadata() {
   const page = await getPage('proizvodi').catch(() => null);
-  const title = page?.meta?.title || `Katalog kapija i ograda | ${SITE_NAME}`;
+  const title = await metaTitle(page?.meta?.title, 'Katalog kapija i ograda');
   const description =
     page?.meta?.description ||
     'Kompletna ponuda: jednokrilne, dvokrilne, klizne i samonosive kapije, panelne i dekorativne ograde, automatizacija i kontrola pristupa. Sve dimenzije i RAL boje.';

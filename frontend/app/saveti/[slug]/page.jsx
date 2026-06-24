@@ -8,6 +8,7 @@ import {
   getMediaURL,
 } from '@/lib/payload';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { metaTitle } from '@/lib/seo';
 import { formatDate } from '@/lib/utils';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import RichText from '@/components/ui/RichText';
@@ -27,12 +28,7 @@ export async function generateMetadata({ params }) {
   const post = await getAdvicePost(slug).catch(() => null);
   if (!post) return {};
 
-  // Strip any pre-baked "| Palisade" suffix so we don't double the brand.
-  const cleanTitle =
-    (post.meta?.title || post.title || '')
-      .replace(/\s*\|\s*Palisada.*$/i, '')
-      .trim() || post.title;
-  const title = `${cleanTitle} | ${SITE_NAME}`;
+  const title = await metaTitle(post.meta?.title, post.title);
   const description =
     post.meta?.description ||
     post.excerpt ||

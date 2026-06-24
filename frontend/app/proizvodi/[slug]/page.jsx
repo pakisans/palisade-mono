@@ -11,6 +11,7 @@ import {
 } from '@/lib/payload';
 import ProductInquiry from '@/components/products/ProductInquiry';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { metaTitle } from '@/lib/seo';
 import { formatPrice } from '@/lib/utils';
 import { categoryPath } from '@/lib/routes';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }) {
   const product = await getProduct(slug).catch(() => null);
   if (!product) return {};
 
-  const title = product.meta?.title || `${product.title} | ${SITE_NAME}`;
+  const title = await metaTitle(product.meta?.title, product.title);
   const description =
     product.meta?.description ||
     `${product.title} — pregledajte detalje, specifikacije i zatražite ponudu.`;

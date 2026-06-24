@@ -2,7 +2,7 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { getHeader, getFooter, getCategories } from '@/lib/payload'
+import { getHeader, getFooter, getCategories, getSettings } from '@/lib/payload'
 import { SITE_NAME, SITE_URL, INDEXABLE } from '@/lib/constants'
 
 const montserrat = Montserrat({
@@ -13,29 +13,40 @@ const montserrat = Montserrat({
   preload: true,
 })
 
-export const metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: `Kapije i ograde po meri | ${SITE_NAME}`,
-    template: `%s | ${SITE_NAME}`,
-  },
-  openGraph: { type: 'website', locale: 'sr_RS', siteName: SITE_NAME },
-  twitter: { card: 'summary_large_image' },
-  // Dok nismo na pravom domenu (INDEXABLE=false) → noindex,nofollow na CELOM sajtu.
-  // Nasleđuju ga sve podstranice jer nijedna ne override-uje `robots`.
-  robots: INDEXABLE
-    ? {
-        index: true,
-        follow: true,
-        googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
-      }
-    : {
-        index: false,
-        follow: false,
-        nocache: true,
-        googleBot: { index: false, follow: false, noimageindex: true },
-      },
-  alternates: { canonical: '/', languages: { 'sr-RS': '/' } },
+// Site name + URL dolaze iz CMS Settings globala (jedan izvor istine), uz fallback
+// na env/konstante. `title.template` dodaje „| <siteName>" na sve podstranice koje
+// vrate čist string naslov (npr. iz CMS SEO polja).
+export async function generateMetadata() {
+  const s = await getSettings().catch(() => null)
+  const siteName = s?.siteName || SITE_NAME
+  const siteUrl = (s?.siteUrl || SITE_URL).replace(/\/+$/, '')
+  const defaultTitle = s?.defaultTitle || 'Kapije i ograde po meri'
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: `${defaultTitle} | ${siteName}`,
+      template: `%s | ${siteName}`,
+    },
+    ...(s?.defaultDescription ? { description: s.defaultDescription } : {}),
+    openGraph: { type: 'website', locale: 'sr_RS', siteName },
+    twitter: { card: 'summary_large_image' },
+    // Dok nismo na pravom domenu (INDEXABLE=false) → noindex,nofollow na CELOM sajtu.
+    // Nasleđuju ga sve podstranice jer nijedna ne override-uje `robots`.
+    robots: INDEXABLE
+      ? {
+          index: true,
+          follow: true,
+          googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+        }
+      : {
+          index: false,
+          follow: false,
+          nocache: true,
+          googleBot: { index: false, follow: false, noimageindex: true },
+        },
+    alternates: { canonical: '/', languages: { 'sr-RS': '/' } },
+  }
 }
 
 function buildOrgSchema(headerData, footerData) {
