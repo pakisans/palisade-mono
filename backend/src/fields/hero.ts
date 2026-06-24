@@ -67,11 +67,12 @@ export const hero: Field = {
     {
       name: 'media',
       type: 'upload',
+      label: 'Slika hero-a',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+        description: 'Opciono. Dostupno na svakom hero-u osim „None".',
+        condition: (_, { type } = {}) => Boolean(type) && type !== 'none',
       },
       relationTo: 'media',
-      required: true,
     },
     {
       name: 'mediaStyle',
@@ -79,13 +80,14 @@ export const hero: Field = {
       defaultValue: 'standard',
       label: 'Prikaz slike',
       options: [
-        { label: 'Standardno (tamni preliv, fokus na tekst)', value: 'standard' },
-        { label: 'Full cover (slika preko celog, lakši preliv)', value: 'cover' },
+        { label: 'Standardno (mala slika sa strane, fokus na tekst)', value: 'standard' },
+        { label: 'Full cover (slika preko celog hero-a)', value: 'cover' },
       ],
       admin: {
         description:
-          'Standardno: jak tamni gradijent, slika u pozadini iza teksta. Full cover: slika ispunjava ceo hero i dominira, blaži preliv samo radi čitljivosti.',
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+          'Standardno: slika sa strane, svetla pozadina. Full cover: slika ispunjava ceo hero (tamni preliv, beli tekst) — kao Brand Story.',
+        condition: (_, { type, media } = {}) =>
+          Boolean(type) && type !== 'none' && Boolean(media),
       },
     },
     {

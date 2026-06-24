@@ -219,12 +219,9 @@ function CategoryHero({ category, breadcrumbs, parent }) {
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
               <div
-                className="absolute top-0 left-0 w-12 h-12"
+                className="absolute top-0 left-0 h-12 w-12 rounded-tl-3xl border-l-4 border-t-4 border-brand"
                 aria-hidden="true"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-brand" />
-                <div className="absolute top-0 left-0 w-1 h-full bg-brand" />
-              </div>
+              />
             </div>
           )}
         </div>

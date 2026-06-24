@@ -711,9 +711,12 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    /**
+     * Opciono. Dostupno na svakom hero-u osim „None".
+     */
     media?: (number | null) | Media;
     /**
-     * Standardno: jak tamni gradijent, slika u pozadini iza teksta. Full cover: slika ispunjava ceo hero i dominira, blaži preliv samo radi čitljivosti.
+     * Standardno: slika sa strane, svetla pozadina. Full cover: slika ispunjava ceo hero (tamni preliv, beli tekst) — kao Brand Story.
      */
     mediaStyle?: ('standard' | 'cover') | null;
     /**
