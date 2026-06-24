@@ -1,4 +1,5 @@
 import ScrollReveal from '@/components/ui/ScrollReveal'
+import ScrollerX from '@/components/ui/ScrollerX'
 import { getMediaURL } from '@/lib/payload'
 
 const StarIcon = () => (
@@ -58,8 +59,6 @@ function TestimonialCard({ quote }) {
 export default function Testimonials({ block, quotes }) {
   const items = block?.items?.length ? block.items : quotes ?? []
   if (!items.length) return null
-  // Duplicate the set so the marquee loops seamlessly (track animates to -50%).
-  const track = [...items, ...items]
 
   return (
     <section className="section-y bg-gray-50 overflow-hidden" aria-labelledby="testimonials-heading">
@@ -75,17 +74,12 @@ export default function Testimonials({ block, quotes }) {
         </ScrollReveal>
       </div>
 
-      {/* Auto-scrolling marquee — pauses on hover, fades at the edges */}
-      <div className="group relative mask-fade-x">
-        <div
-          className="flex w-max gap-6 px-6 animate-marquee group-hover:[animation-play-state:paused]"
-          style={{ animationDuration: `${Math.max(36, track.length * 7)}s` }}
-        >
-          {track.map((quote, i) => (
-            <TestimonialCard key={i} quote={quote} />
-          ))}
-        </div>
-      </div>
+      {/* Auto-scroll + ručno (swipe/drag) — pauzira na hover, fade na ivicama */}
+      <ScrollerX speed={40} className="mask-fade-x gap-6 px-6">
+        {items.map((quote, i) => (
+          <TestimonialCard key={i} quote={quote} />
+        ))}
+      </ScrollerX>
     </section>
   )
 }

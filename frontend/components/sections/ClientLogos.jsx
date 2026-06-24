@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import Image from 'next/image'
 import { getMediaURL } from '@/lib/payload'
 import ScrollReveal from '@/components/ui/ScrollReveal'
+import ScrollerX from '@/components/ui/ScrollerX'
 
 // Highlight the number and the word PALISADA in brand color (matches reference).
 function EmphHeading({ text }) {
@@ -35,8 +36,6 @@ export default function ClientLogos({ block }) {
   const items = block?.logos ?? []
   if (!items.length) return null
   const heading = block?.heading
-  // Duplicate the row so the marquee loops seamlessly (-50% translate).
-  const loop = [...items, ...items]
 
   return (
     <section className="section-y-sm relative overflow-hidden bg-white border-y border-gray-100" aria-labelledby="clients-heading">
@@ -59,17 +58,12 @@ export default function ClientLogos({ block }) {
         )}
       </div>
 
-      {/* Marquee — continuous scroll, pauses on hover, fades at the edges */}
-      <div className="group relative z-10 overflow-hidden mask-fade-x" aria-hidden="true">
-        <div
-          className="flex w-max items-center gap-12 md:gap-16 animate-marquee group-hover:[animation-play-state:paused]"
-          style={{ animationDuration: `${Math.max(30, loop.length * 3.5)}s` }}
-        >
-          {loop.map((logo, i) => (
-            <LogoItem key={i} logo={logo} />
-          ))}
-        </div>
-      </div>
+      {/* Auto-scroll + ručno (swipe/drag) — pauzira na hover, fade na ivicama */}
+      <ScrollerX speed={55} className="relative z-10 mask-fade-x items-center gap-12 px-6 md:gap-16">
+        {items.map((logo, i) => (
+          <LogoItem key={i} logo={logo} />
+        ))}
+      </ScrollerX>
     </section>
   )
 }
