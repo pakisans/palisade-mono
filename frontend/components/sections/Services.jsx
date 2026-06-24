@@ -61,18 +61,24 @@ function FeatureCard({ item }) {
     <Link
       href={item.href}
       aria-label={`Usluga: ${item.title}`}
-      className="group relative flex min-h-[300px] flex-col justify-end overflow-hidden rounded-[28px] bg-gray-900 ring-1 ring-black/5 transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-card-hover md:min-h-[400px]"
+      className="group relative flex min-h-[300px] flex-col justify-end overflow-hidden rounded-[28px] bg-gray-900 ring-1 ring-black/5 transition-all duration-500 ease-spring hover:-translate-y-2 hover:ring-2 hover:ring-brand/60 hover:shadow-[0_30px_80px_-22px_rgba(143,198,64,0.55)] md:min-h-[400px]"
     >
       {item.img && (
         <Image
           src={item.img}
           alt={item.title}
           fill
-          className="object-cover transition-transform duration-[900ms] ease-spring group-hover:scale-[1.06]"
+          className="object-cover transition-transform duration-[900ms] ease-spring group-hover:scale-[1.08]"
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-gray-950/35 to-gray-950/5" />
+      {/* Brand ton u dnu + shine sweep na hover */}
+      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-brand/25 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
+      <span
+        className="pointer-events-none absolute -left-[40%] top-0 z-[2] h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
+        aria-hidden="true"
+      />
 
       {/* Icon badge */}
       <span className="absolute left-6 top-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-white backdrop-blur-md ring-1 ring-white/20 [&>svg]:h-6 [&>svg]:w-6">
@@ -108,23 +114,30 @@ function CompactCard({ item }) {
     <Link
       href={item.href}
       aria-label={`Usluga: ${item.title}`}
-      className="group relative flex h-full flex-col rounded-3xl bg-white p-6 ring-1 ring-gray-100 transition-all duration-300 ease-spring hover:-translate-y-1 hover:ring-brand/30 hover:shadow-card-hover"
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 ring-1 ring-gray-100 transition-all duration-500 ease-spring hover:-translate-y-2 hover:ring-2 hover:ring-brand/50 hover:shadow-[0_26px_64px_-22px_rgba(143,198,64,0.42)]"
     >
-      <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand group-hover:text-white [&>svg]:h-6 [&>svg]:w-6">
-        {icon}
-      </span>
-      <h3 className="text-base font-extrabold tracking-tight text-gray-950 transition-colors duration-200 group-hover:text-brand">
-        {item.title}
-      </h3>
-      {subtitle && (
-        <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-gray-500">
-          {subtitle}
-        </p>
-      )}
-      <span className="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400 transition-colors duration-200 group-hover:text-brand">
-        Pogledajte
-        <Arrow className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-      </span>
+      {/* Suptilan shine sweep */}
+      <span
+        className="pointer-events-none absolute -left-[40%] top-0 z-0 h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-brand/12 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
+        aria-hidden="true"
+      />
+      <div className="relative z-10 flex h-full flex-col">
+        <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand group-hover:text-white [&>svg]:h-6 [&>svg]:w-6">
+          {icon}
+        </span>
+        <h3 className="text-base font-extrabold tracking-tight text-gray-950 transition-colors duration-200 group-hover:text-brand">
+          {item.title}
+        </h3>
+        {subtitle && (
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-gray-500">
+            {subtitle}
+          </p>
+        )}
+        <span className="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400 transition-colors duration-200 group-hover:text-brand">
+          Pogledajte
+          <Arrow className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+        </span>
+      </div>
     </Link>
   )
 }

@@ -7,8 +7,21 @@ export default function ProjectsPreview({ block, projects }) {
   const limit = block?.limit || 4
   const items = (projects?.docs ?? projects ?? []).slice(0, limit)
   if (items.length === 0) return null
+  const count = items.length
 
-  const gridCols = limit >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
+  // Neravnomeran (bento) raspored — premium feeling, ne „4 u gridu".
+  let gridClass = 'sm:grid-cols-2 lg:grid-cols-4'
+  let sizeAt = (i) => (i === 0 ? 'feature' : i === count - 1 ? 'wide' : 'default')
+  if (count === 3) {
+    gridClass = 'sm:grid-cols-2 lg:grid-cols-3'
+    sizeAt = (i) => (i === 0 ? 'feature' : 'default')
+  } else if (count === 2) {
+    gridClass = 'sm:grid-cols-2'
+    sizeAt = () => 'showcase'
+  } else if (count === 1) {
+    gridClass = ''
+    sizeAt = () => 'feature'
+  }
 
   return (
     <section className="section-y bg-white" aria-labelledby="projects-heading">
@@ -34,11 +47,15 @@ export default function ProjectsPreview({ block, projects }) {
           </Link>
         </ScrollReveal>
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridCols} gap-5`}>
+        {/* ProjectCard je direktno grid-stavka da bi col/row-span (bento) radili */}
+        <div className={`grid grid-cols-1 gap-5 md:gap-6 ${gridClass}`}>
           {items.map((project, i) => (
-            <ScrollReveal key={project.id || project.slug || i} delay={i * 80}>
-              <ProjectCard project={project} priority={i < 2} />
-            </ScrollReveal>
+            <ProjectCard
+              key={project.id || project.slug || i}
+              project={project}
+              size={sizeAt(i)}
+              priority={i < 2}
+            />
           ))}
         </div>
       </div>
