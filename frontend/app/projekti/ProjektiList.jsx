@@ -3,8 +3,7 @@ import { getPage, getProjects } from '@/lib/payload'
 import { SITE_URL } from '@/lib/constants'
 import PageHero from '@/components/sections/PageHero'
 import BlockRenderer from '@/components/blocks/BlockRenderer'
-import ProjectCardClassic from '@/components/projects/ProjectCardClassic'
-import ScrollReveal from '@/components/ui/ScrollReveal'
+import ProjectCard from '@/components/projects/ProjectCard'
 import Pagination from '@/components/ui/Pagination'
 
 export const PAGE_SIZE = 12
@@ -56,13 +55,9 @@ export default async function ProjektiList({ current = 1 }) {
       {projects.length > 0 && (
         <section className="section-y-sm" aria-label={page.title}>
           <div className="container-site">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
               {projects.map((project, i) => (
-                <ScrollReveal key={project.id} delay={Math.min(i % 3, 2) * 80} className="h-full">
-                  <div className="h-full">
-                    <ProjectCardClassic project={project} priority={i < 3} />
-                  </div>
-                </ScrollReveal>
+                <ProjectCard key={project.id} project={project} priority={i < 3} />
               ))}
             </div>
             <Pagination basePath="/projekti" current={current} total={totalPages} />
