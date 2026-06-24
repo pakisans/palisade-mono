@@ -86,12 +86,12 @@ export default async function SavetiList({ current = 1 }) {
               </span>
               {/* <span>- saveti i novosti</span> */}
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-gray-500">
+            {/* <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-gray-500">
               Stručni vodiči, praktični saveti i novosti iz sveta kapija i
               ograda — kako da izaberete materijal, vrstu ograde i kapije,
               automatizaciju i opremu, RAL boje, i kako da održavate sve to da
               traje godinama.
-            </p>
+            </p> */}
           </ScrollReveal>
 
           {posts.length > 0 ? (
