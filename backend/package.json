@@ -44,6 +44,7 @@
     "seed:clients": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-clients.ts",
     "seed:mission": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-mission.ts",
     "seed:about": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-about.ts",
+    "seed:about-mission": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-about-mission.ts",
     "seed:home": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-home.ts"
   },
   "dependencies": {

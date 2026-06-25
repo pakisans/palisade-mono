@@ -1,5 +1,6 @@
 import type { Block, Field } from 'payload'
 
+import { AboutMission } from '@/blocks/AboutMission/config'
 import { Ambassador } from '@/blocks/Ambassador/config'
 import { Archive } from '@/blocks/ArchiveBlock/config'
 import { Banner } from '@/blocks/Banner/config'
@@ -25,6 +26,7 @@ import { Video } from '@/blocks/Video/config'
 import { WhyUs } from '@/blocks/WhyUs/config'
 
 export const defaultContentBlocks: Block[] = [
+  AboutMission,
   Ambassador,
   BrandStory,
   Banner,

@@ -306,6 +306,7 @@ export interface Product {
     | null;
   layout?:
     | (
+        | AboutMissionBlock
         | AmbassadorBlock
         | BrandStoryBlock
         | BannerBlock
@@ -456,6 +457,49 @@ export interface VariantType {
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutMissionBlock".
+ */
+export interface AboutMissionBlock {
+  mediaSide?: ('left' | 'right') | null;
+  eyebrow?: string | null;
+  /**
+   * Naslov sekcije.
+   */
+  heading: string;
+  /**
+   * Deo naslova koji se boji brand-zelenom (mora se nalaziti u naslovu). npr. „Beogradu i Srbiji".
+   */
+  headingAccent?: string | null;
+  /**
+   * YouTube URL — prikazuje se video umesto slike (sam se pušta, bez zvuka).
+   */
+  videoUrl?: string | null;
+  /**
+   * Uključeno: video prekriva ceo okvir (crop sa strana). Isključeno: ceo video uklopljen (16:9, sa crnim ivicama gore/dole).
+   */
+  videoCover?: boolean | null;
+  media?: (number | null) | Media;
+  cardTitle?: string | null;
+  statement: string;
+  bullets?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Opciono dugme ispod kartice.
+   */
+  cta?: {
+    label?: string | null;
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'aboutMission';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -741,6 +785,7 @@ export interface Page {
   };
   layout?:
     | (
+        | AboutMissionBlock
         | AmbassadorBlock
         | BrandStoryBlock
         | BannerBlock
@@ -803,6 +848,7 @@ export interface Category {
    */
   content?:
     | (
+        | AboutMissionBlock
         | AmbassadorBlock
         | BrandStoryBlock
         | BannerBlock
@@ -921,6 +967,7 @@ export interface Brand {
    */
   content?:
     | (
+        | AboutMissionBlock
         | AmbassadorBlock
         | BrandStoryBlock
         | BannerBlock
@@ -1514,6 +1561,7 @@ export interface Post {
   };
   layout?:
     | (
+        | AboutMissionBlock
         | AmbassadorBlock
         | BrandStoryBlock
         | BannerBlock
@@ -1572,6 +1620,7 @@ export interface PostCategory {
    */
   content?:
     | (
+        | AboutMissionBlock
         | AmbassadorBlock
         | BrandStoryBlock
         | BannerBlock
@@ -2051,6 +2100,7 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        aboutMission?: T | AboutMissionBlockSelect<T>;
         ambassador?: T | AmbassadorBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
@@ -2087,6 +2137,35 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutMissionBlock_select".
+ */
+export interface AboutMissionBlockSelect<T extends boolean = true> {
+  mediaSide?: T;
+  eyebrow?: T;
+  heading?: T;
+  headingAccent?: T;
+  videoUrl?: T;
+  videoCover?: T;
+  media?: T;
+  cardTitle?: T;
+  statement?: T;
+  bullets?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2477,6 +2556,7 @@ export interface PostsSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        aboutMission?: T | AboutMissionBlockSelect<T>;
         ambassador?: T | AmbassadorBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
@@ -2528,6 +2608,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   content?:
     | T
     | {
+        aboutMission?: T | AboutMissionBlockSelect<T>;
         ambassador?: T | AmbassadorBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
@@ -2575,6 +2656,7 @@ export interface PostCategoriesSelect<T extends boolean = true> {
   content?:
     | T
     | {
+        aboutMission?: T | AboutMissionBlockSelect<T>;
         ambassador?: T | AmbassadorBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
@@ -2622,6 +2704,7 @@ export interface BrandsSelect<T extends boolean = true> {
   content?:
     | T
     | {
+        aboutMission?: T | AboutMissionBlockSelect<T>;
         ambassador?: T | AmbassadorBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
@@ -2948,6 +3031,7 @@ export interface ProductsSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        aboutMission?: T | AboutMissionBlockSelect<T>;
         ambassador?: T | AmbassadorBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;

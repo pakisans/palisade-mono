@@ -13,6 +13,7 @@ import VideoBlock from './VideoBlock'
 import FormBlock from './FormBlock'
 import ContactInfoBlock from './ContactInfoBlock'
 import MissionBlock from './MissionBlock'
+import AboutMission from './AboutMission'
 import MediaGallery from './MediaGallery'
 
 import ContactCTA from '@/components/sections/ContactCTA'
@@ -30,6 +31,7 @@ const registry = {
   formBlock:  FormBlock,
   contactInfo: ContactInfoBlock,
   mission:    MissionBlock,
+  aboutMission: AboutMission,
   cta:        ContactCTA,
   faq:        FAQ,
   stats:      Stats,
