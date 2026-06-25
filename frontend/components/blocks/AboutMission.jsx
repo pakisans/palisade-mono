@@ -6,6 +6,8 @@ import ScrollReveal from '@/components/ui/ScrollReveal'
 import ImageFallback from '@/components/ui/ImageFallback'
 import AboutVideo from './AboutVideo'
 
+const ytId = (u) => u?.match(/(?:youtu\.be\/|v=|embed\/)([\w-]+)/)?.[1] || null
+
 // Oboji deo naslova (accent) brand-zelenom.
 function HeadingWithAccent({ heading, accent }) {
   if (!accent || !heading?.includes(accent)) return heading || null
@@ -108,14 +110,14 @@ export default function AboutMission({ block }) {
 
   // ── FULL COVER — video edge-to-edge na jednoj strani (kao full slika u Brand Story) ──
   if (fullBleed) {
+    const vid = ytId(block.videoUrl)
     return (
       <section className="relative overflow-hidden bg-white py-16 md:py-24" aria-labelledby="about-mission-heading">
-        <div className={`absolute inset-y-0 overflow-hidden ${mediaRight ? 'inset-x-0 lg:left-[46%]' : 'inset-x-0 lg:right-[46%]'}`}>
+        {/* Desktop: cover video sa strane (sakriven na mobilnom — tamo ide plejer ispod) */}
+        <div className={`absolute inset-y-0 hidden overflow-hidden lg:block ${mediaRight ? 'inset-x-0 lg:left-[46%]' : 'inset-x-0 lg:right-[46%]'}`}>
           <AboutVideo url={block.videoUrl} cover buttonSide={mediaRight ? 'right' : 'left'} />
-          {/* mobilni: beli veo radi čitljivosti */}
-          <div className="pointer-events-none absolute inset-0 z-[1] bg-white/85 lg:hidden" />
-          {/* desktop: preliv ka tekstu */}
-          <div className={`pointer-events-none absolute inset-0 z-[1] hidden lg:block ${mediaRight ? 'bg-gradient-to-r from-white via-white/55 to-transparent' : 'bg-gradient-to-l from-white via-white/55 to-transparent'}`} />
+          {/* preliv ka tekstu */}
+          <div className={`pointer-events-none absolute inset-0 z-[1] ${mediaRight ? 'bg-gradient-to-r from-white via-white/55 to-transparent' : 'bg-gradient-to-l from-white via-white/55 to-transparent'}`} />
           {/* brand ivica */}
           <div className={`pointer-events-none absolute inset-y-0 z-[2] w-1 bg-brand ${mediaRight ? 'right-0' : 'left-0'}`} aria-hidden="true" />
         </div>
@@ -127,6 +129,24 @@ export default function AboutMission({ block }) {
             </div>
           </div>
         </div>
+
+        {/* Mobilni: pun video plejer ispod teksta — sa svim kontrolama */}
+        {vid && (
+          <div className="container-site relative z-10 mt-10 lg:hidden">
+            <ScrollReveal>
+              <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-gray-950 shadow-card-hover ring-1 ring-gray-100">
+                <iframe
+                  src={`https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1&playsinline=1`}
+                  title={block.heading || 'Palisada video'}
+                  className="absolute inset-0 h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+            </ScrollReveal>
+          </div>
+        )}
       </section>
     )
   }
