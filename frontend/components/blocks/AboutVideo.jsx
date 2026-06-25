@@ -215,9 +215,19 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
           mobilni: ispod teksta (z-5) jer je traka tamo ionako uvek vidljiva. */}
       <div onClick={togglePlay} className="absolute inset-0 z-[5] cursor-pointer lg:z-[15]" aria-hidden="true" />
 
-      {/* Kontrolna traka — hover na desktopu, vidljiva na mobilnom */}
+      {/* Mobilni: dugme „Pogledaj video" umesto kontrola (video svejedno ide u pozadini) */}
+      <button
+        type="button"
+        onClick={() => setLightbox(true)}
+        className="absolute inset-x-0 bottom-5 z-30 mx-auto flex w-fit items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-brand-sm ring-1 ring-white/25 transition-transform active:scale-95 lg:hidden"
+      >
+        <PlayIcon />
+        Pogledaj video
+      </button>
+
+      {/* Kontrolna traka — samo desktop, na hover */}
       {ready && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-center gap-2.5 bg-gradient-to-t from-gray-950/75 via-gray-950/30 to-transparent px-4 pb-3 pt-10 opacity-0 transition-opacity duration-200 group-hover/v:opacity-100 md:gap-3 max-md:opacity-100">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 hidden items-center gap-3 bg-gradient-to-t from-gray-950/75 via-gray-950/30 to-transparent px-4 pb-3 pt-10 opacity-0 transition-opacity duration-200 group-hover/v:opacity-100 lg:flex">
           <button type="button" onClick={togglePlay} aria-label={playing ? 'Pauza' : 'Pusti'} className={ctrlBtn}>
             {playing ? <PauseIcon /> : <PlayIcon />}
           </button>
