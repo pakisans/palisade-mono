@@ -1,8 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getMediaURL } from '@/lib/payload'
-import { categoryPath } from '@/lib/routes'
+import { categoryPath, CATEGORY_BASE } from '@/lib/routes'
 import ScrollReveal from '@/components/ui/ScrollReveal'
+import ImageFallback from '@/components/ui/ImageFallback'
 
 // ─── Ikonice po kategoriji ───────────────────────────────────────────────────
 
@@ -48,97 +49,123 @@ function topLevelServices(categories) {
       href: categoryPath(cat),
       img: getMediaURL(cat.image),
       text: cat.description,
-      children: docs.filter((c) => parentId(c) === cat.id).map((c) => c.title),
+      // Podkategorije kao klikabilni linkovi (sve usluge).
+      children: docs
+        .filter((c) => parentId(c) === cat.id)
+        .map((c) => ({
+          title: c.title,
+          slug: c.slug,
+          href: `${CATEGORY_BASE}/${cat.slug}/${c.slug}/`,
+          img: getMediaURL(c.image),
+        })),
     }))
 }
 
-// ─── Velika (flagship) kartica sa slikom ───────────────────────────────────────
+// ─── Banner top-level kategorije ────────────────────────────────────────────────
 
-function FeatureCard({ item }) {
-  const icon = ICONS[item.slug] || DEFAULT_ICON
-  const subtitle = item.text || (item.children?.length ? item.children.slice(0, 4).join(' · ') : null)
+function CategoryBanner({ group }) {
+  const icon = ICONS[group.slug] || DEFAULT_ICON
   return (
-    <Link
-      href={item.href}
-      aria-label={`Usluga: ${item.title}`}
-      className="group relative flex min-h-[300px] flex-col justify-end overflow-hidden rounded-[28px] bg-gray-900 ring-1 ring-black/5 transition-all duration-500 ease-spring hover:-translate-y-2 hover:ring-2 hover:ring-brand/60 hover:shadow-[0_30px_80px_-22px_rgba(143,198,64,0.55)] md:min-h-[400px]"
-    >
-      {item.img && (
+    <div className="relative min-h-[180px] overflow-hidden bg-gray-900 md:min-h-[220px]">
+      {group.img ? (
         <Image
-          src={item.img}
-          alt={item.title}
+          src={group.img}
+          alt={group.title}
           fill
-          className="object-cover transition-transform duration-[900ms] ease-spring group-hover:scale-[1.08]"
-          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="object-cover transition-transform duration-700 ease-spring group-hover:scale-105"
+          sizes="100vw"
         />
+      ) : (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1d5557] via-[#143f43] to-gray-950" />
+          <div
+            className="absolute inset-0 opacity-50"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 1px 1px, rgba(143,198,64,0.18) 1px, transparent 0)',
+              backgroundSize: '26px 26px',
+            }}
+            aria-hidden="true"
+          />
+          <span className="absolute -bottom-8 -right-6 h-44 w-44 text-white/10 [&>svg]:h-full [&>svg]:w-full" aria-hidden="true">
+            {icon}
+          </span>
+        </>
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-gray-950/35 to-gray-950/5" />
-      {/* Brand ton u dnu + shine sweep na hover */}
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-brand/25 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-gray-950/85 via-gray-950/45 to-gray-950/15" aria-hidden="true" />
       <span
-        className="pointer-events-none absolute -left-[40%] top-0 z-[2] h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
+        className="pointer-events-none absolute -left-[40%] top-0 z-[2] h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
         aria-hidden="true"
       />
 
-      {/* Icon badge */}
-      <span className="absolute left-6 top-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-white backdrop-blur-md ring-1 ring-white/20 [&>svg]:h-6 [&>svg]:w-6">
-        {icon}
-      </span>
+      <Link href={group.href} aria-label={`Usluga: ${group.title}`} className="absolute inset-0 z-[1]" />
 
-      <div className="relative z-10 p-6 md:p-8">
-        <h3 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">
-          {item.title}
-        </h3>
-        {subtitle && (
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-white/70 line-clamp-2">
-            {subtitle}
-          </p>
-        )}
-        <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur-sm transition-colors duration-200 group-hover:bg-brand group-hover:ring-brand">
-          Pogledajte ponudu
+      <div className="pointer-events-none relative z-10 flex h-full min-h-[180px] items-center justify-between gap-4 p-6 md:min-h-[220px] md:px-8">
+        <div className="flex items-center gap-4">
+          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20 backdrop-blur-md [&>svg]:h-6 [&>svg]:w-6">
+            {icon}
+          </span>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/55">
+              Usluga
+            </span>
+            <h3 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">
+              {group.title}
+            </h3>
+          </div>
+        </div>
+        <span className="hidden flex-shrink-0 items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur-sm transition-colors duration-200 group-hover:bg-brand group-hover:ring-brand sm:inline-flex">
+          Pogledajte sve
           <Arrow className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
         </span>
       </div>
+    </div>
+  )
+}
 
-      <div className="absolute bottom-0 left-0 right-0 h-1 origin-left scale-x-0 bg-brand transition-transform duration-400 ease-spring group-hover:scale-x-100" aria-hidden="true" />
+// ─── Kartica podkategorije (mali thumb ili inicijal + naslov) ───────────────────
+
+function SubCard({ sub }) {
+  return (
+    <Link
+      href={sub.href}
+      className="group/sub flex items-center gap-3 rounded-2xl bg-gray-50 p-3 ring-1 ring-transparent transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:bg-white hover:ring-brand/40 hover:shadow-[0_16px_40px_-18px_rgba(143,198,64,0.42)]"
+    >
+      <span className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
+        {sub.img ? (
+          <Image src={sub.img} alt={sub.title} fill className="object-cover" sizes="48px" />
+        ) : (
+          <ImageFallback markClassName="w-2/3 opacity-50" />
+        )}
+      </span>
+      <span className="min-w-0 flex-1 text-sm font-bold leading-tight text-gray-800 transition-colors duration-200 group-hover/sub:text-brand">
+        {sub.title}
+      </span>
+      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors duration-200 group-hover/sub:bg-brand group-hover/sub:text-white">
+        <Arrow className="h-3.5 w-3.5" />
+      </span>
     </Link>
   )
 }
 
-// ─── Kompaktna kartica (bez slike, ikonica) ────────────────────────────────────
+// ─── Grupa: banner + podkategorije ispod ────────────────────────────────────────
 
-function CompactCard({ item }) {
-  const icon = ICONS[item.slug] || DEFAULT_ICON
-  const subtitle = item.text || (item.children?.length ? item.children.slice(0, 3).join(' · ') : null)
+function CategoryGroup({ group, span = '', subCols = 'sm:grid-cols-2 lg:grid-cols-3' }) {
+  const subs = group.children ?? []
   return (
-    <Link
-      href={item.href}
-      aria-label={`Usluga: ${item.title}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 ring-1 ring-gray-100 transition-all duration-500 ease-spring hover:-translate-y-2 hover:ring-2 hover:ring-brand/50 hover:shadow-[0_26px_64px_-22px_rgba(143,198,64,0.42)]"
+    <div
+      className={`group flex flex-col overflow-hidden rounded-[28px] bg-white ring-1 ring-gray-100 shadow-card transition-all duration-500 ease-spring hover:-translate-y-1 hover:shadow-card-hover hover:ring-brand/25 ${span}`}
     >
-      {/* Suptilan shine sweep */}
-      <span
-        className="pointer-events-none absolute -left-[40%] top-0 z-0 h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-brand/12 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
-        aria-hidden="true"
-      />
-      <div className="relative z-10 flex h-full flex-col">
-        <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand group-hover:text-white [&>svg]:h-6 [&>svg]:w-6">
-          {icon}
-        </span>
-        <h3 className="text-base font-extrabold tracking-tight text-gray-950 transition-colors duration-200 group-hover:text-brand">
-          {item.title}
-        </h3>
-        {subtitle && (
-          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-gray-500">
-            {subtitle}
-          </p>
-        )}
-        <span className="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400 transition-colors duration-200 group-hover:text-brand">
-          Pogledajte
-          <Arrow className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-        </span>
-      </div>
-    </Link>
+      <CategoryBanner group={group} />
+      {subs.length > 0 && (
+        <div className={`grid grid-cols-1 gap-3 p-4 md:p-5 ${subCols}`}>
+          {subs.map((sub) => (
+            <SubCard key={sub.slug} sub={sub} />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -147,23 +174,23 @@ function CompactCard({ item }) {
 export default function Services({ block, categories }) {
   const source = block?.source || 'auto'
 
-  const items =
+  const groups =
     source === 'manual' && block?.items?.length
       ? block.items.map((it) => ({
-          title: it.title, slug: it.slug, href: it.href || '#',
-          img: getMediaURL(it.image), text: it.text, children: [],
+          title: it.title,
+          slug: it.slug || it.title,
+          href: it.href || '#',
+          img: getMediaURL(it.image),
+          children: [],
         }))
       : topLevelServices(categories)
 
-  if (items.length === 0) return null
-
-  const featured = items.filter((i) => i.img)
-  const rest = items.filter((i) => !i.img)
+  if (groups.length === 0) return null
 
   return (
     <section className="section-y surface-soft" aria-labelledby="services-heading">
       <div className="container-site">
-        <ScrollReveal className="mb-10 flex flex-col gap-5 md:mb-14 md:flex-row md:items-end md:justify-between">
+        <ScrollReveal className="mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <span className="eyebrow mb-4">{block?.eyebrow || 'Asortiman'}</span>
             <h2 id="services-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-gray-950 md:text-4xl">
@@ -182,25 +209,27 @@ export default function Services({ block, categories }) {
           </Link>
         </ScrollReveal>
 
-        {featured.length > 0 && (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {featured.map((item) => (
-              <ScrollReveal key={item.slug}>
-                <FeatureCard item={item} />
-              </ScrollReveal>
-            ))}
-          </div>
-        )}
-
-        {rest.length > 0 && (
-          <div className={`grid grid-cols-2 gap-4 lg:grid-cols-4 ${featured.length > 0 ? 'mt-4 md:mt-5' : ''}`}>
-            {rest.map((item) => (
-              <ScrollReveal key={item.slug}>
-                <CompactCard item={item} />
-              </ScrollReveal>
-            ))}
-          </div>
-        )}
+        {/* Bento — puna širina za mnogo podk. (oprema) i bez podk. (visoka sigurnost,
+            kao slim band); ostale pola-pola. Čisto se poređa po redosledu. */}
+        <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-6">
+          {groups.map((group) => {
+            const n = (group.children ?? []).length
+            const layout =
+              n >= 5
+                ? { span: 'sm:col-span-2 lg:col-span-6', subCols: 'sm:grid-cols-2 lg:grid-cols-3' }
+                : n === 0
+                  ? { span: 'sm:col-span-2 lg:col-span-6', subCols: '' }
+                  : { span: 'sm:col-span-1 lg:col-span-3', subCols: 'sm:grid-cols-2' }
+            return (
+              <CategoryGroup
+                key={group.slug}
+                group={group}
+                span={layout.span}
+                subCols={layout.subCols}
+              />
+            )
+          })}
+        </div>
       </div>
     </section>
   )

@@ -6,20 +6,29 @@ import { Children, cloneElement, useEffect, useRef } from 'react'
  * Horizontalna „traka" sa beskonačnim auto-pomeranjem KOJA SE MOŽE i ručno
  * pomerati levo-desno (swipe na touch/trackpad-u, drag mišem, scroll).
  *
- * - Auto-scroll (rAF) — pauzira se na hover i dok korisnik pomera.
+ * - Auto-scroll (rAF) — pauzira se na hover (miš) i dok korisnik pomera.
  * - Native `overflow-x` → swipe na mobilnom/trackpad-u radi besplatno.
  * - Mouse „grab & drag" preko pointer eventa.
- * - Seamless loop: children se renderuju 3×, pozicija se normalizuje na srednju kopiju.
+ * - Seamless loop: children se renderuju COPIES× i pozicija se normalizuje.
  *
- * Prima `children` (jedan set elemenata) — utrostručuje ih interno radi petlje.
+ * MOBILNO: hover-pauza je samo za miš (touch ne zaglavljuje pauzu); posle dodira
+ * auto se nastavi tek kad momentum scroll prođe, da se ne „bije" sa njim.
  */
-// Broj kopija sadržaja. Veći broj = robusnija petlja i kad je jedna kopija uža
-// od ekrana (npr. logoi) — native scroll ne „zapne" na kraju.
 const COPIES = 6
+const RESUME_DELAY = 1400 // ms posle touch-a pre nego što auto nastavi (momentum)
 
 export default function ScrollerX({ children, speed = 40, className = '' }) {
   const ref = useRef(null)
-  const st = useRef({ paused: false, dragging: false, startX: 0, startScroll: 0, last: 0, inited: false })
+  const st = useRef({
+    paused: false,
+    dragging: false,
+    touching: false,
+    resumeAt: 0,
+    startX: 0,
+    startScroll: 0,
+    last: 0,
+    inited: false,
+  })
 
   useEffect(() => {
     const el = ref.current
@@ -40,35 +49,65 @@ export default function ScrollerX({ children, speed = 40, className = '' }) {
         if (!s.inited) {
           el.scrollLeft = one
           s.inited = true
-        } else if (!s.paused && !s.dragging && !reduce) {
-          el.scrollLeft += speed * dt
+        } else {
+          const blocked = s.paused || s.dragging || s.touching || now < s.resumeAt
+          if (!blocked && !reduce) el.scrollLeft += speed * dt
         }
+        // seamless loop
         if (el.scrollLeft >= one * 2) el.scrollLeft -= one
         else if (el.scrollLeft < one) el.scrollLeft += one
       }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+
+    // Touch: pauziraj dok prst dira, nastavi tek kad momentum prođe.
+    const onTouchStart = () => {
+      s.touching = true
+    }
+    const onTouchEnd = () => {
+      s.touching = false
+      s.resumeAt = performance.now() + RESUME_DELAY
+    }
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    el.addEventListener('touchcancel', onTouchEnd, { passive: true })
+
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchend', onTouchEnd)
+      el.removeEventListener('touchcancel', onTouchEnd)
+    }
   }, [speed])
 
-  const pause = () => { st.current.paused = true }
-  const resume = () => { st.current.paused = false; st.current.dragging = false }
-
-  const onPointerDown = (e) => {
-    st.current.paused = true
+  // Hover-pauza SAMO za miš (na touch-u pointerType !== 'mouse', pa se ne zaglavi).
+  const onPointerEnter = (e) => {
+    if (e.pointerType === 'mouse') st.current.paused = true
+  }
+  const onPointerLeave = (e) => {
     if (e.pointerType === 'mouse') {
-      st.current.dragging = true
-      st.current.startX = e.clientX
-      st.current.startScroll = ref.current.scrollLeft
-      ref.current.setPointerCapture?.(e.pointerId)
+      st.current.paused = false
+      st.current.dragging = false
     }
+  }
+  // Mouse „grab & drag" (touch koristi native scroll, ne diramo ga).
+  const onPointerDown = (e) => {
+    if (e.pointerType !== 'mouse') return
+    st.current.paused = true
+    st.current.dragging = true
+    st.current.startX = e.clientX
+    st.current.startScroll = ref.current.scrollLeft
+    ref.current.setPointerCapture?.(e.pointerId)
   }
   const onPointerMove = (e) => {
     if (!st.current.dragging) return
     ref.current.scrollLeft = st.current.startScroll - (e.clientX - st.current.startX)
   }
-  const onPointerUp = () => { st.current.dragging = false; st.current.paused = false }
+  const onPointerUp = () => {
+    st.current.dragging = false
+    st.current.paused = false
+  }
 
   const base = Children.toArray(children)
 
@@ -76,8 +115,8 @@ export default function ScrollerX({ children, speed = 40, className = '' }) {
     <div
       ref={ref}
       className={`flex overflow-x-auto scrollbar-hide cursor-grab select-none overscroll-x-contain active:cursor-grabbing ${className}`}
-      onMouseEnter={pause}
-      onMouseLeave={resume}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

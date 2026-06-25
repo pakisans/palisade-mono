@@ -407,14 +407,40 @@ export default async function ProductPage({ params }) {
                   className="group inline-flex items-center gap-2 rounded-full bg-brand/[0.08] py-1.5 pl-2 pr-4 text-sm font-semibold text-brand ring-1 ring-brand/20 transition-all duration-200 hover:bg-brand/15 hover:ring-brand/40"
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/15">
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg
+                      className="h-3.5 w-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
                       <path d="M3 8.5V5a2 2 0 0 1 2-2h3.5a2 2 0 0 1 1.4.6l9 9a2 2 0 0 1 0 2.8l-4.1 4.1a2 2 0 0 1-2.8 0l-9-9A2 2 0 0 1 3 8.5Z" />
-                      <circle cx="7.5" cy="7.5" r="1.3" fill="currentColor" stroke="none" />
+                      <circle
+                        cx="7.5"
+                        cy="7.5"
+                        r="1.3"
+                        fill="currentColor"
+                        stroke="none"
+                      />
                     </svg>
                   </span>
                   {leafCat.title}
-                  <svg className="h-4 w-4 -translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+                  <svg
+                    className="h-4 w-4 -translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
+                    fill="none"
+                    viewBox="0 0 16 16"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 8h10M9 4l4 4-4 4"
+                    />
                   </svg>
                 </Link>
               )}
@@ -469,7 +495,7 @@ export default async function ProductPage({ params }) {
             </div>
 
             {/* Tags */}
-            {product.tags?.length > 0 && (
+            {/* {product.tags?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {product.tags.map((tag, i) => {
                   const t = typeof tag === 'object' ? tag : null;
@@ -484,7 +510,7 @@ export default async function ProductPage({ params }) {
                   );
                 })}
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

@@ -110,14 +110,14 @@ export default function ProductInquiry({ product, variants = [], form }) {
         </div>
       )}
 
-      {/* Inquiry form — only after a variation is selected (or for simple products) */}
-      {allSelected && form ? (
+      {/* Inquiry form — uvek vidljiva; varijanta je opciona i samo prefill-uje upit */}
+      {form && (
         <div className="rounded-2xl border border-gray-100 bg-white shadow-card p-6 md:p-7">
           <p className="text-lg font-extrabold text-gray-950 mb-1">Zatražite ponudu</p>
           <p className="text-sm text-gray-500 mb-5">
-            {hasVariants
-              ? 'Pošaljite upit za izabranu varijantu — javljamo se sa ponudom u roku od 24h.'
-              : 'Pošaljite upit za ovaj proizvod — javljamo se sa ponudom u roku od 24h.'}
+            {hasVariants && !allSelected
+              ? 'Opciono izaberite varijantu iznad — ili odmah pošaljite upit; javljamo se sa ponudom u roku od 24h.'
+              : 'Pošaljite upit — javljamo se sa ponudom u roku od 24h.'}
           </p>
           <FormClient
             formId={form.id}
@@ -127,12 +127,6 @@ export default function ProductInquiry({ product, variants = [], form }) {
             confirmationMessage={form.confirmationMessage}
             prefill={prefill}
           />
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-5 py-6 text-center">
-          <p className="text-sm font-semibold text-gray-600">
-            Izaberite {types.filter((t) => !sel[t.id]).map((t) => t.label.toLowerCase()).join(', ')} da biste zatražili ponudu.
-          </p>
         </div>
       )}
     </div>
