@@ -52,6 +52,7 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
   const playerRef = useRef(null)
   const [muted, setMuted] = useState(true)
   const [ready, setReady] = useState(false)
+  const [playing, setPlaying] = useState(false)
 
   // Cover: izračunaj veličinu 16:9 wrapper-a da prekrije okvir (bilo koji aspect).
   useEffect(() => {
@@ -114,6 +115,11 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
             )
             if (rootRef.current) io.observe(rootRef.current)
           },
+          onStateChange: (e) => {
+            // Otkrij video SAMO dok aktivno svira (PLAYING === 1). Na pauzi/buffering/
+            // cued poster se vraća → sakriva YouTube play/pause/scrubber kontrole.
+            setPlaying(e.data === 1)
+          },
         },
       })
     })
@@ -156,6 +162,21 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
       >
         <div ref={hostRef} className="h-full w-full" />
       </div>
+
+      {/* Poster (frame videa) — sakriva YouTube start-opcije dok video ne krene */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`}
+        alt=""
+        aria-hidden="true"
+        onError={(ev) => {
+          ev.currentTarget.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
+        }}
+        className={`pointer-events-none absolute inset-0 z-[3] h-full w-full bg-gray-950 object-cover transition-opacity duration-700 ${playing ? 'opacity-0' : 'opacity-100'}`}
+      />
+
+      {/* Klik-štit — YouTube nikad ne dobije klik/tap (nema kontrola), sound dugme je iznad */}
+      <div className="absolute inset-0 z-[4]" aria-hidden="true" />
 
       {ready && (
         <button
