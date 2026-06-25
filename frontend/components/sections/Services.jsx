@@ -27,6 +27,16 @@ const ORDER = {
   'kontrola-pristupa': 4, 'visoka-sigurnost': 5, 'oprema-i-dodaci': 6,
 }
 
+// Asimetrični bento za top-level kartice (4-col grid, ORDER redosled):
+// kapije = veliki feature (2×2), ograde/visoka/oprema = široke (2×1),
+// automatizacija/kontrola = male (1×1) → čisto popunjava 4×3.
+const BENTO_SPAN = {
+  kapije: 'sm:col-span-2 sm:row-span-2',
+  ograde: 'sm:col-span-2',
+  'visoka-sigurnost': 'sm:col-span-2',
+  'oprema-i-dodaci': 'sm:col-span-2',
+}
+
 const parentId = (c) =>
   c?.parent && typeof c.parent === 'object' ? c.parent.id : c?.parent ?? null
 
@@ -61,19 +71,24 @@ function topLevelServices(categories) {
     }))
 }
 
-// ─── Banner top-level kategorije ────────────────────────────────────────────────
+// ─── Glavna kartica (top-level kategorija) ──────────────────────────────────────
 
-function CategoryBanner({ group }) {
+function TopCard({ group, span = '' }) {
   const icon = ICONS[group.slug] || DEFAULT_ICON
+  const big = span.includes('row-span-2')
   return (
-    <div className="relative min-h-[180px] overflow-hidden bg-gray-900 md:min-h-[220px]">
+    <Link
+      href={group.href}
+      aria-label={`Usluga: ${group.title}`}
+      className={`group relative flex h-full min-h-[240px] flex-col justify-end overflow-hidden rounded-3xl bg-gray-900 ring-1 ring-black/5 transition-all duration-500 ease-spring hover:-translate-y-2 hover:ring-2 hover:ring-brand/55 hover:shadow-[0_28px_74px_-24px_rgba(143,198,64,0.5)] ${span}`}
+    >
       {group.img ? (
         <Image
           src={group.img}
           alt={group.title}
           fill
           className="object-cover transition-transform duration-700 ease-spring group-hover:scale-105"
-          sizes="100vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       ) : (
         <>
@@ -93,78 +108,87 @@ function CategoryBanner({ group }) {
         </>
       )}
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-gray-950/85 via-gray-950/45 to-gray-950/15" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-gray-950/35 to-gray-950/5" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-brand/25 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
       <span
-        className="pointer-events-none absolute -left-[40%] top-0 z-[2] h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
+        className="pointer-events-none absolute -left-[40%] top-0 z-[2] h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[130%] group-hover:opacity-100"
         aria-hidden="true"
       />
 
-      <Link href={group.href} aria-label={`Usluga: ${group.title}`} className="absolute inset-0 z-[1]" />
+      <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20 backdrop-blur-md [&>svg]:h-5 [&>svg]:w-5">
+        {icon}
+      </span>
 
-      <div className="pointer-events-none relative z-10 flex h-full min-h-[180px] items-center justify-between gap-4 p-6 md:min-h-[220px] md:px-8">
-        <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20 backdrop-blur-md [&>svg]:h-6 [&>svg]:w-6">
-            {icon}
-          </span>
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/55">
-              Usluga
-            </span>
-            <h3 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">
-              {group.title}
-            </h3>
-          </div>
-        </div>
-        <span className="hidden flex-shrink-0 items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur-sm transition-colors duration-200 group-hover:bg-brand group-hover:ring-brand sm:inline-flex">
-          Pogledajte sve
+      <div className="relative z-10 p-5 md:p-6">
+        <h3
+          className={`font-extrabold tracking-tight text-white ${big ? 'text-2xl md:text-4xl' : 'text-lg md:text-xl'}`}
+        >
+          {group.title}
+        </h3>
+        <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-white/85 transition-colors duration-200 group-hover:text-white">
+          Pogledajte ponudu
           <Arrow className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
         </span>
       </div>
-    </div>
-  )
-}
-
-// ─── Kartica podkategorije (mali thumb ili inicijal + naslov) ───────────────────
-
-function SubCard({ sub }) {
-  return (
-    <Link
-      href={sub.href}
-      className="group/sub flex items-center gap-3 rounded-2xl bg-gray-50 p-3 ring-1 ring-transparent transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:bg-white hover:ring-brand/40 hover:shadow-[0_16px_40px_-18px_rgba(143,198,64,0.42)]"
-    >
-      <span className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
-        {sub.img ? (
-          <Image src={sub.img} alt={sub.title} fill className="object-cover" sizes="48px" />
-        ) : (
-          <ImageFallback markClassName="w-2/3 opacity-50" />
-        )}
-      </span>
-      <span className="min-w-0 flex-1 text-sm font-bold leading-tight text-gray-800 transition-colors duration-200 group-hover/sub:text-brand">
-        {sub.title}
-      </span>
-      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors duration-200 group-hover/sub:bg-brand group-hover/sub:text-white">
-        <Arrow className="h-3.5 w-3.5" />
-      </span>
     </Link>
   )
 }
 
-// ─── Grupa: banner + podkategorije ispod ────────────────────────────────────────
+// ─── Direktorijum podkategorija (grupisano po roditelju) ────────────────────────
 
-function CategoryGroup({ group, span = '', subCols = 'sm:grid-cols-2 lg:grid-cols-3' }) {
-  const subs = group.children ?? []
+// Foto kartica podkategorije (slika ili brand-mark placeholder).
+function SubImageCard({ sub }) {
   return (
-    <div
-      className={`group flex flex-col overflow-hidden rounded-[28px] bg-white ring-1 ring-gray-100 shadow-card transition-all duration-500 ease-spring hover:-translate-y-1 hover:shadow-card-hover hover:ring-brand/25 ${span}`}
+    <Link
+      href={sub.href}
+      className="group/sc block overflow-hidden rounded-2xl bg-white ring-1 ring-gray-100 shadow-sm transition-all duration-300 ease-spring hover:-translate-y-1 hover:ring-brand/40 hover:shadow-[0_18px_44px_-18px_rgba(143,198,64,0.45)]"
     >
-      <CategoryBanner group={group} />
-      {subs.length > 0 && (
-        <div className={`grid grid-cols-1 gap-3 p-4 md:p-5 ${subCols}`}>
-          {subs.map((sub) => (
-            <SubCard key={sub.slug} sub={sub} />
-          ))}
-        </div>
-      )}
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        {sub.img ? (
+          <Image
+            src={sub.img}
+            alt={sub.title}
+            fill
+            className="object-cover transition-transform duration-500 ease-spring group-hover/sc:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        ) : (
+          <ImageFallback markClassName="w-2/5 opacity-40" />
+        )}
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] origin-left scale-x-0 bg-brand transition-transform duration-300 ease-spring group-hover/sc:scale-x-100" aria-hidden="true" />
+      </div>
+      <div className="flex items-center justify-between gap-2 p-4">
+        <h4 className="text-sm font-bold leading-snug text-gray-900 transition-colors duration-200 group-hover/sc:text-brand">
+          {sub.title}
+        </h4>
+        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors duration-200 group-hover/sc:bg-brand group-hover/sc:text-white">
+          <Arrow className="h-3.5 w-3.5" />
+        </span>
+      </div>
+    </Link>
+  )
+}
+
+// Grupa podkategorija po roditelju — naslov + foto kartice.
+function SubGroup({ group }) {
+  const icon = ICONS[group.slug] || DEFAULT_ICON
+  if (!group.children?.length) return null
+  return (
+    <div>
+      <Link href={group.href} className="group/h mb-5 inline-flex items-center gap-2.5">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand [&>svg]:h-5 [&>svg]:w-5">
+          {icon}
+        </span>
+        <h3 className="text-lg font-extrabold tracking-tight text-gray-950 transition-colors duration-200 group-hover/h:text-brand">
+          {group.title}
+        </h3>
+        <Arrow className="h-4 w-4 text-gray-300 transition-all duration-200 group-hover/h:translate-x-1 group-hover/h:text-brand" />
+      </Link>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {group.children.map((sub) => (
+          <SubImageCard key={sub.slug} sub={sub} />
+        ))}
+      </div>
     </div>
   )
 }
@@ -186,6 +210,8 @@ export default function Services({ block, categories }) {
       : topLevelServices(categories)
 
   if (groups.length === 0) return null
+
+  const withSubs = groups.filter((g) => (g.children ?? []).length > 0)
 
   return (
     <section className="section-y surface-soft" aria-labelledby="services-heading">
@@ -209,27 +235,29 @@ export default function Services({ block, categories }) {
           </Link>
         </ScrollReveal>
 
-        {/* Bento — puna širina za mnogo podk. (oprema) i bez podk. (visoka sigurnost,
-            kao slim band); ostale pola-pola. Čisto se poređa po redosledu. */}
-        <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-6">
-          {groups.map((group) => {
-            const n = (group.children ?? []).length
-            const layout =
-              n >= 5
-                ? { span: 'sm:col-span-2 lg:col-span-6', subCols: 'sm:grid-cols-2 lg:grid-cols-3' }
-                : n === 0
-                  ? { span: 'sm:col-span-2 lg:col-span-6', subCols: '' }
-                  : { span: 'sm:col-span-1 lg:col-span-3', subCols: 'sm:grid-cols-2' }
-            return (
-              <CategoryGroup
-                key={group.slug}
-                group={group}
-                span={layout.span}
-                subCols={layout.subCols}
-              />
-            )
-          })}
+        {/* Deo 1 — glavnih 6 (top-level) kategorija u asimetričnom bento rasporedu */}
+        <div className="grid grid-cols-1 gap-5 sm:auto-rows-[220px] sm:grid-cols-2 lg:auto-rows-[250px] lg:grid-cols-4 lg:gap-6">
+          {groups.map((group) => (
+            <TopCard key={group.slug} group={group} span={BENTO_SPAN[group.slug] || ''} />
+          ))}
         </div>
+
+        {/* Deo 2 — podkategorije, grupisane po roditelju (da ima smisla) */}
+        {withSubs.length > 0 && (
+          <div className="mt-14 border-t border-gray-200/70 pt-12 md:mt-16">
+            <div className="mb-8 flex items-center gap-3">
+              <span className="h-px w-6 bg-brand" aria-hidden="true" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
+                Sve podkategorije
+              </span>
+            </div>
+            <div className="space-y-10 md:space-y-12">
+              {withSubs.map((group) => (
+                <SubGroup key={group.slug} group={group} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )
