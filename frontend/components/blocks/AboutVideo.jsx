@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 // YouTube IFrame API — učitaj jednom (singleton).
 let ytPromise
@@ -26,35 +27,32 @@ function videoId(url) {
   return url?.match(/(?:youtu\.be\/|v=|embed\/)([\w-]+)/)?.[1] || null
 }
 
-const MutedIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M11 5 6 9H2v6h4l5 4V5z" />
-    <path d="m23 9-6 6M17 9l6 6" />
+const I = (d, w = 2) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {d}
   </svg>
 )
-const SoundIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M11 5 6 9H2v6h4l5 4V5z" />
-    <path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14" />
-  </svg>
-)
+const PlayIcon = () => <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">{I(<path d="M6 4l14 8-14 8V4z" fill="currentColor" stroke="none" />)}</span>
+const PauseIcon = () => <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">{I(<><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" stroke="none" /><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" stroke="none" /></>)}</span>
+const MuteIcon = () => <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">{I(<><path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="m23 9-6 6M17 9l6 6" /></>)}</span>
+const SoundIcon = () => <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">{I(<><path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14" /></>)}</span>
+const ExpandIcon = () => <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">{I(<path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3" />)}</span>
 
-/**
- * YouTube video — sam se pušta (muted) kad uđe u vidno polje, sa dugmetom za zvuk.
- * `cover`: 16:9 iframe se meri JS-om i skalira da PREKRIJE okvir bilo kog oblika
- *          (edge-to-edge, crop) — kao full-bleed slika u Brand Story bloku.
- */
+const COVER_SCALE = 1.18
+
 export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) {
   const id = videoId(url)
   const rootRef = useRef(null)
   const wrapRef = useRef(null)
   const hostRef = useRef(null)
   const playerRef = useRef(null)
-  const [muted, setMuted] = useState(true)
   const [ready, setReady] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [muted, setMuted] = useState(true)
+  const [progress, setProgress] = useState(0)
+  const [lightbox, setLightbox] = useState(false)
 
-  // Cover: izračunaj veličinu 16:9 wrapper-a da prekrije okvir (bilo koji aspect).
+  // Cover: skaliraj 16:9 plejer da prekrije okvir + iseče YouTube ivice (chrome).
   useEffect(() => {
     if (!cover) return
     const fit = () => {
@@ -66,11 +64,11 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
       if (!w || !h) return
       const vid = 16 / 9
       if (w / h > vid) {
-        wrap.style.width = `${w}px`
-        wrap.style.height = `${w / vid}px`
+        wrap.style.width = `${w * COVER_SCALE}px`
+        wrap.style.height = `${(w / vid) * COVER_SCALE}px`
       } else {
-        wrap.style.height = `${h}px`
-        wrap.style.width = `${h * vid}px`
+        wrap.style.height = `${h * COVER_SCALE}px`
+        wrap.style.width = `${h * vid * COVER_SCALE}px`
       }
     }
     fit()
@@ -79,10 +77,10 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
     return () => ro.disconnect()
   }, [cover, ready, id])
 
+  // Inline plejer — autoplay muted loop, BEZ YouTube kontrola (svoje crtamo).
   useEffect(() => {
     if (!id || !hostRef.current) return
     let cancelled = false
-    let io
 
     loadYT().then((YT) => {
       if (cancelled || !YT || !hostRef.current) return
@@ -93,7 +91,6 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
         playerVars: {
           autoplay: 1, mute: 1, controls: 0, loop: 1, playlist: id,
           modestbranding: 1, rel: 0, playsinline: 1, disablekb: 1, fs: 0, iv_load_policy: 3,
-          start: 0,
         },
         events: {
           onReady: (e) => {
@@ -108,19 +105,11 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
               f.style.border = '0'
             }
             setReady(true)
-            io = new IntersectionObserver(
-              ([entry]) => {
-                if (entry.isIntersecting) e.target.playVideo()
-                else e.target.pauseVideo()
-              },
-              { threshold: 0.35 },
-            )
-            if (rootRef.current) io.observe(rootRef.current)
           },
           onStateChange: (e) => {
-            // Otkrij video SAMO dok aktivno svira (PLAYING === 1). Na pauzi/buffering/
-            // cued poster se vraća → sakriva YouTube play/pause/scrubber kontrole.
-            setPlaying(e.data === 1)
+            if (e.data === 1) setPlaying(true)
+            else if (e.data === 2) setPlaying(false)
+            else if (e.data === 0) e.target.playVideo() // loop bez end-screen-a
           },
         },
       })
@@ -128,7 +117,6 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
 
     return () => {
       cancelled = true
-      io?.disconnect()
       try {
         playerRef.current?.destroy()
       } catch {
@@ -137,7 +125,46 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
     }
   }, [id])
 
-  const toggleSound = () => {
+  // Progres za seek traku.
+  useEffect(() => {
+    if (!ready) return
+    const iv = setInterval(() => {
+      const p = playerRef.current
+      if (p?.getDuration) {
+        const d = p.getDuration()
+        if (d > 0) setProgress(Math.min(1, p.getCurrentTime() / d))
+      }
+    }, 300)
+    return () => clearInterval(iv)
+  }, [ready])
+
+  // Lightbox: pauziraj inline + zaključaj scroll.
+  useEffect(() => {
+    if (!lightbox) return
+    try {
+      playerRef.current?.pauseVideo()
+    } catch {
+      /* noop */
+    }
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+      try {
+        playerRef.current?.playVideo()
+      } catch {
+        /* noop */
+      }
+    }
+  }, [lightbox])
+
+  const togglePlay = () => {
+    const p = playerRef.current
+    if (!p) return
+    if (playing) p.pauseVideo()
+    else p.playVideo()
+  }
+  const toggleMute = () => {
     const p = playerRef.current
     if (!p) return
     if (muted) {
@@ -149,11 +176,23 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
       setMuted(true)
     }
   }
+  const onSeek = (e) => {
+    const p = playerRef.current
+    if (!p?.getDuration) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const frac = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
+    p.seekTo(frac * p.getDuration(), true)
+    setProgress(frac)
+  }
 
   if (!id) return null
 
+  const ctrlBtn =
+    'pointer-events-auto flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-brand'
+
   return (
-    <div ref={rootRef} className="absolute inset-0 overflow-hidden">
+    <div ref={rootRef} className="group/v absolute inset-0 overflow-hidden">
+      {/* cover wrapper + host */}
       <div
         ref={wrapRef}
         className={
@@ -165,29 +204,81 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
         <div ref={hostRef} className="h-full w-full" />
       </div>
 
-      {/* Brand poster — čist (bez ružnog YouTube frame-a) dok video ne krene */}
+      {/* Poster sa Palisada logom — dok video ne krene */}
       <div
         className={`pointer-events-none absolute inset-0 z-[3] flex items-center justify-center bg-gradient-to-br from-[#143f43] to-gray-950 transition-opacity duration-500 ${playing ? 'opacity-0' : 'opacity-100'}`}
-        aria-hidden="true"
+        aria-hidden={playing}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand-mark.png" alt="" className="w-16 animate-pulse opacity-30" />
+        <img src="/brand-mark.png" alt="Palisada" className="w-1/2 max-w-[340px] opacity-95" />
       </div>
 
-      {/* Klik-štit — YouTube nikad ne dobije klik/tap (nema kontrola), sound dugme je iznad */}
-      <div className="absolute inset-0 z-[4]" aria-hidden="true" />
+      {/* Hover/klik površina — hover prikazuje kontrole (iframe ih inače „proguta"),
+          klik = play/pauza. Desktop: iznad tekst-containera (z-10), ispod trake (z-20);
+          mobilni: ispod teksta (z-5) jer je traka tamo ionako uvek vidljiva. */}
+      <div onClick={togglePlay} className="absolute inset-0 z-[5] cursor-pointer lg:z-[15]" aria-hidden="true" />
 
+      {/* Kontrolna traka — hover na desktopu, vidljiva na mobilnom */}
       {ready && (
-        <button
-          type="button"
-          onClick={toggleSound}
-          aria-label={muted ? 'Uključi zvuk' : 'Isključi zvuk'}
-          title={muted ? 'Uključi zvuk' : 'Isključi zvuk'}
-          className={`absolute bottom-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-gray-950/55 text-white ring-1 ring-white/20 backdrop-blur-md transition-colors duration-200 hover:bg-brand ${buttonSide === 'left' ? 'left-4' : 'right-4'}`}
-        >
-          {muted ? <MutedIcon /> : <SoundIcon />}
-        </button>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-center gap-2.5 bg-gradient-to-t from-gray-950/75 via-gray-950/30 to-transparent px-4 pb-3 pt-10 opacity-0 transition-opacity duration-200 group-hover/v:opacity-100 md:gap-3 max-md:opacity-100">
+          <button type="button" onClick={togglePlay} aria-label={playing ? 'Pauza' : 'Pusti'} className={ctrlBtn}>
+            {playing ? <PauseIcon /> : <PlayIcon />}
+          </button>
+
+          {/* Seek traka */}
+          <div
+            onClick={onSeek}
+            className="pointer-events-auto group/seek relative h-2 flex-1 cursor-pointer rounded-full bg-white/25"
+            role="slider"
+            aria-label="Premotavanje"
+            aria-valuenow={Math.round(progress * 100)}
+          >
+            <div className="absolute inset-y-0 left-0 rounded-full bg-brand" style={{ width: `${progress * 100}%` }} />
+            <div
+              className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 shadow transition-opacity group-hover/seek:opacity-100"
+              style={{ left: `${progress * 100}%` }}
+            />
+          </div>
+
+          <button type="button" onClick={toggleMute} aria-label={muted ? 'Uključi zvuk' : 'Isključi zvuk'} className={ctrlBtn}>
+            {muted ? <MuteIcon /> : <SoundIcon />}
+          </button>
+          <button type="button" onClick={() => setLightbox(true)} aria-label="Ceo ekran / pogledaj ceo video" className={ctrlBtn}>
+            <ExpandIcon />
+          </button>
+        </div>
       )}
+
+      {/* Lightbox — pun video sa native YouTube kontrolama (desktop + mobilni) */}
+      {lightbox &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/92 p-4 backdrop-blur-sm"
+            onClick={() => setLightbox(false)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <button
+              type="button"
+              onClick={() => setLightbox(false)}
+              aria-label="Zatvori"
+              className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition-colors hover:bg-white/20"
+            >
+              <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">{I(<path d="M6 6l12 12M18 6L6 18" />)}</span>
+            </button>
+            <div className="relative aspect-video w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+              <iframe
+                src={`https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                title="Palisada video"
+                className="absolute inset-0 h-full w-full rounded-2xl"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }
