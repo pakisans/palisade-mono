@@ -91,12 +91,14 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
         height: '100%',
         videoId: id,
         playerVars: {
-          autoplay: 0, mute: 1, controls: 0, loop: 1, playlist: id,
+          autoplay: 1, mute: 1, controls: 0, loop: 1, playlist: id,
           modestbranding: 1, rel: 0, playsinline: 1, disablekb: 1, fs: 0, iv_load_policy: 3,
+          start: 0,
         },
         events: {
           onReady: (e) => {
             e.target.mute()
+            e.target.playVideo()
             const f = e.target.getIframe?.()
             if (f) {
               f.style.position = 'absolute'
@@ -163,17 +165,14 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
         <div ref={hostRef} className="h-full w-full" />
       </div>
 
-      {/* Poster (frame videa) — sakriva YouTube start-opcije dok video ne krene */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`}
-        alt=""
+      {/* Brand poster — čist (bez ružnog YouTube frame-a) dok video ne krene */}
+      <div
+        className={`pointer-events-none absolute inset-0 z-[3] flex items-center justify-center bg-gradient-to-br from-[#143f43] to-gray-950 transition-opacity duration-500 ${playing ? 'opacity-0' : 'opacity-100'}`}
         aria-hidden="true"
-        onError={(ev) => {
-          ev.currentTarget.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
-        }}
-        className={`pointer-events-none absolute inset-0 z-[3] h-full w-full bg-gray-950 object-cover transition-opacity duration-700 ${playing ? 'opacity-0' : 'opacity-100'}`}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand-mark.png" alt="" className="w-16 animate-pulse opacity-30" />
+      </div>
 
       {/* Klik-štit — YouTube nikad ne dobije klik/tap (nema kontrola), sound dugme je iznad */}
       <div className="absolute inset-0 z-[4]" aria-hidden="true" />
