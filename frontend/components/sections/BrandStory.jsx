@@ -24,12 +24,12 @@ function TextContent({ block, stats, ctaLink, headingId }) {
 
       {block.heading && (
         <ScrollReveal delay={80}>
-          <h2
+          <h1
             id={headingId}
             className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-gray-950 md:text-4xl lg:text-5xl"
           >
             {block.heading}
-          </h2>
+          </h1>
         </ScrollReveal>
       )}
 

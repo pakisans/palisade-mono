@@ -59,7 +59,7 @@ export default function ClientLogos({ block }) {
       </div>
 
       {/* Auto-scroll + ručno (swipe/drag) — pauzira na hover, fade na ivicama */}
-      <ScrollerX speed={55} className="relative z-10 mask-fade-x items-center gap-12 px-6 md:gap-16">
+      <ScrollerX speed={55} wrapClassName="relative z-10" className="items-center gap-12 px-6 md:gap-16">
         {items.map((logo, i) => (
           <LogoItem key={i} logo={logo} />
         ))}

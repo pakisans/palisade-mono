@@ -75,7 +75,7 @@ export default function Testimonials({ block, quotes }) {
       </div>
 
       {/* Auto-scroll + ručno (swipe/drag) — pauzira na hover, fade na ivicama */}
-      <ScrollerX speed={40} className="mask-fade-x gap-6 px-6">
+      <ScrollerX speed={40} className="gap-6 px-6">
         {items.map((quote, i) => (
           <TestimonialCard key={i} quote={quote} />
         ))}
