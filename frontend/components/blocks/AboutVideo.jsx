@@ -204,14 +204,11 @@ export default function AboutVideo({ url, cover = true, buttonSide = 'right' }) 
         <div ref={hostRef} className="h-full w-full" />
       </div>
 
-      {/* Poster sa Palisada logom — dok video ne krene */}
+      {/* Poster — transparentna bela podloga dok video ne krene */}
       <div
-        className={`pointer-events-none absolute inset-0 z-[3] flex items-center justify-center bg-gradient-to-br from-[#143f43] to-gray-950 transition-opacity duration-500 ${playing ? 'opacity-0' : 'opacity-100'}`}
+        className={`pointer-events-none absolute inset-0 z-[3] bg-white/85 backdrop-blur-sm transition-opacity duration-500 ${playing ? 'opacity-0' : 'opacity-100'}`}
         aria-hidden={playing}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand-mark.png" alt="Palisada" className="w-1/2 max-w-[340px] opacity-95" />
-      </div>
+      />
 
       {/* Hover/klik površina — hover prikazuje kontrole (iframe ih inače „proguta"),
           klik = play/pauza. Desktop: iznad tekst-containera (z-10), ispod trake (z-20);
