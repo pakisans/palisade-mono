@@ -226,6 +226,32 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
               localized: true,
             },
             {
+              type: 'row',
+              fields: [
+                {
+                  name: 'technicalSheet',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Tehnički list (PDF)',
+                  admin: {
+                    width: '50%',
+                    description:
+                      'Opcioni PDF. Ako je postavljen, na frontendu se prikazuje dugme "Tehnički list" pored opisa.',
+                  },
+                },
+                {
+                  name: 'installationVideo',
+                  type: 'text',
+                  label: 'Video instalacije (YouTube link)',
+                  admin: {
+                    width: '50%',
+                    description:
+                      'Opcioni YouTube URL. Ako je postavljen, na frontendu se prikazuje dugme "Video instalacije" pored opisa.',
+                  },
+                },
+              ],
+            },
+            {
               name: 'gallery',
               type: 'array',
               minRows: 1,

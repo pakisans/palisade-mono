@@ -297,6 +297,14 @@ export interface Product {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Opcioni PDF. Ako je postavljen, na frontendu se prikazuje dugme "Tehnički list" pored opisa.
+   */
+  technicalSheet?: (number | null) | Media;
+  /**
+   * Opcioni YouTube URL. Ako je postavljen, na frontendu se prikazuje dugme "Video instalacije" pored opisa.
+   */
+  installationVideo?: string | null;
   gallery?:
     | {
         image: number | Media;
@@ -3021,6 +3029,8 @@ export interface VariantOptionsSelect<T extends boolean = true> {
 export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  technicalSheet?: T;
+  installationVideo?: T;
   gallery?:
     | T
     | {
