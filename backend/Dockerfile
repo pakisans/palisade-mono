@@ -6,6 +6,8 @@ RUN corepack enable
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
+# patches/ mora pre `pnpm install` — package.json referencira pnpm.patchedDependencies
+COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
