@@ -44,12 +44,12 @@ function FooterCategories({ groups }) {
       <h3 className="text-white font-semibold text-xs uppercase tracking-widest mb-5">
         Kategorije
       </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-7">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-7">
         {groups.map((cat) => (
           <div key={cat.id} className="min-w-0">
             <Link
               href={`${CATEGORY_BASE}/${cat.slug}`}
-              className="block text-sm font-bold text-white hover:text-brand transition-colors"
+              className="block text-base sm:text-sm font-bold text-white hover:text-brand transition-colors"
             >
               {cat.title}
             </Link>
@@ -59,7 +59,7 @@ function FooterCategories({ groups }) {
                   <li key={kid.id}>
                     <Link
                       href={`${CATEGORY_BASE}/${cat.slug}/${kid.slug}`}
-                      className="text-[13px] text-slate-400 hover:text-white transition-colors"
+                      className="text-sm sm:text-[13px] text-slate-400 hover:text-white transition-colors"
                     >
                       {kid.title}
                     </Link>
