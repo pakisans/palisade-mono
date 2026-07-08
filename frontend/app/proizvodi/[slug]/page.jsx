@@ -248,6 +248,58 @@ function Specifications({ specifications }) {
   );
 }
 
+// ─── Documents (technical sheet PDF / installation video) ──────────────────────
+
+function ProductDocs({ technicalSheet, installationVideo }) {
+  const pdfUrl = getMediaURL(technicalSheet);
+  const videoUrl = installationVideo?.trim();
+  if (!pdfUrl && !videoUrl) return null;
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      {pdfUrl && (
+        <a
+          href={pdfUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gray-950 text-white text-sm font-semibold hover:bg-gray-800 transition-colors"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Tehnički list
+        </a>
+      )}
+      {videoUrl && (
+        <a
+          href={videoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl border-2 border-gray-950 text-gray-950 text-sm font-semibold hover:bg-gray-950 hover:text-white transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          Video instalacije
+        </a>
+      )}
+    </div>
+  );
+}
+
 // ─── Tabs (Description / Specs) ────────────────────────────────────────────────
 
 function ProductTabs({ description, specifications }) {
@@ -465,6 +517,12 @@ export default async function ProductPage({ params }) {
                 <Highlights highlights={product.highlights} />
               </div>
             )}
+
+            {/* Tehnički list (PDF) / Video instalacije (YouTube) */}
+            <ProductDocs
+              technicalSheet={product.technicalSheet}
+              installationVideo={product.installationVideo}
+            />
 
             {/* Variants + price + inquiry form (form shows only after a variation is selected) */}
             <ProductInquiry
