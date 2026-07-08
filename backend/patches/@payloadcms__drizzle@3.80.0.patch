@@ -1,0 +1,23 @@
+diff --git a/dist/queries/sanitizeQueryValue.js b/dist/queries/sanitizeQueryValue.js
+index 976188c7701822cd6dd4557d7702a2cd50f6de25..27dee956b71d51ec6000360ad383dde5fe8215d1 100644
+--- a/dist/queries/sanitizeQueryValue.js
++++ b/dist/queries/sanitizeQueryValue.js
+@@ -20,6 +20,18 @@ export const sanitizeQueryValue = ({ adapter, columns, field, isUUID, operator:
+             value: val.value
+         };
+     }
++    // PATCH (Palisade): The admin WhereBuilder always sends an ARRAY value for
++    // `hasMany` relationship/upload filters, paired with the default `equals`
++    // operator. The ID-type expansion below then turns `[109]` into
++    // `[109, "109"]`, and an `equals` comparison against that array builds
++    // invalid SQL (`categories_id = '{"109","109"}'` -> "invalid input syntax
++    // for type integer"). Membership is the correct semantics here, so remap
++    // equals/not_equals + array -> in/not_in, which produces valid SQL.
++    // Bug present up to at least @payloadcms/drizzle 3.85.2.
++    if ((field.type === 'relationship' || field.type === 'upload') && Array.isArray(formattedValue)) {
++        if (operator === 'equals') operator = 'in';
++        else if (operator === 'not_equals') operator = 'not_in';
++    }
+     if ((field.type === 'relationship' || field.type === 'upload') && !relationOrPath.endsWith('relationTo') && Array.isArray(formattedValue)) {
+         const allPossibleIDTypes = [];
+         formattedValue.forEach((val)=>{
