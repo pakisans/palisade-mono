@@ -99,14 +99,26 @@ const run = async () => {
   const skippedList: string[] = []
 
   for (const r of rows) {
-    const id = parseInt((r['id'] || '').trim())
-    if (!id) continue
+    const slug = (r['slug'] || '').trim()
+    const title = (r['naslov_sr'] || '').trim()
+    if (!slug && !title) continue
     const subSlug = normalizeSub(r['podkategorija'] || '')
-    if (!subSlug) { skipped++; skippedList.push(`${id} (${(r['naslov_sr'] || '').slice(0, 30)}: "${(r['podkategorija'] || '').trim()}")`); continue }
+    if (!subSlug) { skipped++; skippedList.push(`${slug || title} ("${(r['podkategorija'] || '').trim()}")`); continue }
     counts[subSlug] = (counts[subSlug] || 0) + 1
 
-    const post = await payload.findByID({ collection: 'posts', id, depth: 0 }).catch(() => null)
-    if (!post) { notFound++; console.log(`✗ post ${id} ne postoji`); continue }
+    // Mapiranje po SLUG-u (portabilno — ID-jevi se razlikuju lokalno/prod);
+    // fallback na tačan naslov ako slug ne postoji.
+    let post: any = null
+    if (slug) {
+      const bySlug = await payload.find({ collection: 'posts', where: { slug: { equals: slug } }, limit: 1, depth: 0 })
+      post = bySlug.docs[0] ?? null
+    }
+    if (!post && title) {
+      const byTitle = await payload.find({ collection: 'posts', where: { title: { equals: title } }, locale: 'sr', limit: 2, depth: 0 })
+      if (byTitle.docs.length === 1) post = byTitle.docs[0]
+    }
+    if (!post) { notFound++; console.log(`✗ nema posta: ${slug || title}`); continue }
+    const id = post.id
 
     const current: number[] = Array.isArray((post as any).categories)
       ? (post as any).categories.map((c: any) => (typeof c === 'object' ? c.id : c))
