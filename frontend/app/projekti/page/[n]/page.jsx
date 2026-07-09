@@ -20,9 +20,10 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function ProjektiPaged({ params }) {
+export default async function ProjektiPaged({ params, searchParams }) {
   const { n } = await params
+  const sp = await searchParams
   const current = pageNum(n)
   if (current < 2) redirect('/projekti')
-  return <ProjektiList current={current} />
+  return <ProjektiList current={current} tip={sp?.tip || null} />
 }

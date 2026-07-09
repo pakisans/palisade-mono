@@ -1621,6 +1621,10 @@ export interface PostCategory {
    */
   generateSlug?: boolean | null;
   slug: string;
+  /**
+   * Nadređena kategorija (za podkategorije, npr. tip projekta pod "Gotovi projekti").
+   */
+  parent?: (number | null) | PostCategory;
   description?: string | null;
   image?: (number | null) | Media;
   /**
@@ -2659,6 +2663,7 @@ export interface PostCategoriesSelect<T extends boolean = true> {
   title?: T;
   generateSlug?: T;
   slug?: T;
+  parent?: T;
   description?: T;
   image?: T;
   content?:

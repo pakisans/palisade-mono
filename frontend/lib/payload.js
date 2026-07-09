@@ -179,14 +179,16 @@ export async function getPostCategories() {
 
 const PROJECTS_CAT = "gotovi-projekti";
 
-export async function getProjects({ page = 1, limit = 24 } = {}) {
+export async function getProjects({ page = 1, limit = 24, tip = null } = {}) {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
     depth: "2",
     sort: "-publishedOn",
     "where[_status][equals]": "published",
-    "where[categories.slug][equals]": PROJECTS_CAT,
+    // Podkategorije (tip projekta) su deca "gotovi-projekti"; projekti nose obe
+    // kategorije, pa filter po slug-u podkategorije vraća samo taj tip.
+    "where[categories.slug][equals]": tip || PROJECTS_CAT,
   });
   return fetchAPI(`posts?${params}`, {
     revalidate: 3600,

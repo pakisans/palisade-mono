@@ -23,6 +23,7 @@
     "seed:content": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-content.ts",
     "import:wc": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-wc.ts",
     "docs:import": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/import-product-docs.ts",
+    "subcat:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/assign-project-subcategories.ts",
     "seed:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/seed-projects.ts",
     "scrape:projects": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-projects.ts",
     "scrape:saveti": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/scrape-saveti.ts",

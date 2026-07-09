@@ -36,6 +36,14 @@ export const PostCategories: CollectionConfig = {
           label: 'Content',
           fields: [
             {
+              name: 'parent',
+              type: 'relationship',
+              relationTo: 'post-categories',
+              admin: {
+                description: 'Nadređena kategorija (za podkategorije, npr. tip projekta pod "Gotovi projekti").',
+              },
+            },
+            {
               name: 'description',
               type: 'textarea',
               localized: true,

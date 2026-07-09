@@ -4,6 +4,7 @@ import * as migration_20260624_100035_settings_global from './20260624_100035_se
 import * as migration_20260625_100230_about_mission_block from './20260625_100230_about_mission_block';
 import * as migration_20260625_101728_about_mission_video_cover from './20260625_101728_about_mission_video_cover';
 import * as migration_20260708_105507_product_docs from './20260708_105507_product_docs';
+import * as migration_20260709_122640_post_categories_parent from './20260709_122640_post_categories_parent';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260708_105507_product_docs.up,
     down: migration_20260708_105507_product_docs.down,
-    name: '20260708_105507_product_docs'
+    name: '20260708_105507_product_docs',
+  },
+  {
+    up: migration_20260709_122640_post_categories_parent.up,
+    down: migration_20260709_122640_post_categories_parent.down,
+    name: '20260709_122640_post_categories_parent'
   },
 ];

@@ -25,6 +25,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function ProjektiPage() {
-  return <ProjektiList current={1} />
+export default async function ProjektiPage({ searchParams }) {
+  const sp = await searchParams
+  return <ProjektiList current={1} tip={sp?.tip || null} />
 }
