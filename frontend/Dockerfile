@@ -36,6 +36,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json /app/next.config.js /app/jsconfig.json ./
+# next.config.js radi require('./lib/redirects') na runtime-u (next start),
+# pa taj fajl mora postojati u runner image-u — inače crash u restart petlji.
+COPY --from=builder /app/lib/redirects.js ./lib/redirects.js
 
 EXPOSE 3000
 ENV PORT=3000
