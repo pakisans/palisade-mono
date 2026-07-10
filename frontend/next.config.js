@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const redirectsData = require('./lib/redirects');
+
 const nextConfig = {
   trailingSlash: true,
   images: {
@@ -56,6 +58,15 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['clsx', 'tailwind-merge'],
+  },
+  // 301 (trajno) redirekcije: stari WordPress URL-ovi → novi Next URL-ovi.
+  // Radi SEO-a — prenosi ranking sa starih stranica. Lista u lib/redirects.js.
+  async redirects() {
+    return redirectsData.map(({ source, destination }) => ({
+      source,
+      destination,
+      statusCode: 301,
+    }));
   },
   async headers() {
     // Dok nismo na pravom domenu — X-Robots-Tag noindex na SVE resurse
