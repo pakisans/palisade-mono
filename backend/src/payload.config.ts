@@ -96,21 +96,41 @@ export default buildConfig({
   }),
   // SMTP (Hostinger) — mailovi sa kontakt forme idu preko prodaja@palisada.rs.
   // Aktivira se samo ako je SMTP_HOST postavljen; inače fallback na konzolu.
+  // Slanje je FIRE-AND-FORGET (u pozadini) da submit forme ne čeka SMTP —
+  // form-builder šalje mail u afterChange hook-u koji Payload await-uje.
   email: process.env.SMTP_HOST
-    ? nodemailerAdapter({
-        defaultFromName: process.env.SMTP_FROM_NAME || 'Palisada',
-        defaultFromAddress: process.env.SMTP_USER || 'prodaja@palisada.rs',
-        skipVerify: true, // ne blokiraj start ako verify zakači (bezbednije za deploy)
-        transportOptions: {
-          host: process.env.SMTP_HOST,
-          port: Number(process.env.SMTP_PORT) || 465,
-          secure: (Number(process.env.SMTP_PORT) || 465) === 465, // 465 = SSL, 587 = STARTTLS
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+    ? (async () => {
+        const base = await nodemailerAdapter({
+          defaultFromName: process.env.SMTP_FROM_NAME || 'Palisada',
+          defaultFromAddress: process.env.SMTP_USER || 'prodaja@palisada.rs',
+          skipVerify: true,
+          transportOptions: {
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT) || 465,
+            secure: (Number(process.env.SMTP_PORT) || 465) === 465, // 465 = SSL, 587 = STARTTLS
+            auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+            pool: true, // reuse konekcije → brže sledeće slanje
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 20000,
           },
-        },
-      })
+        })
+        return (deps: any) => {
+          const adapter = base(deps)
+          return {
+            ...adapter,
+            // Ne blokiraj HTTP odgovor — pošalji u pozadini, greške samo loguj.
+            sendEmail: (message: any) => {
+              Promise.resolve()
+                .then(() => adapter.sendEmail(message))
+                .catch((err: any) =>
+                  deps?.payload?.logger?.error?.(`SMTP slanje nije uspelo: ${err?.message || err}`),
+                )
+              return Promise.resolve({ messageId: 'queued', accepted: [], rejected: [] } as any)
+            },
+          }
+        }
+      })()
     : undefined,
   endpoints: [],
   globals: [Header, Footer, Clients, Settings],
