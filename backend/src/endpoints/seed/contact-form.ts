@@ -54,8 +54,8 @@ export const contactFormData: () => RequiredDataFromCollectionSlug<'forms'> = ()
   },
   emails: [
     {
-      emailFrom: '"Palisade" <info@palisada.rs>',
-      emailTo: 'info@palisada.rs',
+      emailFrom: '"Palisada" <prodaja@palisada.rs>',
+      emailTo: 'prodaja@palisada.rs',
       message: {
         root: {
           type: 'root',
@@ -69,7 +69,27 @@ export const contactFormData: () => RequiredDataFromCollectionSlug<'forms'> = ()
                   format: 0,
                   mode: 'normal',
                   style: '',
-                  text: 'Novi upit za ponudu je primljen putem kontakt forme na sajtu.',
+                  text: 'Novi upit za ponudu je primljen putem kontakt forme na sajtu:',
+                  version: 1,
+                },
+              ],
+              direction: 'ltr',
+              format: '',
+              indent: 0,
+              textFormat: 0,
+              version: 1,
+            },
+            {
+              type: 'paragraph',
+              children: [
+                {
+                  type: 'text',
+                  detail: 0,
+                  format: 0,
+                  mode: 'normal',
+                  style: '',
+                  // {{*:table}} = form-builder ispisuje sva poslata polja kao HTML tabelu
+                  text: '{{*:table}}',
                   version: 1,
                 },
               ],

@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import {
   BoldFeature,
   EXPERIMENTAL_TableFeature,
@@ -93,7 +94,24 @@ export default buildConfig({
       ]
     },
   }),
-  //email: nodemailerAdapter(),
+  // SMTP (Hostinger) — mailovi sa kontakt forme idu preko prodaja@palisada.rs.
+  // Aktivira se samo ako je SMTP_HOST postavljen; inače fallback na konzolu.
+  email: process.env.SMTP_HOST
+    ? nodemailerAdapter({
+        defaultFromName: process.env.SMTP_FROM_NAME || 'Palisada',
+        defaultFromAddress: process.env.SMTP_USER || 'prodaja@palisada.rs',
+        skipVerify: true, // ne blokiraj start ako verify zakači (bezbednije za deploy)
+        transportOptions: {
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT) || 465,
+          secure: (Number(process.env.SMTP_PORT) || 465) === 465, // 465 = SSL, 587 = STARTTLS
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        },
+      })
+    : undefined,
   endpoints: [],
   globals: [Header, Footer, Clients, Settings],
   localization: {
