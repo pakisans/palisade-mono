@@ -5,7 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import RichText from '@/components/ui/RichText'
 import { cn } from '@/lib/utils'
 
-const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001'
+// skini završnu '/' da ne nastane '//api/...' (redirect ruši CORS preflight na POST-u)
+const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/+$/, '')
 
 // ─── Field renderers ──────────────────────────────────────────────────────────
 
