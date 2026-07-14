@@ -102,7 +102,7 @@ jobs:
             echo "STRIPE_WEBHOOKS_SIGNING_SECRET=${{ secrets.STRIPE_WEBHOOKS_SIGNING_SECRET }}"
             echo "SMTP_HOST=smtp.hostinger.com"
             echo "SMTP_PORT=465"
-            echo "SMTP_USER=prodaja@palisada.rs"
+            echo "SMTP_USER=office@palisada.rs"
             echo "SMTP_PASS=${{ secrets.SMTP_PASS }}"
             echo "SMTP_FROM_NAME=Palisada"
           } | ssh -i ~/.ssh/id_ed25519 \

@@ -54,7 +54,7 @@ export const contactFormData: () => RequiredDataFromCollectionSlug<'forms'> = ()
   },
   emails: [
     {
-      emailFrom: '"Palisada" <prodaja@palisada.rs>',
+      emailFrom: '"Palisada" <office@palisada.rs>',
       emailTo: 'office@palisada.rs',
       message: {
         root: {

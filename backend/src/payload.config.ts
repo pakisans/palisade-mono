@@ -53,7 +53,18 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users, Pages, Posts, Categories, PostCategories, Brands, Tags, Coupons, Markets, Media],
+  collections: [
+    Users,
+    Pages,
+    Posts,
+    Categories,
+    PostCategories,
+    Brands,
+    Tags,
+    Coupons,
+    Markets,
+    Media,
+  ],
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
@@ -94,7 +105,7 @@ export default buildConfig({
       ]
     },
   }),
-  // SMTP (Hostinger) — mailovi sa kontakt forme idu preko prodaja@palisada.rs.
+  // SMTP (Hostinger) — mailovi sa kontakt forme idu preko office@palisada.rs.
   // Aktivira se samo ako je SMTP_HOST postavljen; inače fallback na konzolu.
   // Slanje je FIRE-AND-FORGET (u pozadini) da submit forme ne čeka SMTP —
   // form-builder šalje mail u afterChange hook-u koji Payload await-uje.
@@ -102,7 +113,7 @@ export default buildConfig({
     ? (async () => {
         const base = await nodemailerAdapter({
           defaultFromName: process.env.SMTP_FROM_NAME || 'Palisada',
-          defaultFromAddress: process.env.SMTP_USER || 'prodaja@palisada.rs',
+          defaultFromAddress: process.env.SMTP_USER || 'office@palisada.rs',
           skipVerify: true,
           transportOptions: {
             host: process.env.SMTP_HOST,
