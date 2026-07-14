@@ -108,7 +108,7 @@ jobs:
             echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}"
             echo "STRIPE_WEBHOOKS_SIGNING_SECRET=${{ secrets.STRIPE_WEBHOOKS_SIGNING_SECRET }}"
             echo "SMTP_HOST=smtp.hostinger.com"
-            echo "SMTP_PORT=465"
+            echo "SMTP_PORT=587"
             echo "SMTP_USER=office@palisada.rs"
             printf 'SMTP_PASS=%s\n' "$SMTP_PASS_ESC"
             echo "SMTP_FROM_NAME=Palisada"
