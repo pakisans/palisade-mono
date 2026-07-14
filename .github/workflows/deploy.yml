@@ -95,6 +95,9 @@ jobs:
           # znakovi u lozinki ($, ", `, \, #) ne skrate/pokvare vrednost.
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
+          # Docker compose interpolira env_file → '$fT' bi nestao. Escape '$' u '$$'
+          # tako da compose vrati literalni '$' u kontejner.
+          SMTP_PASS_ESC=${SMTP_PASS//'$'/'$$'}
           {
             echo "DATABASE_URL=postgresql://appuser:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/appdb"
             echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}"
@@ -107,7 +110,7 @@ jobs:
             echo "SMTP_HOST=smtp.hostinger.com"
             echo "SMTP_PORT=465"
             echo "SMTP_USER=office@palisada.rs"
-            printf 'SMTP_PASS=%s\n' "$SMTP_PASS"
+            printf 'SMTP_PASS=%s\n' "$SMTP_PASS_ESC"
             echo "SMTP_FROM_NAME=Palisada"
           } | ssh -i ~/.ssh/id_ed25519 \
               -p ${{ secrets.SSH_PORT }} \
