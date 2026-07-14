@@ -18,6 +18,7 @@ import { publicAccess } from '@/access/publicAccess'
 import { isDocumentOwner } from '@/access/isDocumentOwner'
 import { checkRole } from '@/access/utilities'
 import { getCollectionPath } from '@/utilities/getCollectionPath'
+import { renderFormEmail } from '@/utilities/formEmailTemplate'
 
 const generateTitle: GenerateTitle<Product | Page | Post> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Palisade` : 'Palisade'
@@ -39,6 +40,35 @@ export const plugins: Plugin[] = [
   formBuilderPlugin({
     fields: {
       payment: false,
+    },
+    // Zameni default (ružnu) HTML poruku brendiranim šablonom sa podacima upita.
+    beforeEmail: async (emails, beforeChangeParams) => {
+      try {
+        const { data, req } = beforeChangeParams as any
+        const submissionData: Array<{ field: string; value: unknown }> = data?.submissionData || []
+        if (!submissionData.length) return emails
+
+        // Mapiraj naziv polja → labelu (iz definicije forme).
+        const labels: Record<string, string> = {}
+        const formId = typeof data?.form === 'object' ? data.form?.id : data?.form
+        if (formId) {
+          const form: any = await req.payload.findByID({ collection: 'forms', id: formId, depth: 0, overrideAccess: true })
+          for (const f of form?.fields || []) if (f?.name) labels[f.name] = f.label || f.name
+        }
+
+        const rows = submissionData.map((s) => ({ label: labels[s.field] || s.field, value: s.value }))
+        const nameEntry = submissionData.find((s) => /ime|name/i.test(s.field))
+        const customerName = nameEntry ? String(nameEntry.value || '').trim() : undefined
+        const html = renderFormEmail(rows, { customerName, siteUrl: process.env.NEXT_PUBLIC_SERVER_URL })
+
+        return emails.map((e) => ({
+          ...e,
+          html,
+          ...(customerName ? { subject: `Nov upit — ${customerName}` } : {}),
+        }))
+      } catch {
+        return emails // fallback na default ako nešto pukne
+      }
     },
     formSubmissionOverrides: {
       access: {
