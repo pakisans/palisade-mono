@@ -15,8 +15,10 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 const DRY_RUN = process.env.DRY_RUN !== 'false'
+// Primalac (kome stižu upiti) — može se override-ovati RECIPIENT env-om (npr. za test).
 const TO = process.env.RECIPIENT || 'prodaja@palisada.rs'
-const FROM = `"Palisada" <${TO}>`
+// Pošiljalac MORA biti SMTP nalog (prodaja@) — Hostinger odbija ako se From ne poklapa.
+const FROM = process.env.SENDER || `"Palisada" <${process.env.SMTP_USER || 'prodaja@palisada.rs'}>`
 
 // Lexical poruka koja UKLJUČUJE sve podatke iz upita ({{*:table}} = HTML tabela).
 const txt = (text: string) => ({ type: 'text', detail: 0, format: 0, mode: 'normal', style: '', text, version: 1 })
@@ -34,7 +36,7 @@ const MESSAGE = {
 const run = async () => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({ collection: 'forms', limit: 100, depth: 0 })
-  console.log(`Formi: ${docs.length} | primalac → ${TO}`)
+  console.log(`Formi: ${docs.length} | primalac (To) → ${TO} | pošiljalac (From) → ${FROM}`)
 
   let changed = 0
   for (const form of docs as any[]) {
