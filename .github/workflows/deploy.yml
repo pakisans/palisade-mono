@@ -76,13 +76,15 @@ jobs:
             echo "PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}"
             echo "REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}"
             echo "PAYLOAD_PUBLIC_SERVER_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
-            echo "NEXT_PUBLIC_SERVER_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
+            echo "NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}"
             echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}"
             echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}"
             echo "STRIPE_WEBHOOKS_SIGNING_SECRET=${{ secrets.STRIPE_WEBHOOKS_SIGNING_SECRET }}"
             echo "PAYLOAD_URL_BUILD=http://127.0.0.1:3001"
             echo "NEXT_PUBLIC_PAYLOAD_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
             echo "PAYLOAD_HOST=${{ secrets.PAYLOAD_HOST }}"
+            # Frontend sme da se indeksira (backend je noindex preko nginx-a)
+            echo "NEXT_PUBLIC_ALLOW_INDEXING=true"
           } | ssh -i ~/.ssh/id_ed25519 \
               -p ${{ secrets.SSH_PORT }} \
               ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
@@ -124,6 +126,7 @@ jobs:
             echo "PAYLOAD_URL=http://app1:3000"
             echo "NEXT_PUBLIC_PAYLOAD_URL=${{ secrets.PAYLOAD_PUBLIC_SERVER_URL }}"
             echo "NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}"
+            echo "NEXT_PUBLIC_ALLOW_INDEXING=true"
             echo "REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}"
           } | ssh -i ~/.ssh/id_ed25519 \
               -p ${{ secrets.SSH_PORT }} \

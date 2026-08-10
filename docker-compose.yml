@@ -42,7 +42,7 @@ services:
         PAYLOAD_SECRET: ${PAYLOAD_SECRET}
         PREVIEW_SECRET: ${PREVIEW_SECRET}
         PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
-        NEXT_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
         STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
         STRIPE_WEBHOOKS_SIGNING_SECRET: ${STRIPE_WEBHOOKS_SIGNING_SECRET}
@@ -54,7 +54,10 @@ services:
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       FRONTEND_INTERNAL_URL: http://app2:3000
     ports:
-      - '3001:3000'
+      # Vezano SAMO za localhost (127.0.0.1) — NIJE javno izloženo.
+      # Nginx pristupa backendu interno preko app1:3000; ovaj port ostaje samo
+      # za lokalni pristup na hostu i za build frontenda (PAYLOAD_URL_BUILD=127.0.0.1:3001).
+      - '127.0.0.1:3001:3000'
     volumes:
       - /var/www/palisade-media:/app/public/media
     networks:
@@ -76,6 +79,8 @@ services:
         REVALIDATE_SECRET: ${REVALIDATE_SECRET}
         NEXT_PUBLIC_PAYLOAD_URL: ${NEXT_PUBLIC_PAYLOAD_URL}
         PAYLOAD_HOST: ${PAYLOAD_HOST}
+        # true → frontend se sme indeksirati (next.config headers() peče ovo u build)
+        NEXT_PUBLIC_ALLOW_INDEXING: ${NEXT_PUBLIC_ALLOW_INDEXING}
     container_name: app2
     restart: unless-stopped
     env_file: ./frontend/.env
@@ -90,9 +95,14 @@ services:
     restart: unless-stopped
     ports:
       - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - nginx_cache:/var/cache/nginx
+      # Let's Encrypt sertifikati (kreira ih Certbot na hostu) — read-only
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      # ACME webroot izazov (Certbot webroot piše ovde, nginx servira)
+      - /var/www/certbot:/var/www/certbot
     networks:
       - app_network
     depends_on:
