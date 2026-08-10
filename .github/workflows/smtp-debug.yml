@@ -1,0 +1,187 @@
+name: SMTP Debug
+
+# Ručno pokretanje (Actions → SMTP Debug → Run workflow).
+# Read-only dijagnostika SMTP-a na produkciji. NE ispisuje lozinku —
+# samo dužinu i prvih 12 karaktera sha256 heša, da se uporedi secret vs kontejner.
+
+on:
+  workflow_dispatch:
+    inputs:
+      send_test:
+        description: 'Pošalji stvarni test mail (ne samo verify)'
+        type: boolean
+        default: true
+      test_to:
+        description: 'Primalac test maila'
+        type: string
+        default: 'office@palisada.rs'
+
+concurrency:
+  group: smtp-debug
+  cancel-in-progress: false
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Setup SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          cat > ~/.ssh/id_ed25519 << 'EOF'
+          ${{ secrets.SSH_PRIVATE_KEY }}
+          EOF
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+
+      - name: Fingerprint SMTP_PASS secret (runner side)
+        shell: bash
+        env:
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          echo "=== SECRET (GitHub) ==="
+          printf 'len=%s\n' "$(printf '%s' "$SMTP_PASS" | wc -c | tr -d ' ')"
+          printf 'sha256=%s\n' "$(printf '%s' "$SMTP_PASS" | sha256sum | cut -c1-12)"
+          case "$SMTP_PASS" in
+            *'$'*) echo 'contains_dollar=yes' ;;
+            *) echo 'contains_dollar=no' ;;
+          esac
+
+      - name: Server diagnostics
+        shell: bash
+        env:
+          SEND_TEST: ${{ inputs.send_test }}
+          TEST_TO: ${{ inputs.test_to }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "SEND_TEST='${SEND_TEST}' TEST_TO='${TEST_TO}' bash -s" << 'REMOTE'
+          set -u
+
+          echo "=== 1. SMTP env u kontejneru (bez lozinke) ==="
+          docker exec app1 printenv SMTP_HOST SMTP_PORT SMTP_USER SMTP_FROM_NAME 2>&1 || true
+          echo "SMTP_PASS_B64 postavljen: $(docker exec app1 sh -c '[ -n "${SMTP_PASS_B64:-}" ] && echo yes || echo no' 2>&1)"
+
+          echo
+          echo "=== 2. Integritet lozinke u kontejneru ==="
+          # Efektivna lozinka = SMTP_PASS_B64 dekodiran, inače SMTP_PASS.
+          docker exec app1 sh -c '
+            if [ -n "${SMTP_PASS_B64:-}" ]; then
+              printf "%s" "$SMTP_PASS_B64" | base64 -d > /tmp/.p 2>/dev/null
+              echo "izvor=SMTP_PASS_B64"
+            else
+              printf "%s" "${SMTP_PASS:-}" > /tmp/.p
+              echo "izvor=SMTP_PASS"
+            fi
+            printf "len=%s\n" "$(wc -c < /tmp/.p | tr -d " ")"
+            printf "sha256=%s\n" "$(sha256sum < /tmp/.p | cut -c1-12)"
+            case "$(cat /tmp/.p)" in
+              *"\$\$"*) echo "sadrzi_dvostruki_dolar=DA  <-- escaping je pokvario lozinku" ;;
+              *) echo "sadrzi_dvostruki_dolar=ne" ;;
+            esac
+            rm -f /tmp/.p
+          ' 2>&1 || true
+
+          echo
+          echo "=== 3. Sirov zapis u /var/www/app/backend/.env (maskirano) ==="
+          grep -E '^SMTP_(HOST|PORT|USER|FROM_NAME)=' /var/www/app/backend/.env 2>&1 || true
+          awk -F= '/^SMTP_PASS(_B64)?=/ {print $1 "=<" length($2) " karaktera>"}' /var/www/app/backend/.env 2>&1 || true
+
+          echo
+          echo "=== 4. SMTP linije iz app1 loga (48h) ==="
+          docker logs app1 --since 48h 2>&1 | grep -iE 'smtp|slanje nije uspelo|mail|nodemailer' | tail -60 || echo '(nema poklapanja)'
+
+          echo
+          echo "=== 5. Konektivnost ka smtp.hostinger.com:587 i :465 ==="
+          cat > /tmp/smtp-ports.cjs << 'JS'
+          const net = require('net')
+          const host = process.env.SMTP_HOST || 'smtp.hostinger.com'
+          for (const port of [587, 465, 25]) {
+            const s = net.connect({ host, port })
+            s.setTimeout(8000)
+            s.on('connect', () => { console.log(`${host}:${port} OTVOREN`); s.destroy() })
+            s.on('timeout', () => { console.log(`${host}:${port} TIMEOUT (blokiran)`); s.destroy() })
+            s.on('error', (e) => console.log(`${host}:${port} ${e.code}`))
+          }
+          JS
+          docker cp /tmp/smtp-ports.cjs app1:/app/smtp-ports.cjs
+          docker exec app1 node /app/smtp-ports.cjs 2>&1 || true
+          docker exec app1 rm -f /app/smtp-ports.cjs 2>/dev/null || true
+          rm -f /tmp/smtp-ports.cjs
+
+          echo
+          echo "=== 6. Nodemailer verify + test send ==="
+          cat > /tmp/smtp-test.cjs << 'JS'
+          let nodemailer
+          try {
+            nodemailer = require('nodemailer')
+          } catch {
+            // pnpm strict node_modules — nodemailer je tranzitivan, traži ga preko adaptera.
+            const { createRequire } = require('module')
+            nodemailer = createRequire(
+              require.resolve('@payloadcms/email-nodemailer/package.json'),
+            )('nodemailer')
+          }
+          const pass = process.env.SMTP_PASS_B64
+            ? Buffer.from(process.env.SMTP_PASS_B64, 'base64').toString('utf8')
+            : process.env.SMTP_PASS
+          const port = Number(process.env.SMTP_PORT) || 587
+          const t = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port,
+            secure: port === 465,
+            auth: { user: process.env.SMTP_USER, pass },
+            connectionTimeout: 15000,
+            greetingTimeout: 15000,
+            socketTimeout: 20000,
+          })
+          const dump = (label, e) =>
+            console.log(`${label}: code=${e.code} responseCode=${e.responseCode} command=${e.command}\nresponse=${e.response}\nmessage=${e.message}`)
+          t.verify()
+            .then(() => {
+              console.log('VERIFY OK — autentikacija prosla')
+              if (process.env.SEND_TEST !== 'true') return
+              return t
+                .sendMail({
+                  from: `"${process.env.SMTP_FROM_NAME || 'Palisada'}" <${process.env.SMTP_USER}>`,
+                  to: process.env.TEST_TO,
+                  subject: 'SMTP debug test — Palisada',
+                  text: 'Ako si primio ovaj mail, SMTP transport radi.',
+                })
+                .then((i) => console.log(`SEND OK — messageId=${i.messageId} accepted=${i.accepted} rejected=${i.rejected} response=${i.response}`))
+                .catch((e) => dump('SEND FAIL', e))
+            })
+            .catch((e) => dump('VERIFY FAIL', e))
+          JS
+
+          # Prvo probaj unutar app1 (iste env varijable i isti network kao aplikacija).
+          docker cp /tmp/smtp-test.cjs app1:/app/smtp-test.cjs
+          if docker exec -e SEND_TEST="$SEND_TEST" -e TEST_TO="$TEST_TO" app1 node /app/smtp-test.cjs 2>&1; then
+            :
+          else
+            echo '--- app1 ne moze da izvrsi test, probam jednokratni kontejner ---'
+            docker run --rm --network "container:app1" \
+              --env-file /var/www/app/backend/.env \
+              -e SEND_TEST="$SEND_TEST" -e TEST_TO="$TEST_TO" \
+              -v /tmp/smtp-test.cjs:/tmp/smtp-test.cjs:ro \
+              node:22-alpine sh -c 'npm i -g --silent nodemailer >/dev/null 2>&1; NODE_PATH=$(npm root -g) node /tmp/smtp-test.cjs' 2>&1 || true
+          fi
+          docker exec app1 rm -f /app/smtp-test.cjs 2>/dev/null || true
+          rm -f /tmp/smtp-test.cjs
+
+          echo
+          echo "=== 7. Live forms doc u bazi ==="
+          docker exec palisade_postgres psql -U appuser -d appdb -c \
+            "select id, title, created_at from forms order by id;" 2>&1 || true
+          docker exec palisade_postgres psql -U appuser -d appdb -c \
+            "select _parent_id as form_id, id, email_to, email_from, cc, bcc, reply_to from forms_emails order by _parent_id;" 2>&1 || true
+
+          echo
+          echo "=== 8. Poslednje form submissions ==="
+          docker exec palisade_postgres psql -U appuser -d appdb -c \
+            "select id, form_id, created_at from form_submissions order by created_at desc limit 5;" 2>&1 || true
+          REMOTE

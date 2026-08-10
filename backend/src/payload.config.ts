@@ -34,6 +34,25 @@ import { plugins } from './plugins'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+/**
+ * SMTP lozinka.
+ *
+ * U produkciji stiže kao `SMTP_PASS_B64` (base64), zato što se `backend/.env`
+ * učitava preko docker compose `env_file` — specijalni znaci ($, #, ", `) u
+ * plain vrednosti umeju da budu interpolirani ili odsečeni, pa se lozinka
+ * tiho pokvari i autentikacija pada bez ikakve poruke. Base64 nema nijedan
+ * takav znak. `SMTP_PASS` ostaje podržan za lokalni razvoj.
+ */
+const resolveSmtpPass = (): string | undefined => {
+  const b64 = process.env.SMTP_PASS_B64
+  if (b64) return Buffer.from(b64, 'base64').toString('utf8')
+  return process.env.SMTP_PASS
+}
+
+/** Pun nodemailer kontekst greške — sam `message` je najčešće beskoristan. */
+const describeSmtpError = (err: any): string =>
+  `code=${err?.code} responseCode=${err?.responseCode} command=${err?.command} response=${err?.response} message=${err?.message || err}`
+
 export default buildConfig({
   // serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3001',
   // cors: [
@@ -111,15 +130,20 @@ export default buildConfig({
   // form-builder šalje mail u afterChange hook-u koji Payload await-uje.
   email: process.env.SMTP_HOST
     ? (async () => {
+        const smtpPort = Number(process.env.SMTP_PORT) || 465
+        const smtpSecure = smtpPort === 465 // 465 = SSL, 587 = STARTTLS
         const base = await nodemailerAdapter({
           defaultFromName: process.env.SMTP_FROM_NAME || 'Palisada',
           defaultFromAddress: process.env.SMTP_USER || 'office@palisada.rs',
-          skipVerify: true,
+          // Proveri kredencijale pri startu — adapter samo loguje grešku
+          // (`Error verifying Nodemailer transport`) i NE puca, pa je bezbedno.
+          // Bez ovoga pogrešna lozinka nema nikakav signal dok neko ne pošalje formu.
+          skipVerify: false,
           transportOptions: {
             host: process.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT) || 465,
-            secure: (Number(process.env.SMTP_PORT) || 465) === 465, // 465 = SSL, 587 = STARTTLS
-            auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+            port: smtpPort,
+            secure: smtpSecure,
+            auth: { user: process.env.SMTP_USER, pass: resolveSmtpPass() },
             pool: true, // reuse konekcije → brže sledeće slanje
             connectionTimeout: 10000,
             greetingTimeout: 10000,
@@ -128,14 +152,25 @@ export default buildConfig({
         })
         return (deps: any) => {
           const adapter = base(deps)
+          const log = deps?.payload?.logger
+
+          log?.info?.(
+            `SMTP konfigurisan — ${process.env.SMTP_HOST}:${smtpPort} (secure=${smtpSecure}) kao ${process.env.SMTP_USER}, lozinka iz ${process.env.SMTP_PASS_B64 ? 'SMTP_PASS_B64' : 'SMTP_PASS'}`,
+          )
+
           return {
             ...adapter,
-            // Ne blokiraj HTTP odgovor — pošalji u pozadini, greške samo loguj.
+            // Ne blokiraj HTTP odgovor — pošalji u pozadini, ishod loguj.
             sendEmail: (message: any) => {
               Promise.resolve()
                 .then(() => adapter.sendEmail(message))
+                .then((info: any) =>
+                  log?.info?.(
+                    `SMTP poslato → ${message?.to} (messageId=${info?.messageId}, accepted=${info?.accepted}, rejected=${info?.rejected})`,
+                  ),
+                )
                 .catch((err: any) =>
-                  deps?.payload?.logger?.error?.(`SMTP slanje nije uspelo: ${err?.message || err}`),
+                  log?.error?.(`SMTP slanje nije uspelo (to=${message?.to}) — ${describeSmtpError(err)}`),
                 )
               return Promise.resolve({ messageId: 'queued', accepted: [], rejected: [] } as any)
             },

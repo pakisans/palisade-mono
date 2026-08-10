@@ -43,6 +43,7 @@ export const plugins: Plugin[] = [
     },
     // Zameni default (ružnu) HTML poruku brendiranim šablonom sa podacima upita.
     beforeEmail: async (emails, beforeChangeParams) => {
+      const { req: reqForLog } = beforeChangeParams as any
       try {
         const { data, req } = beforeChangeParams as any
         const submissionData: Array<{ field: string; value: unknown }> = data?.submissionData || []
@@ -66,8 +67,12 @@ export const plugins: Plugin[] = [
           html,
           ...(customerName ? { subject: `Nov upit — ${customerName}` } : {}),
         }))
-      } catch {
-        return emails // fallback na default ako nešto pukne
+      } catch (err: any) {
+        // Fallback na default šablon — ali reci zašto, da tiho ne degradira.
+        reqForLog?.payload?.logger?.error?.(
+          `beforeEmail: brendirani šablon nije primenjen — ${err?.message || err}`,
+        )
+        return emails
       }
     },
     formSubmissionOverrides: {
