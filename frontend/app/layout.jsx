@@ -2,8 +2,9 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 import { getHeader, getFooter, getCategories, getSettings } from '@/lib/payload'
-import { SITE_NAME, SITE_URL, INDEXABLE } from '@/lib/constants'
+import { SITE_NAME, SITE_URL, INDEXABLE, GOOGLE_SITE_VERIFICATION } from '@/lib/constants'
 
 const montserrat = Montserrat({
   subsets: ['latin', 'latin-ext'],
@@ -31,6 +32,7 @@ export async function generateMetadata() {
     ...(s?.defaultDescription ? { description: s.defaultDescription } : {}),
     openGraph: { type: 'website', locale: 'sr_RS', siteName },
     twitter: { card: 'summary_large_image' },
+    verification: { google: GOOGLE_SITE_VERIFICATION },
     // Dok nismo na pravom domenu (INDEXABLE=false) → noindex,nofollow na CELOM sajtu.
     // Nasleđuju ga sve podstranice jer nijedna ne override-uje `robots`.
     robots: INDEXABLE
@@ -91,6 +93,7 @@ export default async function RootLayout({ children }) {
           {children}
         </main>
         <Footer data={footerData} headerData={headerData} categories={categoriesData} />
+        <GoogleAnalytics />
       </body>
     </html>
   )

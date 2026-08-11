@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import RichText from '@/components/ui/RichText'
 import { cn } from '@/lib/utils'
+import { trackEvent } from '@/lib/gtag'
 
 // skini završnu '/' da ne nastane '//api/...' (redirect ruši CORS preflight na POST-u)
 const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/+$/, '')
@@ -175,6 +176,12 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
       })
       if (!res.ok) throw new Error('Submit failed')
       setStatus('success')
+      // Jedina konverzija na sajtu. `prefill` nosi naziv proizvoda + varijantu
+      // (ProductInquiry), pa GA4 daje razlaganje leadova po proizvodu.
+      trackEvent('generate_lead', {
+        form_id: formId,
+        ...(prefill ? { item_name: decodeURIComponent(prefill) } : {}),
+      })
     } catch (err) {
       setStatus('error')
       setServerError('Došlo je do greške pri slanju. Pokušajte ponovo ili nas pozovite.')
