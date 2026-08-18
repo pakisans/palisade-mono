@@ -17,7 +17,16 @@ const esc = (s: unknown): string =>
     .replace(/"/g, '&quot;')
     .replace(/\n/g, '<br>')
 
-export type EmailRow = { label: string; value: unknown }
+export type EmailRow = { label: string; value: unknown; highlight?: boolean }
+
+/** URL vrednosti postaju klikabilne; sve ostalo ide kroz `esc()`. */
+const renderValue = (value: unknown): string => {
+  const raw = String(value ?? '').trim()
+  if (/^https?:\/\//i.test(raw) && !/\s/.test(raw)) {
+    return `<a href="${esc(raw)}" style="color:${BRAND};text-decoration:underline;word-break:break-all;">${esc(raw)}</a>`
+  }
+  return esc(value)
+}
 
 export function renderFormEmail(rows: EmailRow[], opts?: { customerName?: string; siteUrl?: string }): string {
   const siteUrl = opts?.siteUrl || 'https://palisada.rs'
@@ -26,11 +35,14 @@ export function renderFormEmail(rows: EmailRow[], opts?: { customerName?: string
   const rowsHtml = rows
     .filter((r) => String(r.value ?? '').trim() !== '')
     .map(
-      (r, i) => `
+      (r, i) => {
+        const bg = r.highlight ? '#f2f8e8' : i % 2 ? '#ffffff' : LIGHT
+        return `
       <tr>
-        <td style="padding:14px 20px;background:${i % 2 ? '#ffffff' : LIGHT};border-bottom:1px solid ${BORDER};font-size:12px;font-weight:700;color:${GRAY};text-transform:uppercase;letter-spacing:.4px;width:38%;vertical-align:top;">${esc(r.label)}</td>
-        <td style="padding:14px 20px;background:${i % 2 ? '#ffffff' : LIGHT};border-bottom:1px solid ${BORDER};font-size:15px;color:${DARK};line-height:1.5;">${esc(r.value)}</td>
-      </tr>`,
+        <td style="padding:14px 20px;background:${bg};border-bottom:1px solid ${BORDER};border-left:4px solid ${r.highlight ? BRAND : 'transparent'};font-size:12px;font-weight:700;color:${GRAY};text-transform:uppercase;letter-spacing:.4px;width:38%;vertical-align:top;">${esc(r.label)}</td>
+        <td style="padding:14px 20px;background:${bg};border-bottom:1px solid ${BORDER};font-size:15px;color:${DARK};line-height:1.5;${r.highlight ? 'font-weight:700;' : ''}">${renderValue(r.value)}</td>
+      </tr>`
+      },
     )
     .join('')
 

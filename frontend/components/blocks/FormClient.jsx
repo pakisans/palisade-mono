@@ -9,6 +9,16 @@ import { trackEvent } from '@/lib/gtag'
 // skini završnu '/' da ne nastane '//api/...' (redirect ruši CORS preflight na POST-u)
 const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/+$/, '')
 
+// `prefill` dolazi ili iz prop-a (nekodiran) ili iz ?proizvod= (kodiran) —
+// decodeURIComponent puca na golom '%' u nazivu proizvoda, pa ide kroz try.
+const safeDecode = (v) => {
+  try {
+    return decodeURIComponent(v)
+  } catch {
+    return v
+  }
+}
+
 // ─── Field renderers ──────────────────────────────────────────────────────────
 
 function FieldLabel({ field }) {
@@ -24,7 +34,7 @@ function FieldLabel({ field }) {
 const inputCls =
   'w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-950 placeholder:text-gray-400 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all'
 
-function Field({ field, value, onChange, error, defaultValue }) {
+function Field({ field, value, onChange, error }) {
   const common = {
     id: field.name,
     name: field.name,
@@ -86,7 +96,6 @@ function Field({ field, value, onChange, error, defaultValue }) {
         <input
           {...common}
           type="email"
-          defaultValue={defaultValue}
           value={value ?? ''}
           onChange={(e) => onChange(field.name, e.target.value)}
           className={cn(inputCls, error && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
@@ -124,7 +133,7 @@ export default function FormClient(props) {
   )
 }
 
-function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp }) {
+function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp, meta }) {
   const searchParams = useSearchParams()
   const prefill      = prefillProp || searchParams.get('proizvod') // pre-fill (prop or ?proizvod=)
 
@@ -162,11 +171,22 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
 
     setStatus('submitting')
 
-    // Merge prefill into the message-type field if present
     const submissionData = Object.entries(values).map(([fieldName, value]) => ({
       field: fieldName,
       value: String(value),
     }))
+
+    // Meta redovi — backend (beforeEmail) ih prepoznaje po nazivu i prikazuje
+    // na vrhu emaila. Bez njih upit sa proizvoda izgleda isto kao sa /kontakt.
+    const metaEntries = {
+      ...(prefill ? { proizvod: safeDecode(prefill) } : {}),
+      ...(meta ?? {}),
+      'stranica-url': typeof window !== 'undefined' ? window.location.href : '',
+    }
+    for (const [field, value] of Object.entries(metaEntries)) {
+      if (value == null || String(value).trim() === '') continue
+      submissionData.push({ field, value: String(value) })
+    }
 
     try {
       const res = await fetch(`${PAYLOAD_URL}/api/form-submissions`, {
@@ -180,7 +200,7 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
       // (ProductInquiry), pa GA4 daje razlaganje leadova po proizvodu.
       trackEvent('generate_lead', {
         form_id: formId,
-        ...(prefill ? { item_name: decodeURIComponent(prefill) } : {}),
+        ...(prefill ? { item_name: safeDecode(prefill) } : {}),
       })
     } catch (err) {
       setStatus('error')
@@ -217,7 +237,7 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
       {/* Prefill notice */}
       {prefill && (
         <div className="mb-5 px-4 py-3 rounded-xl bg-brand/[0.06] border border-brand/15 text-sm text-gray-700">
-          <span className="font-semibold">Upit za:</span> {decodeURIComponent(prefill)}
+          <span className="font-semibold">Upit za:</span> {safeDecode(prefill)}
         </div>
       )}
 
@@ -240,7 +260,6 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
                 value={values[field.name]}
                 onChange={handleChange}
                 error={errors[field.name]}
-                defaultValue={field.blockType === 'textarea' && prefill ? decodeURIComponent(prefill) : undefined}
               />
               {errors[field.name] && (
                 <p id={`${field.name}-error`} className="text-xs text-red-500 mt-1">{errors[field.name]}</p>

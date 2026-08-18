@@ -32,6 +32,24 @@ const generateURL: GenerateURL<Product | Page | Post> = ({ collectionConfig, doc
     : url
 }
 
+/**
+ * Meta polja koja frontend šalje uz `submissionData` (nisu deo definicije forme).
+ * Redosled ključeva = redosled redova na vrhu emaila.
+ */
+const META_LABELS: Record<string, string> = {
+  proizvod: 'Proizvod',
+  'proizvod-url': 'Link proizvoda',
+  'stranica-url': 'Stranica',
+}
+
+/** Relativne putanje (`/proizvodi/x`) -> apsolutan URL, da link u emailu bude klikabilan. */
+const absoluteUrl = (value: unknown): string => {
+  const v = String(value ?? '').trim()
+  if (!v.startsWith('/')) return v
+  const base = (process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
+  return base ? `${base}${v}` : v
+}
+
 export const plugins: Plugin[] = [
   seoPlugin({
     generateTitle,
@@ -57,15 +75,37 @@ export const plugins: Plugin[] = [
           for (const f of form?.fields || []) if (f?.name) labels[f.name] = f.label || f.name
         }
 
-        const rows = submissionData.map((s) => ({ label: labels[s.field] || s.field, value: s.value }))
-        const nameEntry = submissionData.find((s) => /ime|name/i.test(s.field))
+        // Meta polja (proizvod, linkovi) idu na vrh, u redosledu iz META_LABELS.
+        const isMeta = (field: string) => field in META_LABELS
+        const metaRows = Object.keys(META_LABELS)
+          .map((key) => {
+            const entry = submissionData.find((s) => s.field === key)
+            if (!entry) return null
+            return {
+              label: META_LABELS[key],
+              value: key.endsWith('-url') ? absoluteUrl(entry.value) : entry.value,
+              highlight: key === 'proizvod',
+            }
+          })
+          .filter(Boolean) as Array<{ label: string; value: unknown; highlight?: boolean }>
+
+        const fieldRows = submissionData
+          .filter((s) => !isMeta(s.field))
+          .map((s) => ({ label: labels[s.field] || s.field, value: s.value }))
+
+        const rows = [...metaRows, ...fieldRows]
+
+        const nameEntry = submissionData.find((s) => !isMeta(s.field) && /ime|name/i.test(s.field))
         const customerName = nameEntry ? String(nameEntry.value || '').trim() : undefined
+        const productEntry = submissionData.find((s) => s.field === 'proizvod')
+        const productName = productEntry ? String(productEntry.value || '').trim() : undefined
         const html = renderFormEmail(rows, { customerName, siteUrl: process.env.NEXT_PUBLIC_SERVER_URL })
 
+        const subjectParts = ['Nov upit', customerName, productName].filter(Boolean)
         return emails.map((e) => ({
           ...e,
           html,
-          ...(customerName ? { subject: `Nov upit — ${customerName}` } : {}),
+          ...(subjectParts.length > 1 ? { subject: subjectParts.join(' — ') } : {}),
         }))
       } catch (err: any) {
         // Fallback na default šablon — ali reci zašto, da tiho ne degradira.

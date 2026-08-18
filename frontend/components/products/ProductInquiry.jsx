@@ -53,6 +53,10 @@ export default function ProductInquiry({ product, variants = [], form }) {
     : ''
   const prefill = `${product?.title ?? ''}${selectedLabel ? ` — ${selectedLabel}` : ''}`
 
+  // Relativna putanja — backend je apsolutizuje preko NEXT_PUBLIC_SERVER_URL,
+  // pa nema SSR/CSR mismatch-a od window.location.origin.
+  const productUrl = product?.slug ? `/proizvodi/${product.slug}` : ''
+
   return (
     <div className="space-y-5">
       {/* Price */}
@@ -126,6 +130,7 @@ export default function ProductInquiry({ product, variants = [], form }) {
             confirmationType={form.confirmationType}
             confirmationMessage={form.confirmationMessage}
             prefill={prefill}
+            meta={{ 'proizvod-url': productUrl }}
           />
         </div>
       )}
