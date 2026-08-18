@@ -117,7 +117,7 @@ export async function getFeaturedProducts(limit = 8) {
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export async function getCategories() {
-  return fetchAPI("categories?limit=100&depth=2&sort=title", {
+  return fetchAPI("categories?limit=500&depth=2&sort=title", {
     revalidate: 86400,
     tags: ["categories"],
   });

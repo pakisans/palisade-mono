@@ -16,31 +16,31 @@ export default async function sitemap() {
       url: `${BASE}/proizvodi`,
       lastModified: now,
       changeFrequency: 'daily',
-      priority: 0.9,
+      priority: 0.8,
     },
     {
       url: `${BASE}/projekti`,
       lastModified: now,
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 0.6,
     },
     {
       url: `${BASE}/saveti`,
       lastModified: now,
       changeFrequency: 'weekly',
-      priority: 0.7,
+      priority: 0.6,
     },
     {
       url: `${BASE}/o-nama`,
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.6,
+      priority: 0.5,
     },
     {
       url: `${BASE}/kontakt`,
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.8,
+      priority: 0.7,
     },
     {
       url: `${BASE}/politika-privatnosti`,
@@ -68,31 +68,32 @@ export default async function sitemap() {
     url: `${BASE}/proizvodi/${p.slug}`,
     lastModified: new Date(p.updatedAt),
     changeFrequency: 'weekly',
-    priority: 0.8,
+    priority: 0.6,
   }));
 
   const catsById = Object.fromEntries(
     (categoriesData?.docs ?? []).map((c) => [c.id, c]),
   );
+  // Kategorije su glavne SEO landing stranice — viši prioritet od proizvoda.
   const categoryRoutes = (categoriesData?.docs ?? []).map((c) => ({
     url: `${BASE}${categoryPath(c, catsById)}`,
     lastModified: new Date(c.updatedAt),
-    changeFrequency: 'weekly',
-    priority: 0.7,
+    changeFrequency: 'daily',
+    priority: c.parent == null ? 0.9 : 0.8,
   }));
 
   const projectRoutes = (projectsData?.docs ?? []).map((p) => ({
     url: `${BASE}/projekti/${p.slug}`,
     lastModified: new Date(p.updatedAt),
     changeFrequency: 'monthly',
-    priority: 0.6,
+    priority: 0.5,
   }));
 
   const adviceRoutes = (adviceData?.docs ?? []).map((post) => ({
     url: `${BASE}/saveti/${post.slug}`,
     lastModified: new Date(post.updatedAt),
     changeFrequency: 'monthly',
-    priority: 0.6,
+    priority: 0.5,
   }));
 
   return [

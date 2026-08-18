@@ -1,27 +1,37 @@
-import { Montserrat } from 'next/font/google'
-import './globals.css'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
-import { getHeader, getFooter, getCategories, getSettings } from '@/lib/payload'
-import { SITE_NAME, SITE_URL, INDEXABLE, GOOGLE_SITE_VERIFICATION } from '@/lib/constants'
+import { Montserrat } from "next/font/google";
+import "./globals.css";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import {
+  getHeader,
+  getFooter,
+  getCategories,
+  getSettings,
+} from "@/lib/payload";
+import {
+  SITE_NAME,
+  SITE_URL,
+  INDEXABLE,
+  GOOGLE_SITE_VERIFICATION,
+} from "@/lib/constants";
 
 const montserrat = Montserrat({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-montserrat',
-  display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800'],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-montserrat",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"],
   preload: true,
-})
+});
 
 // Site name + URL dolaze iz CMS Settings globala (jedan izvor istine), uz fallback
 // na env/konstante. `title.template` dodaje „| <siteName>" na sve podstranice koje
 // vrate čist string naslov (npr. iz CMS SEO polja).
 export async function generateMetadata() {
-  const s = await getSettings().catch(() => null)
-  const siteName = s?.siteName || SITE_NAME
-  const siteUrl = (s?.siteUrl || SITE_URL).replace(/\/+$/, '')
-  const defaultTitle = s?.defaultTitle || 'Kapije i ograde po meri'
+  const s = await getSettings().catch(() => null);
+  const siteName = s?.siteName || SITE_NAME;
+  const siteUrl = (s?.siteUrl || SITE_URL).replace(/\/+$/, "");
+  const defaultTitle = s?.defaultTitle || "Kapije i ograde po meri";
 
   return {
     metadataBase: new URL(siteUrl),
@@ -30,8 +40,8 @@ export async function generateMetadata() {
       template: `%s | ${siteName}`,
     },
     ...(s?.defaultDescription ? { description: s.defaultDescription } : {}),
-    openGraph: { type: 'website', locale: 'sr_RS', siteName },
-    twitter: { card: 'summary_large_image' },
+    openGraph: { type: "website", locale: "sr_RS", siteName },
+    twitter: { card: "summary_large_image" },
     verification: { google: GOOGLE_SITE_VERIFICATION },
     // Dok nismo na pravom domenu (INDEXABLE=false) → noindex,nofollow na CELOM sajtu.
     // Nasleđuju ga sve podstranice jer nijedna ne override-uje `robots`.
@@ -39,7 +49,12 @@ export async function generateMetadata() {
       ? {
           index: true,
           follow: true,
-          googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+          },
         }
       : {
           index: false,
@@ -47,29 +62,51 @@ export async function generateMetadata() {
           nocache: true,
           googleBot: { index: false, follow: false, noimageindex: true },
         },
-    alternates: { canonical: '/', languages: { 'sr-RS': '/' } },
-  }
+    alternates: { canonical: "/", languages: { "sr-RS": "/" } },
+  };
 }
 
 function buildOrgSchema(headerData, footerData) {
-  const contact = footerData?.sections?.find((s) => s.blockType === 'footerContact')
-  const social   = footerData?.sections?.find((s) => s.blockType === 'footerSocial')
-  const brand    = footerData?.sections?.find((s) => s.blockType === 'footerBrand')
+  const contact = footerData?.sections?.find(
+    (s) => s.blockType === "footerContact",
+  );
+  const social = footerData?.sections?.find(
+    (s) => s.blockType === "footerSocial",
+  );
+  const brand = footerData?.sections?.find(
+    (s) => s.blockType === "footerBrand",
+  );
   return {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    '@id': `${SITE_URL}/#organization`,
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${SITE_URL}/#organization`,
     name: headerData?.siteName || SITE_NAME,
-    description: brand?.description || '',
+    description: brand?.description || "",
     url: SITE_URL,
-    ...(contact?.phone  ? { telephone: contact.phone }  : {}),
-    ...(contact?.email  ? { email:     contact.email }  : {}),
-    ...(contact?.address ? { address: { '@type': 'PostalAddress', streetAddress: contact.address.split('\n')[0], addressLocality: 'Beograd', addressCountry: 'RS' } } : {}),
-    ...(social?.profiles?.length ? { sameAs: social.profiles.map((p) => p.url).filter(Boolean) } : {}),
+    ...(contact?.phone ? { telephone: contact.phone } : {}),
+    ...(contact?.email ? { email: contact.email } : {}),
+    ...(contact?.address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: contact.address.split("\n")[0],
+            addressLocality: "Beograd",
+            addressCountry: "RS",
+          },
+        }
+      : {}),
+    ...(social?.profiles?.length
+      ? { sameAs: social.profiles.map((p) => p.url).filter(Boolean) }
+      : {}),
     openingHoursSpecification: [
-      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '08:00', closes: '16:00' },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "07:00",
+        closes: "15:00",
+      },
     ],
-  }
+  };
 }
 
 export default async function RootLayout({ children }) {
@@ -77,24 +114,36 @@ export default async function RootLayout({ children }) {
     getHeader().catch(() => null),
     getFooter().catch(() => null),
     getCategories().catch(() => null),
-  ])
+  ]);
 
   return (
     <html lang="sr" className={montserrat.variable}>
       <head>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildOrgSchema(headerData, footerData)) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(buildOrgSchema(headerData, footerData)),
+          }}
+        />
       </head>
       <body className="font-sans antialiased bg-white text-gray-950">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand focus:text-white focus:rounded-lg focus:font-semibold focus:shadow-brand">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand focus:text-white focus:rounded-lg focus:font-semibold focus:shadow-brand"
+        >
           Preskoči na sadržaj
         </a>
         <Header data={headerData} categories={categoriesData} />
         <main id="main-content" tabIndex={-1}>
           {children}
         </main>
-        <Footer data={footerData} headerData={headerData} categories={categoriesData} />
+        <Footer
+          data={footerData}
+          headerData={headerData}
+          categories={categoriesData}
+        />
         <GoogleAnalytics />
       </body>
     </html>
-  )
+  );
 }
