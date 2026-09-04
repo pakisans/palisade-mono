@@ -850,4 +850,25 @@ module.exports = [
     source: "/kategorija/kapije/jednokrilne-kapije",
     destination: "/kategorija/kapije/pesacke-kapije",
   },
+  {
+    source: "/saveti/aluminijumske-vs-celicne-ograde/",
+    destination: "/saveti/aluminijum-ili-celik-za-ogradu/",
+  },
+  {
+    source:
+      "/saveti/najbolji-motori-za-kapije-kompletan-vodic-za-odabir-i-odrzavanje/",
+    destination: "/saveti/kako-izabrati-automatiku-za-kapiju/",
+  },
+  {
+    source: "/projekti/dvokrilna-kapija-standard",
+    destination: "/projekti/standard-model-realizacija/",
+  },
+  {
+    source: "/saveti/automatizovane-pesacke-kapije/",
+    destination: "/saveti/automatizacija-pesackog-ulaza/",
+  },
+  {
+    source: "/saveti/dekorativne-ograde-za-dvoriste/",
+    destination: "/saveti/kako-izabrati-dekorativnu-ogradu/",
+  },
 ];
