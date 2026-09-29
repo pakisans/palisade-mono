@@ -9,7 +9,7 @@ import { trackEvent } from '@/lib/gtag'
 // skini završnu '/' da ne nastane '//api/...' (redirect ruši CORS preflight na POST-u)
 const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3001').replace(/\/+$/, '')
 
-// `prefill` dolazi ili iz prop-a (nekodiran) ili iz ?proizvod= (kodiran) —
+// `prefill` dolazi ili iz prop-a (nekodiran) ili iz ?proizvod= (kodiran) -
 // decodeURIComponent puca na golom '%' u nazivu proizvoda, pa ide kroz try.
 const safeDecode = (v) => {
   try {
@@ -133,7 +133,72 @@ export default function FormClient(props) {
   )
 }
 
-function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp, meta }) {
+// Pitanje o montaži postoji samo na formi proizvoda (askInstallation).
+// Form builder nema uslovna polja, pa se šalje kao meta red (vidi META_LABELS u backendu).
+function InstallationQuestion({ montaza, lokacija, errors, onMontaza, onLokacija }) {
+  const pill = (active) =>
+    active
+      ? 'inline-flex items-center justify-center h-10 min-w-[72px] px-4 rounded-xl border-2 border-brand bg-brand/[0.06] text-sm font-semibold text-brand transition-colors'
+      : 'inline-flex items-center justify-center h-10 min-w-[72px] px-4 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-brand/45 hover:text-brand transition-colors'
+
+  return (
+    <div className="mt-5 space-y-5">
+      <div>
+        <p id="montaza-label" className="block text-sm font-semibold text-gray-800 mb-1.5">
+          Da li je potrebna montaža?
+          <span className="text-brand ml-0.5" aria-hidden="true">*</span>
+        </p>
+        <div
+          role="radiogroup"
+          aria-labelledby="montaza-label"
+          aria-invalid={errors.montaza ? 'true' : undefined}
+          aria-describedby={errors.montaza ? 'montaza-error' : undefined}
+          className="flex gap-2"
+        >
+          {[['da', 'Da'], ['ne', 'Ne']].map(([val, label]) => (
+            <button
+              key={val}
+              type="button"
+              role="radio"
+              aria-checked={montaza === val}
+              onClick={() => onMontaza(val)}
+              className={pill(montaza === val)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {errors.montaza && <p id="montaza-error" className="text-xs text-red-500 mt-1">{errors.montaza}</p>}
+      </div>
+
+      {montaza === 'da' && (
+        <div>
+          <label htmlFor="lokacija-montaze" className="block text-sm font-semibold text-gray-800 mb-1.5">
+            Lokacija montaže
+            <span className="text-brand ml-0.5" aria-hidden="true">*</span>
+          </label>
+          <input
+            id="lokacija-montaze"
+            name="lokacija-montaze"
+            type="text"
+            required
+            placeholder="Grad / mesto ili adresa"
+            value={lokacija}
+            onChange={(e) => onLokacija(e.target.value)}
+            aria-invalid={errors['lokacija-montaze'] ? 'true' : undefined}
+            aria-describedby={errors['lokacija-montaze'] ? 'lokacija-montaze-error' : undefined}
+            className={cn(inputCls, errors['lokacija-montaze'] && 'border-red-300 focus:border-red-400 focus:ring-red-100')}
+          />
+          {errors['lokacija-montaze'] && (
+            <p id="lokacija-montaze-error" className="text-xs text-red-500 mt-1">{errors['lokacija-montaze']}</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp, meta, askInstallation = false }) {
   const searchParams = useSearchParams()
   const prefill      = prefillProp || searchParams.get('proizvod') // pre-fill (prop or ?proizvod=)
 
@@ -141,6 +206,19 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
   const [errors, setErrors]   = useState({})
   const [status, setStatus]   = useState('idle') // idle | submitting | success | error
   const [serverError, setServerError] = useState('')
+  const [montaza, setMontaza]   = useState('') // '' | 'da' | 'ne'
+  const [lokacija, setLokacija] = useState('')
+
+  const handleMontaza = (val) => {
+    setMontaza(val)
+    if (val === 'ne') setLokacija('')
+    setErrors((e) => ({ ...e, montaza: undefined, ...(val === 'ne' ? { 'lokacija-montaze': undefined } : {}) }))
+  }
+
+  const handleLokacija = (val) => {
+    setLokacija(val)
+    setErrors((e) => (e['lokacija-montaze'] ? { ...e, 'lokacija-montaze': undefined } : e))
+  }
 
   const handleChange = (name, value) => {
     setValues((v) => ({ ...v, [name]: value }))
@@ -160,6 +238,10 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
         next[field.name] = 'Unesite ispravnu email adresu.'
       }
     }
+    if (askInstallation) {
+      if (!montaza) next.montaza = 'Izaberite da ili ne.'
+      if (montaza === 'da' && !lokacija.trim()) next['lokacija-montaze'] = 'Ovo polje je obavezno.'
+    }
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -176,10 +258,16 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
       value: String(value),
     }))
 
-    // Meta redovi — backend (beforeEmail) ih prepoznaje po nazivu i prikazuje
+    // Meta redovi - backend (beforeEmail) ih prepoznaje po nazivu i prikazuje
     // na vrhu emaila. Bez njih upit sa proizvoda izgleda isto kao sa /kontakt.
     const metaEntries = {
       ...(prefill ? { proizvod: safeDecode(prefill) } : {}),
+      ...(askInstallation
+        ? {
+            montaza: montaza === 'da' ? 'Da' : 'Ne',
+            ...(montaza === 'da' ? { 'lokacija-montaze': lokacija.trim() } : {}),
+          }
+        : {}),
       ...(meta ?? {}),
       'stranica-url': typeof window !== 'undefined' ? window.location.href : '',
     }
@@ -268,6 +356,16 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
           )
         })}
       </div>
+
+      {askInstallation && (
+        <InstallationQuestion
+          montaza={montaza}
+          lokacija={lokacija}
+          errors={errors}
+          onMontaza={handleMontaza}
+          onLokacija={handleLokacija}
+        />
+      )}
 
       {serverError && (
         <p className="text-sm text-red-500 mt-4" role="alert">{serverError}</p>

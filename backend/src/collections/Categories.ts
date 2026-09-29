@@ -61,6 +61,26 @@ export const Categories: CollectionConfig = {
           ],
         },
         {
+          label: 'Redosled proizvoda',
+          fields: [
+            {
+              // Ručni redosled proizvoda na stranici kategorije. Proizvodi koji nisu na listi
+              // prikazuju se posle, od najnovijeg. Parent kategorija ređa celu granu.
+              name: 'productOrder',
+              label: 'Redosled proizvoda',
+              type: 'relationship',
+              relationTo: 'products',
+              hasMany: true,
+              maxDepth: 0,
+              admin: {
+                components: {
+                  Field: '@/components/admin/ProductOrder#ProductOrder',
+                },
+              },
+            },
+          ],
+        },
+        {
           label: 'SEO',
           fields: [seoGroup],
         },

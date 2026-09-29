@@ -38,6 +38,8 @@ const generateURL: GenerateURL<Product | Page | Post> = ({ collectionConfig, doc
  */
 const META_LABELS: Record<string, string> = {
   proizvod: 'Proizvod',
+  montaza: 'Montaža',
+  'lokacija-montaze': 'Lokacija montaže',
   'proizvod-url': 'Link proizvoda',
   'stranica-url': 'Stranica',
 }
@@ -105,12 +107,12 @@ export const plugins: Plugin[] = [
         return emails.map((e) => ({
           ...e,
           html,
-          ...(subjectParts.length > 1 ? { subject: subjectParts.join(' — ') } : {}),
+          ...(subjectParts.length > 1 ? { subject: subjectParts.join(' - ') } : {}),
         }))
       } catch (err: any) {
-        // Fallback na default šablon — ali reci zašto, da tiho ne degradira.
+        // Fallback na default šablon - ali reci zašto, da tiho ne degradira.
         reqForLog?.payload?.logger?.error?.(
-          `beforeEmail: brendirani šablon nije primenjen — ${err?.message || err}`,
+          `beforeEmail: brendirani šablon nije primenjen - ${err?.message || err}`,
         )
         return emails
       }

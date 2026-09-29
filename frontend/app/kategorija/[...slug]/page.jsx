@@ -4,7 +4,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import {
   getCategory,
   getCategories,
-  getProducts,
+  getCategoryProducts,
   getMediaURL,
 } from '@/lib/payload';
 import { SITE_URL } from '@/lib/constants';
@@ -539,11 +539,12 @@ export default async function CategoryPage({ params }) {
   const branchSlugs = isParent
     ? [category.slug, ...children.map((c) => c.slug)]
     : null;
-  const productsData = await getProducts(
-    branchSlugs
-      ? { categories: branchSlugs, page, limit: PER_PAGE }
-      : { category: slug, page, limit: PER_PAGE },
-  );
+  const productsData = await getCategoryProducts({
+    ...(branchSlugs ? { categories: branchSlugs } : { category: slug }),
+    order: category.productOrder,
+    page,
+    limit: PER_PAGE,
+  });
 
   // Breadcrumbs
   const breadcrumbs = [

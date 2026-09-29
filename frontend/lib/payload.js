@@ -81,6 +81,75 @@ export async function getProducts({
   });
 }
 
+// Proizvodi kategorije po ručnom redosledu (`category.productOrder`). Proizvodi koji nisu
+// na listi idu posle, od najnovijeg. Bez redosleda radi isto kao getProducts().
+export async function getCategoryProducts({
+  category,
+  categories,
+  order,
+  page = 1,
+  limit = 12,
+}) {
+  const orderIds = (order ?? [])
+    .map((p) => (typeof p === "object" && p !== null ? p.id : p))
+    .filter((id) => id != null)
+    .map(String);
+  if (!orderIds.length) return getProducts({ category, categories, page, limit });
+
+  const params = new URLSearchParams({
+    pagination: "false",
+    depth: "0",
+    "select[createdAt]": "true",
+    sort: "-createdAt",
+    "where[_status][equals]": "published",
+  });
+  if (categories?.length) params.set("where[categories.slug][in]", categories.join(","));
+  else if (category) params.set("where[categories.slug][equals]", category);
+  const all = await fetchAPI(`products?${params}`, {
+    revalidate: 1800,
+    tags: ["products"],
+  });
+  if (!all) return null;
+
+  // Već sortirano od najnovijeg, pa neraspoređeni zadržavaju taj redosled.
+  const rank = new Map(orderIds.map((id, i) => [id, i]));
+  const sortedIds = all.docs
+    .map((d) => String(d.id))
+    .sort((a, b) => (rank.get(a) ?? Infinity) - (rank.get(b) ?? Infinity));
+
+  const totalDocs = sortedIds.length;
+  const totalPages = Math.max(1, Math.ceil(totalDocs / limit));
+  const pageIds = sortedIds.slice((page - 1) * limit, page * limit);
+
+  let docs = [];
+  if (pageIds.length) {
+    const pageParams = new URLSearchParams({
+      pagination: "false",
+      depth: "2",
+      "where[id][in]": pageIds.join(","),
+    });
+    const res = await fetchAPI(`products?${pageParams}`, {
+      revalidate: 1800,
+      tags: ["products"],
+    });
+    const byId = new Map((res?.docs ?? []).map((d) => [String(d.id), d]));
+    docs = pageIds.map((id) => byId.get(id)).filter(Boolean);
+  }
+
+  return {
+    docs,
+    totalDocs,
+    limit,
+    totalPages,
+    page,
+    pagingCounter: (page - 1) * limit + 1,
+    hasPrevPage: page > 1,
+    hasNextPage: page < totalPages,
+    prevPage: page > 1 ? page - 1 : null,
+    nextPage: page < totalPages ? page + 1 : null,
+  };
+}
+
 export async function getProduct(slug) {
   const data = await fetchAPI(
     `products?where[slug][equals]=${encodeURIComponent(slug)}&where[_status][equals]=published&depth=3&limit=1`,

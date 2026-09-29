@@ -51,9 +51,9 @@ export default function ProductInquiry({ product, variants = [], form }) {
   const selectedLabel = hasVariants
     ? types.filter((t) => sel[t.id]).map((t) => t.options.find((o) => o.id === sel[t.id])?.label).filter(Boolean).join(', ')
     : ''
-  const prefill = `${product?.title ?? ''}${selectedLabel ? ` — ${selectedLabel}` : ''}`
+  const prefill = `${product?.title ?? ''}${selectedLabel ? ` - ${selectedLabel}` : ''}`
 
-  // Relativna putanja — backend je apsolutizuje preko NEXT_PUBLIC_SERVER_URL,
+  // Relativna putanja - backend je apsolutizuje preko NEXT_PUBLIC_SERVER_URL,
   // pa nema SSR/CSR mismatch-a od window.location.origin.
   const productUrl = product?.slug ? `/proizvodi/${product.slug}` : ''
 
@@ -68,7 +68,7 @@ export default function ProductInquiry({ product, variants = [], form }) {
             )}
             <span className="text-3xl font-extrabold text-brand tracking-tight">{formatPrice(price)}</span>
             {hasVariants && !matched && (
-              <span className="text-sm text-gray-400">— izaberite opcije</span>
+              <span className="text-sm text-gray-400">- izaberite opcije</span>
             )}
           </>
         ) : (
@@ -114,14 +114,14 @@ export default function ProductInquiry({ product, variants = [], form }) {
         </div>
       )}
 
-      {/* Inquiry form — uvek vidljiva; varijanta je opciona i samo prefill-uje upit */}
+      {/* Inquiry form - uvek vidljiva; varijanta je opciona i samo prefill-uje upit */}
       {form && (
         <div className="rounded-2xl border border-gray-100 bg-white shadow-card p-6 md:p-7">
           <p className="text-lg font-extrabold text-gray-950 mb-1">Zatražite ponudu</p>
           <p className="text-sm text-gray-500 mb-5">
             {hasVariants && !allSelected
-              ? 'Opciono izaberite varijantu iznad — ili odmah pošaljite upit; javljamo se sa ponudom u roku od 24h.'
-              : 'Pošaljite upit — javljamo se sa ponudom u roku od 24h.'}
+              ? 'Opciono izaberite varijantu iznad - ili odmah pošaljite upit; javljamo se sa ponudom u roku od 24h.'
+              : 'Pošaljite upit - javljamo se sa ponudom u roku od 24h.'}
           </p>
           <FormClient
             formId={form.id}
@@ -131,6 +131,7 @@ export default function ProductInquiry({ product, variants = [], form }) {
             confirmationMessage={form.confirmationMessage}
             prefill={prefill}
             meta={{ 'proizvod-url': productUrl }}
+            askInstallation
           />
         </div>
       )}

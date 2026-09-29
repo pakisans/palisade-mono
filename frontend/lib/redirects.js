@@ -871,4 +871,18 @@ module.exports = [
     source: "/saveti/dekorativne-ograde-za-dvoriste/",
     destination: "/saveti/kako-izabrati-dekorativnu-ogradu/",
   },
+  {
+    source: "/kategorija/automatizacija-kapija/",
+    destination: "/kategorija/motori-za-kapije/",
+  },
+  {
+    source:
+      "/kategorija/automatizacija-kapija/motori-za-klizne-i-samonosive-kapije/",
+    destination:
+      "/kategorija/motori-za-kapije/motori-za-klizne-i-samonosive-kapije/",
+  },
+  {
+    source: "/kategorija/automatizacija-kapija/motori-za-krilne-kapije/",
+    destination: "/kategorija/motori-za-kapije/motori-za-krilne-kapije/",
+  },
 ];

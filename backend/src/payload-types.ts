@@ -882,6 +882,7 @@ export interface Category {
         | SpacerBlock
       )[]
     | null;
+  productOrder?: (number | Product)[] | null;
   seo?: {
     title?: string | null;
     description?: string | null;
@@ -2645,6 +2646,7 @@ export interface CategoriesSelect<T extends boolean = true> {
         video?: T | VideoBlockSelect<T>;
         spacer?: T | SpacerBlockSelect<T>;
       };
+  productOrder?: T;
   seo?:
     | T
     | {
