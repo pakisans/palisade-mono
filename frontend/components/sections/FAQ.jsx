@@ -8,45 +8,47 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 function FAQItem({ question, answer, isOpen, onToggle, index }) {
   return (
     <div className="border-b border-gray-100 last:border-0">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-start justify-between gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-sm"
-        aria-expanded={isOpen}
-        aria-controls={`faq-answer-${index}`}
-        id={`faq-question-${index}`}
-      >
-        <span
-          className={cn(
-            "text-base font-semibold leading-snug transition-colors duration-200",
-            isOpen ? "text-brand" : "text-gray-950 hover:text-brand",
-          )}
+      <h3 className="m-0 tracking-normal">
+        <button
+          onClick={onToggle}
+          className="w-full flex items-start justify-between gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-sm"
+          aria-expanded={isOpen}
+          aria-controls={`faq-answer-${index}`}
+          id={`faq-question-${index}`}
         >
-          {question}
-        </span>
-        <span
-          className={cn(
-            "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300",
-            isOpen
-              ? "bg-brand text-white rotate-45"
-              : "bg-gray-100 text-gray-500 hover:bg-gray-200",
-          )}
-          aria-hidden="true"
-        >
-          <svg
-            className="w-3.5 h-3.5"
-            fill="none"
-            viewBox="0 0 14 14"
-            stroke="currentColor"
-            strokeWidth={2}
+          <span
+            className={cn(
+              "text-base font-semibold leading-snug transition-colors duration-200",
+              isOpen ? "text-brand" : "text-gray-950 hover:text-brand",
+            )}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M7 1v12M1 7h12"
-            />
-          </svg>
-        </span>
-      </button>
+            {question}
+          </span>
+          <span
+            className={cn(
+              "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300",
+              isOpen
+                ? "bg-brand text-white rotate-45"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200",
+            )}
+            aria-hidden="true"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 14 14"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7 1v12M1 7h12"
+              />
+            </svg>
+          </span>
+        </button>
+      </h3>
 
       <div
         id={`faq-answer-${index}`}
@@ -82,7 +84,7 @@ export default function FAQ({ block }) {
     <section className="section-y" aria-labelledby="faq-heading">
       <div className="container-site">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
-          {/* Left — heading */}
+          {/* Left - heading */}
           <ScrollReveal className="lg:col-span-2 lg:sticky lg:top-28 lg:self-start">
             {/* <span className="eyebrow mb-5">Česta pitanja</span> */}
             <h2
@@ -116,7 +118,7 @@ export default function FAQ({ block }) {
             </a>
           </ScrollReveal>
 
-          {/* Right — FAQ items */}
+          {/* Right - FAQ items */}
           <div className="lg:col-span-3">
             <ScrollReveal>
               <div role="list" aria-label="Česta pitanja">
