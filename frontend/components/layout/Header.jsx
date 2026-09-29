@@ -17,7 +17,7 @@ const SearchIcon = ({ className }) => (
   </svg>
 )
 
-// Mobilna „box" ikonica — zaobljeni kvadrat sa brand borderom (hamburger / X).
+// Mobilna „box" ikonica - zaobljeni kvadrat sa brand borderom (hamburger / X).
 const MenuBoxIcon = () => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
     <rect x="1" y="1" width="26" height="26" rx="7" stroke="#8FC640" strokeWidth="2" />
@@ -43,7 +43,7 @@ const SearchBoxIcon = () => (
 
 // ─── Category grouping (top categories + their children) ───────────────────────
 
-const PARENT_ORDER = ['kapije', 'ograde', 'automatizacija-kapija', 'kontrola-pristupa', 'oprema-i-dodaci', 'visoka-sigurnost']
+const PARENT_ORDER = ['kapije', 'ograde', 'motori-za-kapije', 'kontrola-pristupa', 'oprema-i-dodaci', 'visoka-sigurnost']
 const parentIdOf = (c) => (typeof c?.parent === 'object' ? c.parent?.id : c?.parent)
 
 function groupCategories(categories) {
@@ -90,7 +90,7 @@ function Logo({ data }) {
   const name    = data?.siteName || SITE_NAME
 
   return (
-    <Link href="/" className="flex-shrink-0 flex items-center gap-2.5" aria-label={`${name} — Naslovna`}>
+    <Link href="/" className="flex-shrink-0 flex items-center gap-2.5" aria-label={`${name} - Naslovna`}>
       {logoUrl ? (
         <Image
           src={logoUrl}
@@ -371,7 +371,7 @@ function MobileDrawer({ isOpen, onClose, data, ctaLink, categories }) {
 
         {/* Nav items */}
         <nav className="flex-1 overflow-y-auto py-3 px-2.5" aria-label="Mobilna navigacija">
-          {/* Categories — always shown as top-level items (independent of nav config) */}
+          {/* Categories - always shown as top-level items (independent of nav config) */}
           {groups.length > 0 && (
             <>
               <p className="px-4 pt-1 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
@@ -814,7 +814,7 @@ export default function Header({ data, categories }) {
         </div>
       </div>
 
-      {/* Category bar — all top categories, always visible (desktop) */}
+      {/* Category bar - all top categories, always visible (desktop) */}
       <CategoryBar categories={categories} />
 
       <MobileDrawer isOpen={mobileOpen} onClose={() => setMobileOpen(false)} data={data} ctaLink={ctaLink} categories={categories} />

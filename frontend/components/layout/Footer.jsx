@@ -11,7 +11,7 @@ import { CATEGORY_BASE } from '@/lib/routes';
 const PARENT_ORDER = [
   'kapije',
   'ograde',
-  'automatizacija-kapija',
+  'motori-za-kapije',
   'kontrola-pristupa',
   'oprema-i-dodaci',
   'visoka-sigurnost',

@@ -7,10 +7,10 @@ import { CATEGORY_BASE } from '@/lib/routes'
 /**
  * Kategorijska navigacija za katalog + kategorijske stranice.
  *
- *  Desktop (lg+) — dvoredne pilule: Red 1 = glavne kategorije, Red 2 = podkategorije aktivne grane.
- *  Mobile (<lg)  — „drill-down" birač: dugme sa trenutnom kategorijom → panel sa granama →
+ *  Desktop (lg+) - dvoredne pilule: Red 1 = glavne kategorije, Red 2 = podkategorije aktivne grane.
+ *  Mobile (<lg)  - „drill-down" birač: dugme sa trenutnom kategorijom → panel sa granama →
  *                  tap na granu uđe u njene podkategorije (sa „nazad"). User-friendly, krupni tapovi.
- *  SEO           — uz vidljivi UI uvek se renderuje i kompletno stablo SVIH kategorija
+ *  SEO           - uz vidljivi UI uvek se renderuje i kompletno stablo SVIH kategorija
  *                  (`sr-only <nav>`), tako da su svi linkovi uvek u DOM-u i krauleru dostupni.
  */
 
@@ -19,7 +19,7 @@ function parentIdOf(category) {
 }
 
 function orderParents(parents) {
-  const preferred = ['kapije', 'ograde', 'automatizacija-kapija', 'kontrola-pristupa', 'visoka-sigurnost', 'oprema-i-dodaci']
+  const preferred = ['kapije', 'ograde', 'motori-za-kapije', 'kontrola-pristupa', 'visoka-sigurnost', 'oprema-i-dodaci']
   return [...parents].sort((a, b) => {
     const ai = preferred.indexOf(a.slug)
     const bi = preferred.indexOf(b.slug)

@@ -15,7 +15,7 @@ const I = (d) => (
 const ICONS = {
   kapije: I(<><path d="M3 21V9l9-5 9 5v12" /><path d="M2 21h20" /><path d="M7 21V11M12 21V10M17 21V11" /></>),
   ograde: I(<><path d="M5 21V8l2-2 2 2v13M15 21V8l2-2 2 2v13" /><path d="M3 12h18M3 16h18" /></>),
-  'automatizacija-kapija': I(<><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" /></>),
+  'motori-za-kapije': I(<><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" /></>),
   'kontrola-pristupa': I(<><circle cx="8" cy="9" r="4" /><path d="M11 11l9 9M16 16l2-2M19 19l2-2" /></>),
   'visoka-sigurnost': I(<><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" /><path d="M9 12l2 2 4-4" /></>),
   'oprema-i-dodaci': I(<><path d="M15 6.5a4 4 0 00-5.3 5.3L4 17.5V20h2.5l5.7-5.7A4 4 0 0017.5 9l-2.4 2.4-2-2L15.5 7z" /></>),
@@ -23,7 +23,7 @@ const ICONS = {
 const DEFAULT_ICON = I(<><path d="M3 3h7l11 11-7 7L3 10V3z" /><circle cx="7.5" cy="7.5" r="1.3" /></>)
 
 const ORDER = {
-  kapije: 1, ograde: 2, 'automatizacija-kapija': 3,
+  kapije: 1, ograde: 2, 'motori-za-kapije': 3,
   'kontrola-pristupa': 4, 'visoka-sigurnost': 5, 'oprema-i-dodaci': 6,
 }
 
@@ -169,7 +169,7 @@ function SubImageCard({ sub }) {
   )
 }
 
-// Grupa podkategorija po roditelju — naslov + foto kartice.
+// Grupa podkategorija po roditelju - naslov + foto kartice.
 function SubGroup({ group }) {
   const icon = ICONS[group.slug] || DEFAULT_ICON
   if (!group.children?.length) return null
@@ -235,14 +235,14 @@ export default function Services({ block, categories }) {
           </Link>
         </ScrollReveal>
 
-        {/* Deo 1 — glavnih 6 (top-level) kategorija u asimetričnom bento rasporedu */}
+        {/* Deo 1 - glavnih 6 (top-level) kategorija u asimetričnom bento rasporedu */}
         <div className="grid grid-cols-1 gap-5 sm:auto-rows-[220px] sm:grid-cols-2 lg:auto-rows-[250px] lg:grid-cols-4 lg:gap-6">
           {groups.map((group) => (
             <TopCard key={group.slug} group={group} span={BENTO_SPAN[group.slug] || ''} />
           ))}
         </div>
 
-        {/* Deo 2 — podkategorije, grupisane po roditelju (da ima smisla) */}
+        {/* Deo 2 - podkategorije, grupisane po roditelju (da ima smisla) */}
         {withSubs.length > 0 && (
           <div className="mt-14 border-t border-gray-200/70 pt-12 md:mt-16">
             <div className="mb-8 flex items-center gap-3">
