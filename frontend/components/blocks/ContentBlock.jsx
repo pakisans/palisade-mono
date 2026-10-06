@@ -31,7 +31,7 @@ export default function ContentBlock({ block }) {
                   '[&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-extrabold [&_h2]:text-gray-950 [&_h2]:tracking-tight [&_h2]:mb-4',
                   '[&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-950 [&_h3]:mb-3',
                   '[&_p]:text-gray-600 [&_p]:leading-relaxed [&_p]:mb-3 [&_p]:text-base',
-                  '[&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-2.5 [&_li]:text-gray-600',
+                  '[&_ul]:space-y-2 [&_ol]:space-y-2 [&_li]:text-gray-600',
                   '[&_strong]:font-semibold [&_strong]:text-gray-950',
                   '[&_a]:text-brand [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-2 [&_a]:hover:text-brand-700',
                 ].join(' ')}

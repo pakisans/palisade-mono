@@ -1087,9 +1087,85 @@ export interface ProjectsPreviewBlock {
   intro?: string | null;
   ctaLabel?: string | null;
   limit?: number | null;
+  /**
+   * Izaberite projekte i poređajte ih prevlačenjem. Ako ostane prazno, prikazuju se najnoviji projekti (do broja u polju Limit).
+   */
+  projects?: (number | Post)[] | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'projectsPreview';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  publishedOn?: string | null;
+  excerpt?: string | null;
+  featuredImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  layout?:
+    | (
+        | AboutMissionBlock
+        | AmbassadorBlock
+        | BrandStoryBlock
+        | BannerBlock
+        | CallToActionBlock
+        | ContentBlock
+        | MissionBlock
+        | WhyUsBlock
+        | ServicesBlock
+        | ProjectsPreviewBlock
+        | TestimonialsBlock
+        | ClientLogosBlock
+        | MediaBlock
+        | CarouselBlock
+        | ThreeItemGridBlock
+        | ArchiveBlock
+        | CodeBlock
+        | ContactInfoBlock
+        | FormBlock
+        | QuoteBlock
+        | FAQBlock
+        | StatsBlock
+        | VideoBlock
+        | SpacerBlock
+      )[]
+    | null;
+  categories: (number | PostCategory)[];
+  relatedPosts?: (number | Post)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1537,78 +1613,6 @@ export interface SpacerBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'spacer';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  publishedOn?: string | null;
-  excerpt?: string | null;
-  featuredImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  layout?:
-    | (
-        | AboutMissionBlock
-        | AmbassadorBlock
-        | BrandStoryBlock
-        | BannerBlock
-        | CallToActionBlock
-        | ContentBlock
-        | MissionBlock
-        | WhyUsBlock
-        | ServicesBlock
-        | ProjectsPreviewBlock
-        | TestimonialsBlock
-        | ClientLogosBlock
-        | MediaBlock
-        | CarouselBlock
-        | ThreeItemGridBlock
-        | ArchiveBlock
-        | CodeBlock
-        | ContactInfoBlock
-        | FormBlock
-        | QuoteBlock
-        | FAQBlock
-        | StatsBlock
-        | VideoBlock
-        | SpacerBlock
-      )[]
-    | null;
-  categories: (number | PostCategory)[];
-  relatedPosts?: (number | Post)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2362,6 +2366,7 @@ export interface ProjectsPreviewBlockSelect<T extends boolean = true> {
   intro?: T;
   ctaLabel?: T;
   limit?: T;
+  projects?: T;
   id?: T;
   blockName?: T;
 }

@@ -17,18 +17,21 @@ export default function WhyUs({ block }) {
   const items = block?.items ?? []
   if (!items.length) return null
   const cols = items.length === 4 ? 'lg:grid-cols-4' : 'md:grid-cols-3'
+  const hasHeader = Boolean(block?.eyebrow || block?.heading)
 
   return (
-    <section className="section-y bg-white" aria-labelledby="whyus-heading">
+    <section className="section-y bg-white" aria-labelledby={block?.heading ? 'whyus-heading' : undefined}>
       <div className="container-site">
-        <ScrollReveal className="mx-auto mb-14 max-w-xl text-center">
-          {block?.eyebrow && <span className="eyebrow justify-center mb-4">{block.eyebrow}</span>}
-          {block?.heading && (
-            <h2 id="whyus-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-gray-950 md:text-4xl">
-              {block.heading}
-            </h2>
-          )}
-        </ScrollReveal>
+        {hasHeader && (
+          <ScrollReveal className="mx-auto mb-14 max-w-xl text-center">
+            {block?.eyebrow && <span className="eyebrow justify-center mb-4">{block.eyebrow}</span>}
+            {block?.heading && (
+              <h2 id="whyus-heading" className={`${block?.eyebrow ? 'mt-4 ' : ''}text-3xl font-extrabold tracking-tight text-gray-950 md:text-4xl`}>
+                {block.heading}
+              </h2>
+            )}
+          </ScrollReveal>
+        )}
 
         <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${cols}`}>
           {items.map((item, i) => (

@@ -1,15 +1,20 @@
 import Link from 'next/link'
 import ProjectCard from '@/components/projects/ProjectCard'
 import ScrollReveal from '@/components/ui/ScrollReveal'
+import { getProjects, getProjectsByIds } from '@/lib/payload'
 
-// Preview grid of latest completed projects — all copy comes from the CMS block.
-export default function ProjectsPreview({ block, projects }) {
+// Preview grid of latest completed projects, all copy comes from the CMS block.
+export default async function ProjectsPreview({ block, projects }) {
   const limit = block?.limit || 4
-  const items = (projects?.docs ?? projects ?? []).slice(0, limit)
+  // Ručno izabrani projekti imaju prednost; bez njih (ili ako nijedan nije objavljen) idu najnoviji.
+  const picked = block?.projects?.length ? await getProjectsByIds(block.projects) : []
+  // Početna prosleđuje `projects`; na ostalim stranicama (BlockRenderer) blok ih sam dovlači.
+  const latest = picked.length ? null : projects ?? (await getProjects({ limit }).catch(() => null))
+  const items = picked.length ? picked : (latest?.docs ?? latest ?? []).slice(0, limit)
   if (items.length === 0) return null
   const count = items.length
 
-  // Neravnomeran (bento) raspored — premium feeling, ne „4 u gridu".
+  // Neravnomeran (bento) raspored, premium feeling, ne „4 u gridu".
   let gridClass = 'sm:grid-cols-2 lg:grid-cols-4'
   let sizeAt = (i) => (i === 0 ? 'feature' : i === count - 1 ? 'wide' : 'default')
   if (count === 3) {

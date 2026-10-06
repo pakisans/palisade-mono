@@ -34,19 +34,35 @@ function serializeText(node, i) {
   return <span key={i}>{content}</span>;
 }
 
-function serialize(nodes) {
+const CELL_ALIGN = ["center", "right", "justify"];
+
+function serialize(nodes, inCell = false) {
   if (!Array.isArray(nodes)) return null;
   return nodes.map((node, i) => {
     if (!node) return null;
 
     if (node.type === "text") return serializeText(node, i);
 
-    const children = serialize(node.children);
+    const children = serialize(
+      node.children,
+      inCell || node.type === "tablecell",
+    );
 
     switch (node.type) {
       case "paragraph":
         if (!node.children?.some((c) => c.text)) return null;
-        return <p key={i}>{children}</p>;
+        return (
+          <p
+            key={i}
+            style={
+              inCell && CELL_ALIGN.includes(node.format)
+                ? { textAlign: node.format }
+                : undefined
+            }
+          >
+            {children}
+          </p>
+        );
       case "heading":
         return <node.tag key={i}>{children}</node.tag>;
       case "list":
@@ -74,6 +90,38 @@ function serialize(nodes) {
       }
       case "quote":
         return <blockquote key={i}>{children}</blockquote>;
+      case "table":
+        return (
+          <div key={i} className="my-6 overflow-x-auto">
+            <table className="my-0 w-full border-collapse text-sm">
+              <tbody>{children}</tbody>
+            </table>
+          </div>
+        );
+      case "tablerow":
+        return <tr key={i}>{children}</tr>;
+      case "tablecell": {
+        const isHeader = node.headerState > 0;
+        const Cell = isHeader ? "th" : "td";
+        return (
+          <Cell
+            key={i}
+            colSpan={node.colSpan > 1 ? node.colSpan : undefined}
+            rowSpan={node.rowSpan > 1 ? node.rowSpan : undefined}
+            style={
+              node.backgroundColor
+                ? { backgroundColor: node.backgroundColor }
+                : undefined
+            }
+            className={cn(
+              "border border-gray-200 px-3 py-2 text-left align-top [&_p]:!m-0 [&_p]:!text-sm",
+              isHeader && "bg-gray-50 font-semibold text-gray-950",
+            )}
+          >
+            {children}
+          </Cell>
+        );
+      }
       default:
         if (children) return <Fragment key={i}>{children}</Fragment>;
         return null;

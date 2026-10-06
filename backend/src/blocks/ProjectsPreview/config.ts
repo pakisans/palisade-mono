@@ -20,5 +20,20 @@ export const ProjectsPreview: Block = {
         { name: 'limit', type: 'number', defaultValue: 4, min: 2, max: 8, admin: { width: '40%' } },
       ],
     },
+    {
+      name: 'projects',
+      label: 'Izabrani projekti',
+      type: 'relationship',
+      relationTo: 'posts',
+      hasMany: true,
+      maxRows: 8,
+      maxDepth: 0,
+      filterOptions: { 'categories.slug': { equals: 'gotovi-projekti' } },
+      admin: {
+        isSortable: true,
+        description:
+          'Izaberite projekte i poređajte ih prevlačenjem. Ako ostane prazno, prikazuju se najnoviji projekti (do broja u polju Limit).',
+      },
+    },
   ],
 }

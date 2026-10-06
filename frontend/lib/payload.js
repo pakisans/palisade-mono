@@ -265,6 +265,29 @@ export async function getProjects({ page = 1, limit = 24, tip = null } = {}) {
   });
 }
 
+// Ručno izabrani projekti (blok "Pregled projekata"), u sačuvanom redosledu.
+// Ide kroz "posts" tag da izmena projekta osveži i početnu stranu.
+export async function getProjectsByIds(ids) {
+  const wanted = (ids ?? [])
+    .map((p) => (typeof p === "object" && p !== null ? p.id : p))
+    .filter((id) => id != null)
+    .map(String);
+  if (!wanted.length) return [];
+
+  const params = new URLSearchParams({
+    pagination: "false",
+    depth: "2",
+    "where[_status][equals]": "published",
+    "where[id][in]": wanted.join(","),
+  });
+  const res = await fetchAPI(`posts?${params}`, {
+    revalidate: 3600,
+    tags: ["posts", "projects"],
+  });
+  const byId = new Map((res?.docs ?? []).map((d) => [String(d.id), d]));
+  return wanted.map((id) => byId.get(id)).filter(Boolean);
+}
+
 export async function getProject(slug) {
   const data = await fetchAPI(
     `posts?where[slug][equals]=${encodeURIComponent(slug)}&where[_status][equals]=published&depth=3&limit=1`,

@@ -23,6 +23,7 @@ import BrandStory from '@/components/sections/BrandStory'
 import ClientLogos from '@/components/sections/ClientLogos'
 import Testimonials from '@/components/sections/Testimonials'
 import WhyUs from '@/components/sections/WhyUs'
+import ProjectsPreview from '@/components/sections/ProjectsPreview'
 
 // Map blockType (= Payload block slug) → component
 const registry = {
@@ -42,6 +43,7 @@ const registry = {
   clientLogos: ClientLogos,
   testimonials: Testimonials,
   whyUs:      WhyUs,
+  projectsPreview: ProjectsPreview,
 }
 
 export default function BlockRenderer({ blocks }) {
