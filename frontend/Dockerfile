@@ -26,7 +26,7 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 ENV REVALIDATE_SECRET=$REVALIDATE_SECRET
 ENV NEXT_PUBLIC_PAYLOAD_URL=$NEXT_PUBLIC_PAYLOAD_URL
 ENV PAYLOAD_HOST=$PAYLOAD_HOST
-# Odlučuje X-Robots-Tag u next.config headers() — peče se u build
+# Odlučuje X-Robots-Tag u next.config headers() - peče se u build
 ENV NEXT_PUBLIC_ALLOW_INDEXING=$NEXT_PUBLIC_ALLOW_INDEXING
 
 RUN pnpm build
@@ -39,9 +39,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json /app/next.config.js /app/jsconfig.json ./
-# next.config.js radi require('./lib/redirects') na runtime-u (next start),
-# pa taj fajl mora postojati u runner image-u — inače crash u restart petlji.
-COPY --from=builder /app/lib/redirects.js ./lib/redirects.js
 
 EXPOSE 3000
 ENV PORT=3000
