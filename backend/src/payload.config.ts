@@ -23,6 +23,7 @@ import { Coupons } from '@/collections/Coupons'
 import { Markets } from '@/collections/Markets'
 import { Media } from '@/collections/Media'
 import { Pages } from '@/collections/Pages'
+import { Redirects } from '@/collections/Redirects'
 import { Tags } from '@/collections/Tags'
 import { Users } from '@/collections/Users'
 import { Clients } from '@/globals/Clients'
@@ -38,7 +39,7 @@ const dirname = path.dirname(filename)
  * SMTP lozinka.
  *
  * U produkciji stiže kao `SMTP_PASS_B64` (base64), zato što se `backend/.env`
- * učitava preko docker compose `env_file` — specijalni znaci ($, #, ", `) u
+ * učitava preko docker compose `env_file` - specijalni znaci ($, #, ", `) u
  * plain vrednosti umeju da budu interpolirani ili odsečeni, pa se lozinka
  * tiho pokvari i autentikacija pada bez ikakve poruke. Base64 nema nijedan
  * takav znak. `SMTP_PASS` ostaje podržan za lokalni razvoj.
@@ -49,7 +50,7 @@ const resolveSmtpPass = (): string | undefined => {
   return process.env.SMTP_PASS
 }
 
-/** Pun nodemailer kontekst greške — sam `message` je najčešće beskoristan. */
+/** Pun nodemailer kontekst greške - sam `message` je najčešće beskoristan. */
 const describeSmtpError = (err: any): string =>
   `code=${err?.code} responseCode=${err?.responseCode} command=${err?.command} response=${err?.response} message=${err?.message || err}`
 
@@ -83,6 +84,7 @@ export default buildConfig({
     Coupons,
     Markets,
     Media,
+    Redirects,
   ],
   db: postgresAdapter({
     pool: {
@@ -124,9 +126,9 @@ export default buildConfig({
       ]
     },
   }),
-  // SMTP (Hostinger) — mailovi sa kontakt forme idu preko office@palisada.rs.
+  // SMTP (Hostinger) - mailovi sa kontakt forme idu preko office@palisada.rs.
   // Aktivira se samo ako je SMTP_HOST postavljen; inače fallback na konzolu.
-  // Slanje je FIRE-AND-FORGET (u pozadini) da submit forme ne čeka SMTP —
+  // Slanje je FIRE-AND-FORGET (u pozadini) da submit forme ne čeka SMTP -
   // form-builder šalje mail u afterChange hook-u koji Payload await-uje.
   email: process.env.SMTP_HOST
     ? (async () => {
@@ -135,7 +137,7 @@ export default buildConfig({
         const base = await nodemailerAdapter({
           defaultFromName: process.env.SMTP_FROM_NAME || 'Palisada',
           defaultFromAddress: process.env.SMTP_USER || 'office@palisada.rs',
-          // Proveri kredencijale pri startu — adapter samo loguje grešku
+          // Proveri kredencijale pri startu - adapter samo loguje grešku
           // (`Error verifying Nodemailer transport`) i NE puca, pa je bezbedno.
           // Bez ovoga pogrešna lozinka nema nikakav signal dok neko ne pošalje formu.
           skipVerify: false,
@@ -155,12 +157,12 @@ export default buildConfig({
           const log = deps?.payload?.logger
 
           log?.info?.(
-            `SMTP konfigurisan — ${process.env.SMTP_HOST}:${smtpPort} (secure=${smtpSecure}) kao ${process.env.SMTP_USER}, lozinka iz ${process.env.SMTP_PASS_B64 ? 'SMTP_PASS_B64' : 'SMTP_PASS'}`,
+            `SMTP konfigurisan - ${process.env.SMTP_HOST}:${smtpPort} (secure=${smtpSecure}) kao ${process.env.SMTP_USER}, lozinka iz ${process.env.SMTP_PASS_B64 ? 'SMTP_PASS_B64' : 'SMTP_PASS'}`,
           )
 
           return {
             ...adapter,
-            // Ne blokiraj HTTP odgovor — pošalji u pozadini, ishod loguj.
+            // Ne blokiraj HTTP odgovor - pošalji u pozadini, ishod loguj.
             sendEmail: (message: any) => {
               Promise.resolve()
                 .then(() => adapter.sendEmail(message))
@@ -170,7 +172,7 @@ export default buildConfig({
                   ),
                 )
                 .catch((err: any) =>
-                  log?.error?.(`SMTP slanje nije uspelo (to=${message?.to}) — ${describeSmtpError(err)}`),
+                  log?.error?.(`SMTP slanje nije uspelo (to=${message?.to}) - ${describeSmtpError(err)}`),
                 )
               return Promise.resolve({ messageId: 'queued', accepted: [], rejected: [] } as any)
             },

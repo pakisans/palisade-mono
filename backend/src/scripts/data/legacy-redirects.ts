@@ -1,8 +1,8 @@
 // AUTO-GENERISANO iz WordPress → Next redirekcija (SEO 301).
 // Izvor: 2 CSV-a (tagovi + saveti/projekti). 340 permanentnih redirekcija.
-// Ne editovati ručno red-po-red; regeneriše se iz CSV-a.
+// Jednokratni seed za kolekciju `redirects` (pnpm seed:redirects). Nove redirekcije dodaj u adminu.
 
-module.exports = [
+export const LEGACY_REDIRECTS: Array<{ source: string; destination: string }> = [
   {
     source: "/tag/oprema-za-kapiju",
     destination: "/kategorija/oprema-i-dodaci/",

@@ -1,18 +1,16 @@
 /** @type {import('next').NextConfig} */
-const redirectsData = require('./lib/redirects');
-
 const nextConfig = {
   trailingSlash: true,
   images: {
     remotePatterns: [
-      // Local dev — Payload backend on :3001
+      // Local dev - Payload backend on :3001
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '3001',
         pathname: '/**',
       },
-      // Tačan backend URL (host + port + protokol) izveden iz NEXT_PUBLIC_PAYLOAD_URL —
+      // Tačan backend URL (host + port + protokol) izveden iz NEXT_PUBLIC_PAYLOAD_URL -
       // pokriva i staging na :3001 i produkciju na https domenu, bez hardkodovanja.
       ...(() => {
         try {
@@ -29,13 +27,13 @@ const nextConfig = {
           return [];
         }
       })(),
-      // Production — same host, no port
+      // Production - same host, no port
       {
         protocol: 'https',
         hostname: process.env.PAYLOAD_HOST || 'palisada.rs',
         pathname: '/**',
       },
-      // Configured host (IP na staging-u ili domen) — dozvoli i http i https,
+      // Configured host (IP na staging-u ili domen) - dozvoli i http i https,
       // jer staging ide preko http://<IP>, a produkcija preko https://<domen>.
       ...(process.env.PAYLOAD_HOST && process.env.PAYLOAD_HOST !== 'localhost'
         ? [
@@ -59,17 +57,10 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['clsx', 'tailwind-merge'],
   },
-  // 301 (trajno) redirekcije: stari WordPress URL-ovi → novi Next URL-ovi.
-  // Radi SEO-a — prenosi ranking sa starih stranica. Lista u lib/redirects.js.
-  async redirects() {
-    return redirectsData.map(({ source, destination }) => ({
-      source,
-      destination,
-      statusCode: 301,
-    }));
-  },
+  // Redirekcije (stari URL-ovi) se uređuju u Payload adminu (kolekcija 'redirects')
+  // i primenjuju u runtime-u preko middleware.js, bez rebuild-a.
   async headers() {
-    // Dok nismo na pravom domenu — X-Robots-Tag noindex na SVE resurse
+    // Dok nismo na pravom domenu - X-Robots-Tag noindex na SVE resurse
     // (HTML, sitemap.xml, slike, JSON). Najjača brava protiv slučajnog indeksiranja.
     const indexable = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true';
     return [

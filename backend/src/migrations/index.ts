@@ -5,6 +5,7 @@ import * as migration_20260625_100230_about_mission_block from './20260625_10023
 import * as migration_20260625_101728_about_mission_video_cover from './20260625_101728_about_mission_video_cover';
 import * as migration_20260708_105507_product_docs from './20260708_105507_product_docs';
 import * as migration_20260709_122640_post_categories_parent from './20260709_122640_post_categories_parent';
+import * as migration_20261016_085300_redirects from './20261016_085300_redirects';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20260709_122640_post_categories_parent.up,
     down: migration_20260709_122640_post_categories_parent.down,
-    name: '20260709_122640_post_categories_parent'
+    name: '20260709_122640_post_categories_parent',
+  },
+  {
+    up: migration_20261016_085300_redirects.up,
+    down: migration_20261016_085300_redirects.down,
+    name: '20261016_085300_redirects'
   },
 ];

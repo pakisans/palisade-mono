@@ -82,6 +82,7 @@ export interface Config {
     coupons: Coupon;
     markets: Market;
     media: Media;
+    redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
     addresses: Address;
@@ -121,6 +122,7 @@ export interface Config {
     coupons: CouponsSelect<false> | CouponsSelect<true>;
     markets: MarketsSelect<false> | MarketsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     addresses: AddressesSelect<false> | AddressesSelect<true>;
@@ -1881,6 +1883,26 @@ export interface Market {
   createdAt: string;
 }
 /**
+ * Preusmeravanja starih URL-ova na nove. Izmene se primenjuju na sajtu u roku od oko minut.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  /**
+   * Npr. /tag/kapija. Domen i završni "/" se automatski skidaju.
+   */
+  from: string;
+  /**
+   * Npr. /kategorija/kapije/ ili pun URL (https://...).
+   */
+  to: string;
+  type: '301' | '302';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
@@ -1960,6 +1982,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
       } | null)
     | ({
         relationTo: 'forms';
@@ -2822,6 +2848,17 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  from?: T;
+  to?: T;
+  type?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,4 +1,4 @@
-# Palisade — Backend (Payload CMS)
+# Palisade - Backend (Payload CMS)
 
 Payload CMS 3.80.0 sa ecommerce pluginom. Služi kao CMS, API i admin panel.
 
@@ -43,11 +43,11 @@ STRIPE_WEBHOOKS_SIGNING_SECRET=whsec_...
 
 ## Arhitekturne odluke (ne mijenjaj bez razloga)
 
-1. **Lokalizacija** — `sr` default, `en` sekundarni. Tekstualna polja imaju `localized: true`. Cijene, slugovi, kuponi NISU lokalizovani.
-2. **Cijene** — integer RSD dinari. 1999 = 1.999 RSD. `priceInUSD` od ecommerce plugina ostaje netaknut (Stripe).
-3. **Flexible content** — `flexibleContent()` factory iz `src/fields/flexibleContent.ts`. Koristiti na svim kolekcijama.
-4. **Products** — `CollectionOverride` pattern via ecommerce plugin. Ne pretvarati u standalone kolekciju.
-5. **Admin jezik** — sve grupe i labele na srpskom.
+1. **Lokalizacija** - `sr` default, `en` sekundarni. Tekstualna polja imaju `localized: true`. Cijene, slugovi, kuponi NISU lokalizovani.
+2. **Cijene** - integer RSD dinari. 1999 = 1.999 RSD. `priceInUSD` od ecommerce plugina ostaje netaknut (Stripe).
+3. **Flexible content** - `flexibleContent()` factory iz `src/fields/flexibleContent.ts`. Koristiti na svim kolekcijama.
+4. **Products** - `CollectionOverride` pattern via ecommerce plugin. Ne pretvarati u standalone kolekciju.
+5. **Admin jezik** - sve grupe i labele na srpskom.
 
 ---
 
@@ -75,6 +75,7 @@ STRIPE_WEBHOOKS_SIGNING_SECRET=whsec_...
 | `post-categories` | `PostCategories.ts`             | Blog kategorije                      |
 | `pages`           | `Pages/index.ts`                | CMS stranice, drafts                 |
 | `markets`         | `Markets.ts`                    | Distributori / tržišta               |
+| `redirects`       | `Redirects.ts`                  | 301/302 redirekcije, frontend middleware |
 | `media`           | `Media.ts`                      |                                      |
 | `users`           | `Users/index.ts`                |                                      |
 
@@ -106,7 +107,7 @@ Registruju se u `src/fields/flexibleContent.ts`.
 
 | Fajl                                      | Svrha                                              |
 |-------------------------------------------|----------------------------------------------------|
-| `src/payload.config.ts`                   | Glavni config — kolekcije, globali, lokalizacija   |
+| `src/payload.config.ts`                   | Glavni config - kolekcije, globali, lokalizacija   |
 | `src/plugins/index.ts`                    | Ecommerce, SEO, form-builder + Orders override     |
 | `src/fields/flexibleContent.ts`           | Factory za content blokove                         |
 | `src/fields/price.ts`                     | Reusable RSD price polja                           |
@@ -118,14 +119,14 @@ Registruju se u `src/fields/flexibleContent.ts`.
 
 ## Česte greške
 
-**TypeScript na `CollectionOverride`** — import mora biti `from '@payloadcms/plugin-ecommerce/types'`, ne iz `payload`.
+**TypeScript na `CollectionOverride`** - import mora biti `from '@payloadcms/plugin-ecommerce/types'`, ne iz `payload`.
 
-**Slug se ne generiše** — `title` polje mora biti popunjeno.
+**Slug se ne generiše** - `title` polje mora biti popunjeno.
 
-**Lokalizovana polja prazna na `en`** — normalno uz `fallback: true`, vraća srpski.
+**Lokalizovana polja prazna na `en`** - normalno uz `fallback: true`, vraća srpski.
 
-**`defaultCollection.fields` undefined** — spread tek unutar tabova, ne na top levelu fields arraya.
+**`defaultCollection.fields` undefined** - spread tek unutar tabova, ne na top levelu fields arraya.
 
-**Blok se ne pojavljuje u CMS-u** — provjeri da je importovan u `flexibleContent.ts` i dodan u odgovarajući blok-set.
+**Blok se ne pojavljuje u CMS-u** - provjeri da je importovan u `flexibleContent.ts` i dodan u odgovarajući blok-set.
 
-**Migracije se ne primjenjuju** — `pnpm payload migrate:fresh` za čistu bazu u developmentu.
+**Migracije se ne primjenjuju** - `pnpm payload migrate:fresh` za čistu bazu u developmentu.
