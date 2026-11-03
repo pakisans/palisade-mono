@@ -123,7 +123,7 @@ export const contactFormData: () => RequiredDataFromCollectionSlug<'forms'> = ()
       blockName: 'email',
       blockType: 'email',
       label: 'Email adresa',
-      required: true,
+      required: false,
       width: 50,
     },
     {
@@ -131,7 +131,7 @@ export const contactFormData: () => RequiredDataFromCollectionSlug<'forms'> = ()
       blockName: 'telefon',
       blockType: 'text',
       label: 'Broj telefona',
-      required: false,
+      required: true,
       width: 50,
     },
     {

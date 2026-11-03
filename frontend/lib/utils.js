@@ -90,3 +90,23 @@ export function resolveHeroLink(linkItem) {
     appearance: linkItem.link.appearance ?? 'default',
   };
 }
+
+// '+38163389711' -> '+381 63 389 711' (vec formatiran ili nepoznat oblik ostaje isti).
+export function formatPhone(raw) {
+  const m = /^\+381(\d{2})(\d{3})(\d{3,4})$/.exec(raw.replace(/\s/g, ''));
+  return m ? `+381 ${m[1]} ${m[2]} ${m[3]}` : raw;
+}
+
+// Telefon za CTA: kontakt blok iz footera (isti broj kao u footeru), a ako ga
+// nema, prvi tel: link iz header topBar-a. Vraca { href, label } ili null.
+export function resolveContactPhone(header, footer) {
+  const footerPhone = (footer?.sections ?? []).find((s) => s?.phone)?.phone;
+  if (footerPhone) {
+    return { href: `tel:${footerPhone.replace(/\s/g, '')}`, label: formatPhone(footerPhone) };
+  }
+  return (
+    (header?.topBar ?? [])
+      .map((item) => resolveLink(item?.link))
+      .find((l) => l.href.startsWith('tel:') && l.label) ?? null
+  );
+}

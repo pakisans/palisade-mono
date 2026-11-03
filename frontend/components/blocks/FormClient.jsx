@@ -34,9 +34,10 @@ function FieldLabel({ field }) {
 const inputCls =
   'w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-950 placeholder:text-gray-400 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all'
 
-function Field({ field, value, onChange, error }) {
+function Field({ field, value, onChange, error, placeholder }) {
   const common = {
     id: field.name,
+    placeholder: field.blockType === 'select' || field.blockType === 'checkbox' ? undefined : placeholder,
     name: field.name,
     required: field.required,
     'aria-invalid': error ? 'true' : undefined,
@@ -198,7 +199,7 @@ function InstallationQuestion({ montaza, lokacija, errors, onMontaza, onLokacija
   )
 }
 
-function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp, meta, askInstallation = false }) {
+function FormInner({ formId, fields, submitLabel, confirmationType, confirmationMessage, prefill: prefillProp, meta, askInstallation = false, privacyNote, placeholders }) {
   const searchParams = useSearchParams()
   const prefill      = prefillProp || searchParams.get('proizvod') // pre-fill (prop or ?proizvod=)
 
@@ -348,6 +349,7 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
                 value={values[field.name]}
                 onChange={handleChange}
                 error={errors[field.name]}
+                placeholder={placeholders?.[field.name] ?? placeholders?.[field.blockType]}
               />
               {errors[field.name] && (
                 <p id={`${field.name}-error`} className="text-xs text-red-500 mt-1">{errors[field.name]}</p>
@@ -388,6 +390,15 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
           submitLabel
         )}
       </button>
+
+      {privacyNote && (
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-500 text-center">
+          <svg className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+          </svg>
+          {privacyNote}
+        </p>
+      )}
     </form>
   )
 }

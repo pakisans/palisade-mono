@@ -7,12 +7,14 @@ import {
   getProducts,
   getProductVariants,
   getInquiryForm,
+  getHeader,
+  getFooter,
   getMediaURL,
 } from '@/lib/payload';
 import ProductInquiry from '@/components/products/ProductInquiry';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
 import { metaTitle } from '@/lib/seo';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, resolveContactPhone } from '@/lib/utils';
 import { categoryPath } from '@/lib/routes';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import ProductGallery from '@/components/products/ProductGallery';
@@ -40,7 +42,7 @@ export async function generateMetadata({ params }) {
   const title = await metaTitle(product.meta?.title, product.title);
   const description =
     product.meta?.description ||
-    `${product.title} — pregledajte detalje, specifikacije i zatražite ponudu.`;
+    `${product.title} - pregledajte detalje, specifikacije i zatražite ponudu.`;
   const imgUrl =
     getMediaURL(product.meta?.image) ||
     getMediaURL(product.gallery?.[0]?.image);
@@ -87,7 +89,7 @@ function ProductSchema({ product }) {
             .join(' > '),
         }
       : {}),
-    // Only emit Offer when a real price exists — avoids contradictory price:"0" + InStock.
+    // Only emit Offer when a real price exists - avoids contradictory price:"0" + InStock.
     ...(hasPrice
       ? {
           offers: {
@@ -126,7 +128,7 @@ function PriceBlock({ price, salePrice }) {
       <div className="flex items-center gap-3 py-4 border-y border-gray-100">
         <span className="text-xl font-bold text-gray-400">Cena na upit</span>
         <span className="text-sm text-gray-400">
-          — kontaktirajte nas za ponudu
+          - kontaktirajte nas za ponudu
         </span>
       </div>
     );
@@ -385,12 +387,16 @@ export default async function ProductPage({ params }) {
   if (!product) notFound();
 
   // Variable products: load variants + the inquiry form (shown after selection).
-  const [variants, inquiryForm] = await Promise.all([
+  const [variants, inquiryForm, header, footer] = await Promise.all([
     product.enableVariants
       ? getProductVariants(product.id).catch(() => [])
       : Promise.resolve([]),
     getInquiryForm().catch(() => null),
+    getHeader().catch(() => null),
+    getFooter().catch(() => null),
   ]);
+
+  const phone = resolveContactPhone(header, footer);
 
   // Resolve categories for breadcrumbs
   const categories = (product.categories ?? [])
@@ -400,7 +406,7 @@ export default async function ProductPage({ params }) {
   const primaryCat = categories[0];
   const parentCat =
     typeof primaryCat?.parent === 'object' ? primaryCat.parent : null;
-  // Najspecifičnija (pod)kategorija — preferiramo onu koja ima parent (list/leaf).
+  // Najspecifičnija (pod)kategorija - preferiramo onu koja ima parent (list/leaf).
   const leafCat = categories.find((c) => c.parent) || primaryCat;
 
   const breadcrumbs = [
@@ -529,6 +535,7 @@ export default async function ProductPage({ params }) {
               product={product}
               variants={variants}
               form={inquiryForm}
+              phone={phone}
             />
 
             {/* Trust strip */}

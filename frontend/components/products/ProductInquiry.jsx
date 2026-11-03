@@ -23,7 +23,7 @@ function optionIdsOf(variant) {
   return (variant.options ?? []).map((o) => (typeof o === 'object' ? o.id : o))
 }
 
-export default function ProductInquiry({ product, variants = [], form }) {
+export default function ProductInquiry({ product, variants = [], form, phone }) {
   const types = useMemo(() => buildTypes(variants), [variants])
   const hasVariants = !!product?.enableVariants && variants.length > 0 && types.length > 0
 
@@ -117,6 +117,34 @@ export default function ProductInquiry({ product, variants = [], form }) {
       {/* Inquiry form - uvek vidljiva; varijanta je opciona i samo prefill-uje upit */}
       {form && (
         <div className="rounded-2xl border border-gray-100 bg-white shadow-card p-6 md:p-7">
+          {phone?.href && (
+            <a
+              href={phone.href}
+              className="group mb-6 flex items-center gap-4 rounded-xl bg-brand px-5 py-4 text-white shadow-brand-sm hover:bg-brand-600 transition-colors"
+            >
+              <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white/15">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[11px] font-bold uppercase tracking-wider opacity-90">
+                  Kliknite da biste pozvali
+                </span>
+                <span className="block text-xl md:text-2xl font-extrabold leading-tight">{phone.label}</span>
+              </span>
+              <svg
+                className="w-6 h-6 flex-shrink-0 transition-transform group-hover:translate-x-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </a>
+          )}
           <p className="text-lg font-extrabold text-gray-950 mb-1">Zatražite ponudu</p>
           <p className="text-sm text-gray-500 mb-5">
             {hasVariants && !allSelected
@@ -132,6 +160,7 @@ export default function ProductInquiry({ product, variants = [], form }) {
             prefill={prefill}
             meta={{ 'proizvod-url': productUrl }}
             askInstallation
+            privacyNote="Vaši podaci su sigurni i koriste se isključivo za pripremu ponude."
           />
         </div>
       )}

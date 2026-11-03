@@ -37,7 +37,7 @@ const registry = {
   contactInfo: ContactInfoBlock,
 }
 
-export default function HomeSections({ blocks = [], categories, projects }) {
+export default function HomeSections({ blocks = [], categories, projects, form, phone }) {
   if (!Array.isArray(blocks) || blocks.length === 0) return null
   return (
     <>
@@ -48,7 +48,13 @@ export default function HomeSections({ blocks = [], categories, projects }) {
           return null
         }
         const extra =
-          block.blockType === 'services' ? { categories } : block.blockType === 'projectsPreview' ? { projects } : {}
+          block.blockType === 'services'
+            ? { categories }
+            : block.blockType === 'projectsPreview'
+              ? { projects }
+              : block.blockType === 'cta'
+                ? { form, phone }
+                : {}
         return <Component key={block.id || i} block={block} {...extra} />
       })}
     </>

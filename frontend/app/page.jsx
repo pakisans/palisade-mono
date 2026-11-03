@@ -1,4 +1,5 @@
-import { getPage, getCategories, getProjects } from '@/lib/payload';
+import { getPage, getCategories, getProjects, getInquiryForm, getHeader, getFooter } from '@/lib/payload';
+import { resolveContactPhone } from '@/lib/utils';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
 import { extractText } from '@/components/ui/RichText';
 
@@ -19,7 +20,7 @@ export async function generateMetadata() {
   return {
     description:
       meta?.description ||
-      'Palisada d.o.o. — izrada i montaža kapija i ograda u Beogradu i celoj Srbiji.',
+      'Palisada d.o.o. - izrada i montaža kapija i ograda u Beogradu i celoj Srbiji.',
     alternates: { canonical: '/' },
     openGraph: {
       description: meta?.description || '',
@@ -82,14 +83,18 @@ function FAQSchema({ faqBlock }) {
   );
 }
 
-// ─── Page — Hero + CMS layout blocks rendered in order ──────────────────────────
+// ─── Page - Hero + CMS layout blocks rendered in order ──────────────────────────
 
 export default async function HomePage() {
-  const [page, categoriesData, projectsData] = await Promise.all([
+  const [page, categoriesData, projectsData, inquiryForm, header, footer] = await Promise.all([
     getPage('home').catch(() => null),
     getCategories().catch(() => null),
     getProjects({ limit: 8 }).catch(() => null),
+    getInquiryForm().catch(() => null),
+    getHeader().catch(() => null),
+    getFooter().catch(() => null),
   ]);
+  const phone = resolveContactPhone(header, footer);
 
   const layout = page?.layout ?? [];
   const faqBlock = layout.find((b) => b?.blockType === 'faq');
@@ -104,6 +109,8 @@ export default async function HomePage() {
         blocks={layout}
         categories={categoriesData}
         projects={projectsData}
+        form={inquiryForm}
+        phone={phone}
       />
     </>
   );
