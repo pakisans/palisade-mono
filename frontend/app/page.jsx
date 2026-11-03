@@ -5,6 +5,7 @@ import { extractText } from '@/components/ui/RichText';
 
 import Hero from '@/components/sections/Hero';
 import HomeSections from '@/components/sections/HomeSections';
+import MobileStickyCTA from '@/components/ui/MobileStickyCTA';
 
 export const revalidate = 3600;
 
@@ -104,13 +105,21 @@ export default async function HomePage() {
       <WebsiteSchema />
       <FAQSchema faqBlock={faqBlock} />
 
-      <Hero hero={page?.hero} />
+      <Hero hero={page?.hero} phone={phone} hasForm={!!inquiryForm?.id} />
       <HomeSections
         blocks={layout}
         categories={categoriesData}
         projects={projectsData}
         form={inquiryForm}
         phone={phone}
+      />
+
+      {/* Fiksna CTA traka na mobilnom (skriva se iznad hero-a, na formi i footeru) */}
+      <MobileStickyCTA
+        phone={phone}
+        afterId="hero"
+        hideWhenVisible={['#kontakt-forma', 'footer']}
+        quoteHref={inquiryForm?.id ? '#kontakt-forma' : '/kontakt'}
       />
     </>
   );

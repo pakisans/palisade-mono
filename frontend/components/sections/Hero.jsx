@@ -22,32 +22,50 @@ const Arrow = () => (
   </svg>
 );
 
-// CTA — primary (brand) or glass outline (for the dark hero).
-function HeroCTA({ link }) {
-  if (!link) return null;
-  const { href, label, appearance } = link;
-  if (appearance === 'outline') {
-    return (
-      <Link
-        href={href}
-        className="btn btn-lg border border-white/30 text-white backdrop-blur-sm transition-colors hover:border-white hover:bg-white hover:text-gray-950"
-      >
-        {label}
-        <Arrow />
-      </Link>
-    );
-  }
+const PhoneIcon = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+  </svg>
+);
+
+// Poziv - primarni CTA na pocetnoj (kad postoji telefon).
+export function PhoneCTA({ phone }) {
   return (
-    <Link href={href} className="btn btn-lg btn-primary">
-      {label}
-      <Arrow />
-    </Link>
+    <a href={phone.href} className="btn btn-lg btn-primary">
+      <PhoneIcon />
+      {phone.localLabel || phone.label}
+    </a>
   );
 }
 
-// ─── Hero — cinematic full-bleed (premium first impression) ─────────────────────
+const isContactHref = (href) => /^\/kontakt\/?$/.test(href || '');
 
-export default function Hero({ hero }) {
+// CTA - primary (brand), glass outline (dark hero) ili secondary (zeleni okvir,
+// kad je poziv primarni). Link ka /kontakt se na pocetnoj pretvara u skok na formu.
+function HeroCTA({ link, secondary, hasForm }) {
+  if (!link) return null;
+  const { label, appearance } = link;
+  const toForm = hasForm && isContactHref(link.href);
+  const href = toForm ? '#kontakt-forma' : link.href;
+  const LinkTag = toForm ? 'a' : Link;
+
+  const className = secondary
+    ? 'btn btn-lg border-2 border-brand text-white transition-colors hover:bg-brand'
+    : appearance === 'outline'
+      ? 'btn btn-lg border border-white/30 text-white backdrop-blur-sm transition-colors hover:border-white hover:bg-white hover:text-gray-950'
+      : 'btn btn-lg btn-primary';
+
+  return (
+    <LinkTag href={href} className={className}>
+      {label}
+      <Arrow />
+    </LinkTag>
+  );
+}
+
+// ─── Hero - cinematic full-bleed (premium first impression) ─────────────────────
+
+export default function Hero({ hero, phone, hasForm = false }) {
   if (!hero || hero.type === 'none') return null;
 
   const imgUrl = getMediaURL(hero?.media);
@@ -60,6 +78,7 @@ export default function Hero({ hero }) {
 
   return (
     <section
+      id="hero"
       className="relative isolate flex min-h-[480px] flex-col overflow-hidden bg-gray-950 lg:h-[calc(100svh-var(--header-height)-3rem)] lg:min-h-[560px]"
       aria-label="Uvod"
     >
@@ -68,7 +87,7 @@ export default function Hero({ hero }) {
         {imgUrl ? (
           <Image
             src={imgUrl}
-            alt="Palisada — kapije i ograde"
+            alt="Palisada - kapije i ograde"
             fill
             priority
             quality={90}
@@ -79,13 +98,13 @@ export default function Hero({ hero }) {
           <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
         )}
         {coverStyle ? (
-          // Full cover — slika dominira; samo blagi preliv s dna/levo radi čitljivosti teksta
+          // Full cover - slika dominira; samo blagi preliv s dna/levo radi čitljivosti teksta
           <>
             <div className="absolute inset-0 bg-gradient-to-t from-gray-950/85 via-gray-950/25 to-gray-950/35" />
             <div className="absolute inset-0 bg-gradient-to-r from-gray-950/55 via-transparent to-transparent" />
           </>
         ) : (
-          // Standardno — jak kinematski preliv (zatamni levo za tekst + dno za statistiku)
+          // Standardno - jak kinematski preliv (zatamni levo za tekst + dno za statistiku)
           <>
             <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/80 to-gray-950/25" />
             <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-gray-950/30" />
@@ -115,10 +134,11 @@ export default function Hero({ hero }) {
               </div>
             )}
 
-            {links.length > 0 && (
+            {(links.length > 0 || phone?.href) && (
               <div className="mt-6 flex flex-wrap items-center gap-3 animate-fade-up opacity-0 [animation-delay:250ms]">
+                {phone?.href && <PhoneCTA phone={phone} />}
                 {links.map((link, i) => (
-                  <HeroCTA key={i} link={link} />
+                  <HeroCTA key={i} link={link} secondary={!!phone?.href} hasForm={hasForm} />
                 ))}
               </div>
             )}
@@ -155,7 +175,7 @@ export default function Hero({ hero }) {
         </div>
       </div>
 
-      {/* Stats bar — glass strip at the bottom */}
+      {/* Stats bar - glass strip at the bottom */}
       {stats.length > 0 && (
         <div className="relative border-t border-white/10 bg-white/[0.04] backdrop-blur-md">
           <div className="container-site">

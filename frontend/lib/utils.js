@@ -97,16 +97,30 @@ export function formatPhone(raw) {
   return m ? `+381 ${m[1]} ${m[2]} ${m[3]}` : raw;
 }
 
+// '+38163389711' / '0038163389711' -> '063 389 711' (domaci oblik za prikaz).
+// Nepoznat oblik ostaje isti.
+export function formatPhoneLocal(raw) {
+  const digits = (raw || '').replace(/[^\d+]/g, '').replace(/^00/, '+');
+  const m = /^(?:\+381|0)(\d{2})(\d{3})(\d{3,4})$/.exec(digits);
+  return m ? `0${m[1]} ${m[2]} ${m[3]}` : raw;
+}
+
 // Telefon za CTA: kontakt blok iz footera (isti broj kao u footeru), a ako ga
-// nema, prvi tel: link iz header topBar-a. Vraca { href, label } ili null.
+// nema, prvi tel: link iz header topBar-a.
+// Vraca { href, label ('+381 63 ...'), localLabel ('063 ...') } ili null.
 export function resolveContactPhone(header, footer) {
   const footerPhone = (footer?.sections ?? []).find((s) => s?.phone)?.phone;
   if (footerPhone) {
-    return { href: `tel:${footerPhone.replace(/\s/g, '')}`, label: formatPhone(footerPhone) };
+    return {
+      href: `tel:${footerPhone.replace(/\s/g, '')}`,
+      label: formatPhone(footerPhone),
+      localLabel: formatPhoneLocal(footerPhone),
+    };
   }
-  return (
-    (header?.topBar ?? [])
-      .map((item) => resolveLink(item?.link))
-      .find((l) => l.href.startsWith('tel:') && l.label) ?? null
-  );
+  const link = (header?.topBar ?? [])
+    .map((item) => resolveLink(item?.link))
+    .find((l) => l.href.startsWith('tel:') && l.label);
+  if (!link) return null;
+  const local = formatPhoneLocal(link.href.replace(/^tel:/, ''));
+  return { ...link, localLabel: local.startsWith('0') ? local : link.label };
 }

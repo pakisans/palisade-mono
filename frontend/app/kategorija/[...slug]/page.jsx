@@ -6,7 +6,14 @@ import {
   getCategories,
   getCategoryProducts,
   getMediaURL,
+  getInquiryForm,
+  getHeader,
+  getFooter,
 } from '@/lib/payload';
+import { resolveContactPhone } from '@/lib/utils';
+import ContactCTA from '@/components/sections/ContactCTA';
+import MobileStickyCTA from '@/components/ui/MobileStickyCTA';
+import { PhoneCTA } from '@/components/sections/Hero';
 import { SITE_URL } from '@/lib/constants';
 import { CATEGORY_BASE, categoryPath } from '@/lib/routes';
 import { metaTitle } from '@/lib/seo';
@@ -123,9 +130,9 @@ function extractIntro(blocks) {
       .trim();
     if (!text) continue;
     if (n.type === 'heading' && !tagline) {
-      // "Naslov kategorije – vrednosna fraza" → uzmi frazu posle crtice
-      const parts = text.split(/\s[–—-]\s/);
-      const phrase = parts.length > 1 ? parts.slice(1).join(' – ') : text;
+      // "Naslov kategorije - vrednosna fraza" → uzmi frazu posle crtice
+      const parts = text.split(/\s[\u2013\u2014-]\s/);
+      const phrase = parts.length > 1 ? parts.slice(1).join(' - ') : text;
       tagline = phrase.charAt(0).toUpperCase() + phrase.slice(1);
     } else if (n.type === 'paragraph') {
       paragraphs.push(text);
@@ -134,11 +141,14 @@ function extractIntro(blocks) {
   return { tagline, paragraphs };
 }
 
-function CategoryHero({ category, breadcrumbs, parent }) {
+function CategoryHero({ category, breadcrumbs, parent, phone, hasForm }) {
   const imgUrl = getMediaURL(category.image);
 
   return (
-    <section className="relative bg-white overflow-hidden border-b border-gray-100">
+    <section
+      id="category-hero"
+      className="relative bg-white overflow-hidden border-b border-gray-100"
+    >
       {/* Soft brand wash + dot grid backdrop */}
       <div
         className="absolute inset-0 -z-10 bg-gradient-to-b from-brand/[0.04] to-white"
@@ -206,6 +216,22 @@ function CategoryHero({ category, breadcrumbs, parent }) {
                 </span>
               ))}
             </div>
+
+            {/* CTA: poziv primarni, ponuda sekundarna (skok na formu na dnu) */}
+            {phone?.href && (
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <PhoneCTA phone={phone} />
+                <a
+                  href={hasForm ? '#kontakt-forma' : '/kontakt'}
+                  className="btn btn-lg border-2 border-brand text-brand transition-colors hover:bg-brand hover:text-white"
+                >
+                  Zatražite ponudu
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                </a>
+              </div>
+            )}
           </div>
 
           {imgUrl && (
@@ -230,7 +256,7 @@ function CategoryHero({ category, breadcrumbs, parent }) {
   );
 }
 
-// ─── Uvod (palisada-intro) — editorijalna sekcija ISPOD proizvoda ───────────────
+// ─── Uvod (palisada-intro) - editorijalna sekcija ISPOD proizvoda ───────────────
 
 function CategoryIntro({ intro }) {
   if (!intro?.paragraphs?.length) return null;
@@ -432,7 +458,7 @@ function ProductsSection({ products, category, page, totalPages }) {
               Nema dostupnih proizvoda
             </h3>
             <p className="text-sm text-gray-500 mb-5">
-              Kontaktirajte nas — radimo po individualnoj narudžbini.
+              Kontaktirajte nas, radimo po individualnoj narudžbini.
             </p>
             <Link href="/kontakt" className="btn btn-primary">
               Zatražite ponudu
@@ -450,36 +476,6 @@ function ProductsSection({ products, category, page, totalPages }) {
         )}
       </div>
     </section>
-  );
-}
-
-// ─── CTA strip ────────────────────────────────────────────────────────────────
-
-function CategoryCTA({ categoryTitle }) {
-  return (
-    <div className="bg-gray-50 border-t border-gray-100">
-      <div className="container-site py-12">
-        <ScrollReveal className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <p className="font-extrabold text-xl text-gray-950">
-              Ne nalazite pravu opciju?
-            </p>
-            <p className="text-gray-500 text-sm mt-1">
-              Pravimo {categoryTitle.toLowerCase()} po vašim tačnim merama i
-              zahtevima.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Link href="/kontakt" className="btn btn-primary">
-              Zatražite ponudu
-            </Link>
-            <Link href="/proizvodi" className="btn btn-outline">
-              Svi proizvodi
-            </Link>
-          </div>
-        </ScrollReveal>
-      </div>
-    </div>
   );
 }
 
@@ -506,6 +502,13 @@ export default async function CategoryPage({ params }) {
   ]);
 
   if (!category) notFound();
+
+  const [inquiryForm, header, footer] = await Promise.all([
+    getInquiryForm().catch(() => null),
+    getHeader().catch(() => null),
+    getFooter().catch(() => null),
+  ]);
+  const phone = resolveContactPhone(header, footer);
 
   // Kanonska (ugnježdena, jednina) putanja + paginacija; redirect ako kategorijski deo
   // putanje nije kanonski (npr. flat child /kategorija/<child>), čuvajući stranu.
@@ -573,6 +576,8 @@ export default async function CategoryPage({ params }) {
         category={category}
         breadcrumbs={breadcrumbs}
         parent={parent}
+        phone={phone}
+        hasForm={!!inquiryForm?.id}
       />
 
       {/* PARENT: visual subcategory showcase + any products */}
@@ -609,13 +614,27 @@ export default async function CategoryPage({ params }) {
         />
       )}
 
-      {/* Uvod (palisada-intro) — ISPOD proizvoda */}
+      {/* Uvod (palisada-intro) - ISPOD proizvoda */}
       <CategoryIntro intro={intro} />
 
       {/* Ostali landing blokovi (prednosti / galerija / FAQ) */}
       {restBlocks.length > 0 && <BlockRenderer blocks={restBlocks} />}
 
-      <CategoryCTA categoryTitle={category.title} />
+      {/* Forma za ponudu (ista kao na pocetnoj) */}
+      <ContactCTA
+        form={inquiryForm}
+        phone={phone}
+        heading="Zatražite besplatnu ponudu"
+        text={`Javite se i saznajte cenu za ${category.title.toLowerCase()}. Pravimo po vašim tačnim merama, a naš tim vam brzo odgovara sa konkretnim rešenjem.`}
+      />
+
+      {/* Fiksna CTA traka na mobilnom */}
+      <MobileStickyCTA
+        phone={phone}
+        afterId="category-hero"
+        hideWhenVisible={['#kontakt-forma', 'footer']}
+        quoteHref={inquiryForm?.id ? '#kontakt-forma' : '/kontakt'}
+      />
     </>
   );
 }

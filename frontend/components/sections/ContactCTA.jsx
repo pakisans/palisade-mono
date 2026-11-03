@@ -89,8 +89,11 @@ function CtaLinks({ links, centered }) {
   );
 }
 
-export default function ContactCTA({ block, form, phone }) {
-  if (!block) return null;
+// Na pocetnoj tekst dolazi iz CMS bloka (block.richText); na drugim stranicama
+// (kategorije) bez bloka se prosledjuju `heading` i `text`.
+export default function ContactCTA({ block = null, form, phone, heading, text }) {
+  if (!block && !heading) return null;
+  block = block ?? {};
   const links = (block.links ?? []).map((item) => ({
     ...resolveLink(item?.link),
     appearance: item?.link?.appearance,
@@ -100,7 +103,7 @@ export default function ContactCTA({ block, form, phone }) {
   return (
     <section
       id="kontakt-forma"
-      className="section-y bg-brand overflow-hidden relative"
+      className="section-y bg-brand overflow-hidden relative scroll-mt-[calc(var(--header-height)+3rem)]"
       aria-labelledby="cta-heading"
     >
       {/* Dekorativni prstenovi */}
@@ -123,13 +126,29 @@ export default function ContactCTA({ block, form, phone }) {
         >
           {/* Leva kolona: tekst, telefon, trust signali */}
           <div>
-            {block.richText && (
+            {block.richText ? (
               <ScrollReveal delay={80}>
                 <RichText
                   content={block.richText}
                   className="[&_h2]:text-4xl [&_h2]:md:text-5xl [&_h2]:lg:text-6xl [&_h2]:font-extrabold [&_h2]:text-white [&_h2]:tracking-tight [&_h2]:leading-[1.05] [&_p]:text-white/90 [&_p]:text-base [&_p]:md:text-lg [&_p]:leading-relaxed [&_p]:mt-5 [&_p]:max-w-xl"
                 />
               </ScrollReveal>
+            ) : (
+              heading && (
+                <ScrollReveal delay={80}>
+                  <h2
+                    id="cta-heading"
+                    className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.05]"
+                  >
+                    {heading}
+                  </h2>
+                  {text && (
+                    <p className="text-white/90 text-base md:text-lg leading-relaxed mt-5 max-w-xl">
+                      {text}
+                    </p>
+                  )}
+                </ScrollReveal>
+              )
             )}
 
             {hasForm && phone?.href && (
