@@ -19,6 +19,7 @@ import { isDocumentOwner } from '@/access/isDocumentOwner'
 import { checkRole } from '@/access/utilities'
 import { getCollectionPath } from '@/utilities/getCollectionPath'
 import { renderFormEmail } from '@/utilities/formEmailTemplate'
+import { revalidateForms, revalidateFormsDelete } from '@/hooks/revalidateForms'
 
 const generateTitle: GenerateTitle<Product | Page | Post> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Palisade` : 'Palisade'
@@ -140,6 +141,10 @@ export const plugins: Plugin[] = [
       },
       admin: {
         group: 'Sadržaj',
+      },
+      hooks: {
+        afterChange: [revalidateForms],
+        afterDelete: [revalidateFormsDelete],
       },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
