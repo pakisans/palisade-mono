@@ -20,6 +20,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { ProductOrder as ProductOrder_72d84293d9f39744899f99fea0bcb057 } from '@/components/admin/ProductOrder'
 import { FlagPicker as FlagPicker_d1fd0d0d82a178d5d26f5be0318b8fda } from '@/components/admin/FlagPicker'
+import { TruncateCell as TruncateCell_0a09279b2b170a2c2df21300d397ebac } from '@/components/admin/TruncateCell'
 import { VariantOptionsSelector as VariantOptionsSelector_b91672ccd6e8b071c11142ab941fedfb } from '@payloadcms/plugin-ecommerce/rsc'
 import { PriceCell as PriceCell_e27bf7b8cc50640dcdd584767b8eac3c } from '@payloadcms/plugin-ecommerce/client'
 import { PriceInput as PriceInput_b91672ccd6e8b071c11142ab941fedfb } from '@payloadcms/plugin-ecommerce/rsc'
@@ -49,6 +50,7 @@ export const importMap = {
   "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
   "@/components/admin/ProductOrder#ProductOrder": ProductOrder_72d84293d9f39744899f99fea0bcb057,
   "@/components/admin/FlagPicker#FlagPicker": FlagPicker_d1fd0d0d82a178d5d26f5be0318b8fda,
+  "@/components/admin/TruncateCell#TruncateCell": TruncateCell_0a09279b2b170a2c2df21300d397ebac,
   "@payloadcms/plugin-ecommerce/rsc#VariantOptionsSelector": VariantOptionsSelector_b91672ccd6e8b071c11142ab941fedfb,
   "@payloadcms/plugin-ecommerce/client#PriceCell": PriceCell_e27bf7b8cc50640dcdd584767b8eac3c,
   "@payloadcms/plugin-ecommerce/rsc#PriceInput": PriceInput_b91672ccd6e8b071c11142ab941fedfb,

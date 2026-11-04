@@ -1916,6 +1916,12 @@ export interface FormSubmission {
         id?: string | null;
       }[]
     | null;
+  pregledIme?: string | null;
+  pregledTelefon?: string | null;
+  pregledEmail?: string | null;
+  pregledProizvod?: string | null;
+  pregledMontaza?: string | null;
+  pregledUpit?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3006,6 +3012,12 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  pregledIme?: T;
+  pregledTelefon?: T;
+  pregledEmail?: T;
+  pregledProizvod?: T;
+  pregledMontaza?: T;
+  pregledUpit?: T;
   updatedAt?: T;
   createdAt?: T;
 }

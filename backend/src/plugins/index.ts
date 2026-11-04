@@ -21,6 +21,7 @@ import { getCollectionPath } from '@/utilities/getCollectionPath'
 import { renderFormEmail } from '@/utilities/formEmailTemplate'
 import { revalidateForms, revalidateFormsDelete } from '@/hooks/revalidateForms'
 import { spamGuard } from '@/hooks/spamGuard'
+import { previewFields } from '@/collections/formSubmissionPreview'
 
 const generateTitle: GenerateTitle<Product | Page | Post> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Palisade` : 'Palisade'
@@ -129,7 +130,11 @@ export const plugins: Plugin[] = [
       },
       admin: {
         group: 'Sadržaj',
+        // Upit se vidi direktno u listi (virtuelne kolone iz submissionData).
+        defaultColumns: ['pregledIme', 'pregledTelefon', 'pregledProizvod', 'pregledMontaza', 'pregledUpit', 'createdAt'],
+        listSearchableFields: ['submissionData.value'],
       },
+      fields: ({ defaultFields }) => [...defaultFields, ...previewFields],
       hooks: {
         // Honeypot, minimalno vreme popunjavanja, obavezna polja i bot heuristike.
         beforeValidate: [spamGuard],
