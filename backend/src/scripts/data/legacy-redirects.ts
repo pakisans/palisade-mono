@@ -1394,4 +1394,361 @@ export const LEGACY_REDIRECTS: Array<{ source: string; destination: string }> = 
       "/saveti/toplocinkovane-kapije-vrhunska-kvaliteta-za-sigurnost-i-trajnost-vaseg-doma",
     destination: "/saveti/zasto-se-kapije-toplo-cinkuju/",
   },
+  // GSC 404 izveštaj 2026-11-04 (89 redirekcija, uneto i u produkciju preko admin API-ja).
+  {
+    source: "/$",
+    destination: "/",
+  },
+  {
+    source: "/&",
+    destination: "/",
+  },
+  {
+    source: "/4801304-128",
+    destination: "/",
+  },
+  {
+    source: "/a-video-blog-post",
+    destination: "/",
+  },
+  {
+    source: "/aluminijumska-alu-",
+    destination: "/kategorija/ograde/aluminijumske-ograde/",
+  },
+  {
+    source: "/aluminijumska-kapija-tivoli-2",
+    destination: "/kategorija/kapije/aluminijumske-kapije/",
+  },
+  {
+    source: "/aluminijumska-ograda-i-kapije-",
+    destination: "/kategorija/ograde/aluminijumske-ograde/",
+  },
+  {
+    source: "/aluminijumska-ograda-i-kapije-tivoli",
+    destination: "/proizvodi/aluminijumska-z-ograda/",
+  },
+  {
+    source: "/aluminijumska-ograda-tivoli-3",
+    destination: "/proizvodi/aluminijumska-z-ograda/",
+  },
+  {
+    source: "/aluminijumska-ograda-tivoli-4",
+    destination: "/proizvodi/aluminijumska-z-ograda/",
+  },
+  {
+    source: "/aluminijumska-ograda-tivoli-sa-kapijama",
+    destination: "/proizvodi/aluminijumska-z-ograda/",
+  },
+  {
+    source: "/aluminijumska-samonosiva-kapija",
+    destination: "/proizvodi/decor-5/",
+  },
+  {
+    source: "/aluminijumske-ograde",
+    destination: "/kategorija/ograde/aluminijumske-ograde/",
+  },
+  {
+    source: "/author/urednik",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/10",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/11",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/2",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/3",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/4",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/5",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/6",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/7",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/8",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/urednik/page/9",
+    destination: "/saveti/",
+  },
+  {
+    source: "/author/zjgvqqug9n",
+    destination: "/",
+  },
+  {
+    source: "/author/zjgvqqug9n/page/2",
+    destination: "/",
+  },
+  {
+    source: "/category/novosti",
+    destination: "/saveti/",
+  },
+  {
+    source: "/category/novosti/page/2",
+    destination: "/saveti/",
+  },
+  {
+    source: "/category/projekti",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/10",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/11",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/12",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/2",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/3",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/4",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/5",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/6",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/7",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/8",
+    destination: "/projekti/",
+  },
+  {
+    source: "/category/projekti/page/9",
+    destination: "/projekti/",
+  },
+  {
+    source: "/download",
+    destination: "/",
+  },
+  {
+    source: "/dvokrilna-kapija-standard",
+    destination: "/proizvodi/standard-2/",
+  },
+  {
+    source: "/eurofence-3d-",
+    destination: "/proizvodi/eurofance-3d/",
+  },
+  {
+    source: "/eurofence-3d-panelna-ograda-5",
+    destination: "/proizvodi/eurofance-3d/",
+  },
+  {
+    source: "/featured_item",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/another-print-package",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/awesome-pencil-poster",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/fl3-print-package",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/flat-t-shirt-company",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/flatsome-poster-print",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/lookbook-summer",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/magazine",
+    destination: "/",
+  },
+  {
+    source: "/featured_item/portfolio-typography",
+    destination: "/",
+  },
+  {
+    source: "/featured_item_category/design",
+    destination: "/",
+  },
+  {
+    source: "/featured_item_category/lookbook",
+    destination: "/",
+  },
+  {
+    source: "/hvala",
+    destination: "/",
+  },
+  {
+    source: "/kako-",
+    destination: "/saveti/",
+  },
+  {
+    source: "/kapije",
+    destination: "/kategorija/kapije/",
+  },
+  {
+    source: "/kategorija/oprema-i-dodaci/oprema-za-krilne-kapije/feed",
+    destination: "/kategorija/oprema-i-dodaci/oprema-za-krilne-kapije/",
+  },
+  {
+    source: "/king-gates-rampa-open-4000",
+    destination: "/proizvodi/automatska-putna-rampa-king-gates-open/",
+  },
+  {
+    source: "/prodajni-i-izlozbeni-salon-",
+    destination: "/projekti/izlozbeni-salon-ograda-i-kapija/",
+  },
+  {
+    source: "/product-category/kapije",
+    destination: "/kategorija/kapije/",
+  },
+  {
+    source: "/product-category/kapije/klizne-kapije",
+    destination: "/kategorija/kapije/klizne-kapije/",
+  },
+  {
+    source: "/product-category/ograde/dekorativne-ograde",
+    destination: "/kategorija/ograde/dekorativne-ograde/",
+  },
+  {
+    source: "/product-category/oprema-i-dodaci/locinox-dodaci",
+    destination: "/kategorija/oprema-i-dodaci/locinox-dodaci/",
+  },
+  {
+    source: "/product-tag/bastipli",
+    destination: "/proizvodi/bastipli/",
+  },
+  {
+    source: "/product-tag/inox",
+    destination: "/kategorija/oprema-i-dodaci/",
+  },
+  {
+    source: "/product-tag/sport",
+    destination: "/proizvodi/sport/",
+  },
+  {
+    source: "/proizvodi/eurofance-",
+    destination: "/proizvodi/eurofance-3d/",
+  },
+  {
+    source: "/samonosiva-kapija-standard-4",
+    destination: "/proizvodi/standard-4/",
+  },
+  {
+    source: "/search/page/19",
+    destination: "/pretraga/",
+  },
+  {
+    source: "/tag/locinox/feed",
+    destination: "/kategorija/oprema-i-dodaci/locinox-dodaci/",
+  },
+  {
+    source: "/tag/moderna-ograda/feed",
+    destination: "/kategorija/ograde/",
+  },
+  {
+    source: "/tag/nerdjajuci-celik/feed",
+    destination: "/",
+  },
+  {
+    source: "/tag/set-brava/feed",
+    destination: "/kategorija/oprema-i-dodaci/",
+  },
+  {
+    source: "/tag/sport/feed",
+    destination: "/",
+  },
+  {
+    source: "/tag/usadna-reza/feed",
+    destination: "/proizvodi/locinox-electradrop-usadna-reza/",
+  },
+  {
+    source: "/toplocinkovana-2d-panelna-ograda",
+    destination: "/proizvodi/doublefance-2d/",
+  },
+  {
+    source: "/wp-content/uploads/2023/04/Electradrop-OnePager-EN.pdf",
+    destination: "/proizvodi/locinox-electradrop-usadna-reza/",
+  },
+  {
+    source: "/wp-content/uploads/3D-PANELNA-OGRADA-6-1400x788.avif",
+    destination: "/proizvodi/eurofance-3d/",
+  },
+  {
+    source: "/wp-content/uploads/ELEKTRO-RAMPA-OPEN-6000-KING-GATES-1-1067x800.avif",
+    destination: "/proizvodi/automatska-putna-rampa-king-gates-open/",
+  },
+  {
+    source: "/wp-content/uploads/ELEKTRO-RAMPA-OPEN-6000-KING-GATES-6-1067x800.avif",
+    destination: "/proizvodi/automatska-putna-rampa-king-gates-open/",
+  },
+  {
+    source: "/wp-content/uploads/ELEKTRO-RAMPA-OPEN-6000-KING-GATES-7-1400x647.avif",
+    destination: "/proizvodi/automatska-putna-rampa-king-gates-open/",
+  },
+  {
+    source: "/wp-content/uploads/GRANICNI-PRELAZ-KOTROMAN-1-1400x662.avif",
+    destination: "/projekti/zastita-granicnog-prelaza/",
+  },
+  {
+    source: "/wp-content/uploads/MANU-000066-LDKZ-20230915-rev1-1.pdf",
+    destination: "/proizvodi/locinox-brava-za-kapiju-ldkz-d1/",
+  },
+  {
+    source: "/wp-content/uploads/MANU-000251-LION-20230721-rev1.pdf",
+    destination: "/proizvodi/locinox-lion-povratni-mehanizam-za-kapije/",
+  },
+  {
+    source: "/wp-content/uploads/REZIDENCIJA-DEDINJE-5-1067x800.avif",
+    destination: "/projekti/ogradjivanje-rezidencije/",
+  },
+  {
+    source: "/wp-content/uploads/bastipli.pdf",
+    destination: "/proizvodi/bastipli/",
+  },
+  {
+    source: "/wp-content/uploads/doublefence2d.pdf",
+    destination: "/proizvodi/doublefance-2d/",
+  },
 ];

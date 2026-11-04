@@ -70,6 +70,7 @@ export async function middleware(request) {
 }
 
 export const config = {
-  // Samo stranice: preskoči _next, api i fajlove sa ekstenzijom (slike, sitemap.xml...).
-  matcher: ["/((?!_next/|api/|.*\\.[^/]+$).*)"],
+  // Stranice: preskoči _next, api i fajlove sa ekstenzijom (slike, sitemap.xml...).
+  // Izuzetak: stari WordPress fajlovi (/wp-content/...) da bi PDF/slike mogli na 301.
+  matcher: ["/((?!_next/|api/|.*\\.[^/]+$).*)", "/wp-content/:path*"],
 };
