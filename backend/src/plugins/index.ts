@@ -20,6 +20,7 @@ import { checkRole } from '@/access/utilities'
 import { getCollectionPath } from '@/utilities/getCollectionPath'
 import { renderFormEmail } from '@/utilities/formEmailTemplate'
 import { revalidateForms, revalidateFormsDelete } from '@/hooks/revalidateForms'
+import { spamGuard } from '@/hooks/spamGuard'
 
 const generateTitle: GenerateTitle<Product | Page | Post> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Palisade` : 'Palisade'
@@ -128,6 +129,10 @@ export const plugins: Plugin[] = [
       },
       admin: {
         group: 'Sadržaj',
+      },
+      hooks: {
+        // Honeypot, minimalno vreme popunjavanja, obavezna polja i bot heuristike.
+        beforeValidate: [spamGuard],
       },
     },
     formOverrides: {

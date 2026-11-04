@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import RichText from '@/components/ui/RichText'
 import { cn } from '@/lib/utils'
@@ -209,6 +209,12 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
   const [serverError, setServerError] = useState('')
   const [montaza, setMontaza]   = useState('') // '' | 'da' | 'ne'
   const [lokacija, setLokacija] = useState('')
+  // Antispam: honeypot (čovek ga ne vidi) + vreme od prikaza forme. Backend (spamGuard) proverava oba.
+  const [honeypot, setHoneypot] = useState('')
+  const startedAt = useRef(0)
+  useEffect(() => {
+    startedAt.current = Date.now()
+  }, [])
 
   const handleMontaza = (val) => {
     setMontaza(val)
@@ -276,6 +282,10 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
       if (value == null || String(value).trim() === '') continue
       submissionData.push({ field, value: String(value) })
     }
+    submissionData.push(
+      { field: '_hp', value: honeypot },
+      { field: '_elapsed', value: String(Date.now() - startedAt.current) },
+    )
 
     try {
       const res = await fetch(`${PAYLOAD_URL}/api/form-submissions`, {
@@ -322,7 +332,20 @@ function FormInner({ formId, fields, submitLabel, confirmationType, confirmation
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} noValidate className="relative">
+      {/* Honeypot - sakriven od ljudi, botovi ga popune */}
+      <div aria-hidden="true" className="absolute -left-[9999px] top-0 w-px h-px overflow-hidden">
+        <label htmlFor="website">Website</label>
+        <input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+        />
+      </div>
       {/* Prefill notice */}
       {prefill && (
         <div className="mb-5 px-4 py-3 rounded-xl bg-brand/[0.06] border border-brand/15 text-sm text-gray-700">
